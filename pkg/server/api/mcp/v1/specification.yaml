@@ -1,0 +1,5109 @@
+info:
+  title: Probo MCP Server
+  version: 1.0.0
+  description: Probo MCP Server API
+
+components:
+  schemas:
+    EmailAddress:
+      type: string
+      format: string
+      go.probo.inc/mcpgen/type: go.probo.inc/probo/pkg/mail.Addr
+
+    Duration:
+      type: string
+      description: A duration
+      go.probo.inc/mcpgen/type: time.Duration
+
+    OrderDirection:
+      type: string
+      enum:
+        - ASC
+        - DESC
+      go.probo.inc/mcpgen/type: go.probo.inc/probo/pkg/page.OrderDirection
+
+    VendorOrderField:
+      type: string
+      enum:
+        - CREATED_AT
+        - UPDATED_AT
+        - NAME
+      go.probo.inc/mcpgen/type: go.probo.inc/probo/pkg/coredata.VendorOrderField
+
+    VendorOrderBy:
+      type: object
+      required:
+        - field
+        - direction
+      properties:
+        field:
+          $ref: "#/components/schemas/VendorOrderField"
+          description: Vendor order field
+        direction:
+          $ref: "#/components/schemas/OrderDirection"
+          description: Vendor order direction
+
+    ProfileOrderBy:
+      type: object
+      required:
+        - field
+        - direction
+      properties:
+        field:
+          $ref: "#/components/schemas/ProfileOrderField"
+          description: Profile order field
+        direction:
+          $ref: "#/components/schemas/OrderDirection"
+          description: Profile order direction
+
+    ProfileOrderField:
+      type: string
+      enum:
+        - CREATED_AT
+        - FULL_NAME
+        - KIND
+      go.probo.inc/mcpgen/type: go.probo.inc/probo/pkg/coredata.MembershipProfileOrderField
+
+    ProfileKind:
+      type: string
+      enum:
+        - EMPLOYEE
+        - CONTRACTOR
+        - SERVICE_ACCOUNT
+      go.probo.inc/mcpgen/type: go.probo.inc/probo/pkg/coredata.MembershipProfileKind
+
+    Profile:
+      type: object
+      required:
+        - id
+        - organization_id
+        - full_name
+        - email_address
+        - additional_email_addresses
+        - kind
+        - created_at
+        - updated_at
+      properties:
+        id:
+          $ref: "#/components/schemas/GID"
+          description: Profile ID
+        organization_id:
+          $ref: "#/components/schemas/GID"
+          description: Organization ID
+        full_name:
+          type: string
+          description: Full name
+        email_address:
+          $ref: "#/components/schemas/EmailAddress"
+          description: Primary email address
+        additional_email_addresses:
+          type: array
+          items:
+            $ref: "#/components/schemas/EmailAddress"
+          description: Additional email addresses
+        kind:
+          $ref: "#/components/schemas/ProfileKind"
+          description: Profile kind
+        position:
+          type:
+            - string
+            - "null"
+          description: Position
+        contract_start_date:
+          type:
+            - string
+            - "null"
+          format: date-time
+          description: Contract start date
+        contract_end_date:
+          type:
+            - string
+            - "null"
+          format: date-time
+          description: Contract end date
+        created_at:
+          type: string
+          format: date-time
+          description: Creation timestamp
+        updated_at:
+          type: string
+          format: date-time
+          description: Update timestamp
+
+    ListProfilesInput:
+      type: object
+      required:
+        - organization_id
+      properties:
+        organization_id:
+          $ref: "#/components/schemas/GID"
+          description: Organization ID
+        order_by:
+          $ref: "#/components/schemas/ProfileOrderBy"
+          description: Profile order by
+        size:
+          type: integer
+          description: Page size
+        cursor:
+          $ref: "#/components/schemas/CursorKey"
+          description: Page cursor
+        filter:
+          type: object
+          properties:
+            exclude_contract_ended:
+              type: boolean
+              description: Exclude profiles with ended contracts
+
+    ListProfilesOutput:
+      type: object
+      required:
+        - profiles
+      properties:
+        next_cursor:
+          $ref: "#/components/schemas/CursorKey"
+          description: Next cursor
+        profiles:
+          type: array
+          items:
+            $ref: "#/components/schemas/Profile"
+
+    GID:
+      type: string
+      format: string
+      go.probo.inc/mcpgen/type: go.probo.inc/probo/pkg/gid.GID
+
+    CursorKey:
+      type: string
+      format: string
+      go.probo.inc/mcpgen/type: go.probo.inc/probo/pkg/page.CursorKey
+
+    ListOrganizationsInput:
+      type: object
+      properties:
+        organization_id:
+          $ref: "#/components/schemas/GID"
+          description: Organization ID
+
+    ListOrganizationsOutput:
+      type: object
+      properties:
+        organizations:
+          type: array
+          items:
+            $ref: "#/components/schemas/Organization"
+
+    Organization:
+      type: object
+      required:
+        - id
+        - name
+        - description
+        - created_at
+        - updated_at
+      properties:
+        id:
+          $ref: "#/components/schemas/GID"
+          description: Organization ID
+        name:
+          type: string
+          description: Organization name
+        description:
+          type:
+            - string
+            - "null"
+          description: Organization description
+        created_at:
+          type: string
+          format: date-time
+          description: Creation timestamp
+        updated_at:
+          type: string
+          format: date-time
+          description: Update timestamp
+
+    ListVendorsInput:
+      type: object
+      required:
+        - organization_id
+      properties:
+        organization_id:
+          $ref: "#/components/schemas/GID"
+          description: Organization ID
+        order_by:
+          $ref: "#/components/schemas/VendorOrderBy"
+          description: Vendor order by
+        size:
+          type: integer
+          description: Page size
+        cursor:
+          $ref: "#/components/schemas/CursorKey"
+          description: Page cursor
+        filter:
+          type: object
+          properties:
+            snapshot_id:
+              $ref: "#/components/schemas/GID"
+              description: Snapshot ID
+
+    ListVendorsOutput:
+      type: object
+      required:
+        - vendors
+      properties:
+        next_cursor:
+          $ref: "#/components/schemas/CursorKey"
+          description: Next cursor
+        vendors:
+          type: array
+          items:
+            $ref: "#/components/schemas/Vendor"
+
+    Vendor:
+      type: object
+      required:
+        - id
+        - name
+        - organization_id
+        - category
+        - created_at
+        - updated_at
+      properties:
+        id:
+          $ref: "#/components/schemas/GID"
+          description: Vendor ID
+        organization_id:
+          $ref: "#/components/schemas/GID"
+          description: Organization ID
+        name:
+          type: string
+          description: Vendor name
+        description:
+          type:
+            - string
+            - "null"
+          description: Vendor description
+        category:
+          type: string
+          enum:
+            - ANALYTICS
+            - CLOUD_MONITORING
+            - CLOUD_PROVIDER
+            - COLLABORATION
+            - CUSTOMER_SUPPORT
+            - DATA_STORAGE_AND_PROCESSING
+            - DOCUMENT_MANAGEMENT
+            - EMPLOYEE_MANAGEMENT
+            - ENGINEERING
+            - FINANCE
+            - IDENTITY_PROVIDER
+            - IT
+            - MARKETING
+            - OFFICE_OPERATIONS
+            - OTHER
+            - PASSWORD_MANAGEMENT
+            - PRODUCT_AND_DESIGN
+            - PROFESSIONAL_SERVICES
+            - RECRUITING
+            - SALES
+            - SECURITY
+            - VERSION_CONTROL
+          description: Vendor category
+        headquarter_address:
+          type:
+            - string
+            - "null"
+          description: Headquarter address
+        legal_name:
+          type:
+            - string
+            - "null"
+          description: Legal name
+        website_url:
+          type:
+            - string
+            - "null"
+          description: Website URL
+        privacy_policy_url:
+          type:
+            - string
+            - "null"
+          description: Privacy policy URL
+        service_level_agreement_url:
+          type:
+            - string
+            - "null"
+          description: Service level agreement URL
+        data_processing_agreement_url:
+          type:
+            - string
+            - "null"
+          description: Data processing agreement URL
+        business_associate_agreement_url:
+          type:
+            - string
+            - "null"
+          description: Business associate agreement URL
+        subprocessors_list_url:
+          type:
+            - string
+            - "null"
+          description: Subprocessors list URL
+        certifications:
+          type: array
+          items:
+            type: string
+          description: Certifications
+        countries:
+          type: array
+          items:
+            type: string
+          description: Countries (ISO 3166-1 alpha-2 country codes)
+        business_owner_id:
+          anyOf:
+            - $ref: "#/components/schemas/GID"
+            - type: "null"
+          description: Business owner ID
+        security_owner_id:
+          anyOf:
+            - $ref: "#/components/schemas/GID"
+            - type: "null"
+          description: Security owner ID
+        status_page_url:
+          type:
+            - string
+            - "null"
+          description: Status page URL
+        terms_of_service_url:
+          type:
+            - string
+            - "null"
+          description: Terms of service URL
+        security_page_url:
+          type:
+            - string
+            - "null"
+          description: Security page URL
+        trust_page_url:
+          type:
+            - string
+            - "null"
+          description: Trust page URL
+        created_at:
+          type: string
+          format: date-time
+          description: Creation timestamp
+        updated_at:
+          type: string
+          format: date-time
+          description: Update timestamp
+
+    AddVendorInput:
+      type: object
+      required:
+        - organization_id
+        - name
+      properties:
+        organization_id:
+          $ref: "#/components/schemas/GID"
+          description: Organization ID
+        name:
+          type: string
+          description: Vendor name
+        description:
+          type: string
+          description: Vendor description
+        category:
+          type: string
+          enum:
+            - ANALYTICS
+            - CLOUD_MONITORING
+            - CLOUD_PROVIDER
+            - COLLABORATION
+            - CUSTOMER_SUPPORT
+            - DATA_STORAGE_AND_PROCESSING
+            - DOCUMENT_MANAGEMENT
+            - EMPLOYEE_MANAGEMENT
+            - ENGINEERING
+            - FINANCE
+            - IDENTITY_PROVIDER
+            - IT
+            - MARKETING
+            - OFFICE_OPERATIONS
+            - OTHER
+            - PASSWORD_MANAGEMENT
+            - PRODUCT_AND_DESIGN
+            - PROFESSIONAL_SERVICES
+            - RECRUITING
+            - SALES
+            - SECURITY
+            - VERSION_CONTROL
+          description: Vendor category
+        headquarter_address:
+          type: string
+          description: Headquarter address
+        legal_name:
+          type: string
+          description: Legal name
+        website_url:
+          type: string
+          description: Website URL
+        privacy_policy_url:
+          type: string
+          description: Privacy policy URL
+        service_level_agreement_url:
+          type: string
+          description: Service level agreement URL
+        data_processing_agreement_url:
+          type: string
+          description: Data processing agreement URL
+        business_associate_agreement_url:
+          type: string
+          description: Business associate agreement URL
+        subprocessors_list_url:
+          type: string
+          description: Subprocessors list URL
+        certifications:
+          type: array
+          items:
+            type: string
+          description: Certifications
+        countries:
+          type: array
+          items:
+            type: string
+          description: Countries (ISO 3166-1 alpha-2 country codes)
+        business_owner_id:
+          $ref: "#/components/schemas/GID"
+          description: Business owner ID
+        security_owner_id:
+          $ref: "#/components/schemas/GID"
+          description: Security owner ID
+        status_page_url:
+          type: string
+          description: Status page URL
+        terms_of_service_url:
+          type: string
+          description: Terms of service URL
+        security_page_url:
+          type: string
+          description: Security page URL
+        trust_page_url:
+          type: string
+          description: Trust page URL
+
+    AddVendorOutput:
+      type: object
+      required:
+        - vendor
+      properties:
+        vendor:
+          $ref: "#/components/schemas/Vendor"
+
+    UpdateVendorInput:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          $ref: "#/components/schemas/GID"
+          description: Vendor ID
+        name:
+          type: string
+          description: Vendor name
+        description:
+          type: string
+          description: Vendor description
+        category:
+          type: string
+          enum:
+            - ANALYTICS
+            - CLOUD_MONITORING
+            - CLOUD_PROVIDER
+            - COLLABORATION
+            - CUSTOMER_SUPPORT
+            - DATA_STORAGE_AND_PROCESSING
+            - DOCUMENT_MANAGEMENT
+            - EMPLOYEE_MANAGEMENT
+            - ENGINEERING
+            - FINANCE
+            - IDENTITY_PROVIDER
+            - IT
+            - MARKETING
+            - OFFICE_OPERATIONS
+            - OTHER
+            - PASSWORD_MANAGEMENT
+            - PRODUCT_AND_DESIGN
+            - PROFESSIONAL_SERVICES
+            - RECRUITING
+            - SALES
+            - SECURITY
+            - VERSION_CONTROL
+          description: Vendor category
+        headquarter_address:
+          type: string
+          description: Headquarter address
+        legal_name:
+          type: string
+          description: Legal name
+        website_url:
+          type: string
+          description: Website URL
+        privacy_policy_url:
+          type: string
+          description: Privacy policy URL
+        service_level_agreement_url:
+          type: string
+          description: Service level agreement URL
+        data_processing_agreement_url:
+          type: string
+          description: Data processing agreement URL
+        business_associate_agreement_url:
+          type: string
+          description: Business associate agreement URL
+        subprocessors_list_url:
+          type: string
+          description: Subprocessors list URL
+        certifications:
+          type: array
+          items:
+            type: string
+          description: Certifications
+        countries:
+          type: array
+          items:
+            type: string
+          description: Countries (ISO 3166-1 alpha-2 country codes)
+        business_owner_id:
+          $ref: "#/components/schemas/GID"
+          description: Business owner ID
+        security_owner_id:
+          $ref: "#/components/schemas/GID"
+          description: Security owner ID
+        status_page_url:
+          type: string
+          description: Status page URL
+        terms_of_service_url:
+          type: string
+          description: Terms of service URL
+        security_page_url:
+          type: string
+          description: Security page URL
+        trust_page_url:
+          type: string
+          description: Trust page URL
+
+    UpdateVendorOutput:
+      type: object
+      required:
+        - vendor
+      properties:
+        vendor:
+          $ref: "#/components/schemas/Vendor"
+
+    GetProfileInput:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          $ref: "#/components/schemas/GID"
+          description: Profile ID
+
+    GetProfileOutput:
+      type: object
+      required:
+        - profile
+      properties:
+        profile:
+          $ref: "#/components/schemas/Profile"
+
+    UpdateProfileInput:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          $ref: "#/components/schemas/GID"
+          description: Profile ID
+        full_name:
+          type: string
+          description: Full name
+        additional_email_addresses:
+          anyOf:
+            - type: array
+              items:
+                $ref: "#/components/schemas/EmailAddress"
+            - type: "null"
+              description: No additional email addresses
+          description: Additional email addresses
+        kind:
+          $ref: "#/components/schemas/ProfileKind"
+          description: Profile kind
+        position:
+          type: ["string", "null"]
+          description: Position
+          go.probo.inc/mcpgen/omittable: true
+        contract_start_date:
+          type: ["string", "null"]
+          format: date-time
+          description: Contract start date
+          go.probo.inc/mcpgen/omittable: true
+        contract_end_date:
+          type: ["string", "null"]
+          format: date-time
+          description: Contract end date
+          go.probo.inc/mcpgen/omittable: true
+
+    UpdateProfileOutput:
+      type: object
+      required:
+        - profile
+      properties:
+        profile:
+          $ref: "#/components/schemas/Profile"
+
+    RiskOrderField:
+      type: string
+      enum:
+        - CREATED_AT
+        - UPDATED_AT
+        - NAME
+        - CATEGORY
+        - TREATMENT
+        - INHERENT_RISK_SCORE
+        - RESIDUAL_RISK_SCORE
+        - OWNER_FULL_NAME
+      go.probo.inc/mcpgen/type: go.probo.inc/probo/pkg/coredata.RiskOrderField
+
+    RiskOrderBy:
+      type: object
+      required:
+        - field
+        - direction
+      properties:
+        field:
+          $ref: "#/components/schemas/RiskOrderField"
+          description: Risk order field
+        direction:
+          $ref: "#/components/schemas/OrderDirection"
+          description: Risk order direction
+
+    RiskTreatment:
+      type: string
+      enum:
+        - MITIGATED
+        - ACCEPTED
+        - AVOIDED
+        - TRANSFERRED
+      go.probo.inc/mcpgen/type: go.probo.inc/probo/pkg/coredata.RiskTreatment
+
+    Risk:
+      type: object
+      required:
+        - id
+        - organization_id
+        - name
+        - category
+        - treatment
+        - inherent_likelihood
+        - inherent_impact
+        - inherent_risk_score
+        - residual_likelihood
+        - residual_impact
+        - residual_risk_score
+        - note
+        - created_at
+        - updated_at
+      properties:
+        id:
+          $ref: "#/components/schemas/GID"
+          description: Risk ID
+        organization_id:
+          $ref: "#/components/schemas/GID"
+          description: Organization ID
+        snapshot_id:
+          anyOf:
+            - type: string
+              $ref: "#/components/schemas/GID"
+            - type: "null"
+              description: No snapshot
+          description: Snapshot ID
+        name:
+          type: string
+          description: Risk name
+        description:
+          type:
+            - string
+            - "null"
+          description: Risk description
+        category:
+          type: string
+          description: Risk category
+        treatment:
+          $ref: "#/components/schemas/RiskTreatment"
+          description: Risk treatment
+        inherent_likelihood:
+          type: integer
+          description: Inherent likelihood
+        inherent_impact:
+          type: integer
+          description: Inherent impact
+        inherent_risk_score:
+          type: integer
+          description: Inherent risk score
+        residual_likelihood:
+          type: integer
+          description: Residual likelihood
+        residual_impact:
+          type: integer
+          description: Residual impact
+        residual_risk_score:
+          type: integer
+          description: Residual risk score
+        note:
+          type: string
+          description: Risk note
+        owner_id:
+          anyOf:
+            - type: string
+              $ref: "#/components/schemas/GID"
+            - type: "null"
+              description: No owner
+        created_at:
+          type: string
+          format: date-time
+          description: Creation timestamp
+        updated_at:
+          type: string
+          format: date-time
+          description: Update timestamp
+
+    ListRisksInput:
+      type: object
+      required:
+        - organization_id
+      properties:
+        organization_id:
+          $ref: "#/components/schemas/GID"
+          description: Organization ID
+        order_by:
+          $ref: "#/components/schemas/RiskOrderBy"
+          description: Risk order by
+        size:
+          type: integer
+          description: Page size
+        cursor:
+          $ref: "#/components/schemas/CursorKey"
+          description: Page cursor
+        filter:
+          type: object
+          properties:
+            query:
+              type: string
+              description: Search query
+            snapshot_id:
+              $ref: "#/components/schemas/GID"
+              description: Snapshot ID
+
+    ListRisksOutput:
+      type: object
+      required:
+        - risks
+      properties:
+        next_cursor:
+          $ref: "#/components/schemas/CursorKey"
+          description: Next cursor
+        risks:
+          type: array
+          items:
+            $ref: "#/components/schemas/Risk"
+
+    GetRiskInput:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          $ref: "#/components/schemas/GID"
+          description: Risk ID
+
+    GetRiskOutput:
+      type: object
+      required:
+        - risk
+      properties:
+        risk:
+          $ref: "#/components/schemas/Risk"
+
+    AddRiskInput:
+      type: object
+      required:
+        - organization_id
+        - name
+        - category
+        - treatment
+        - inherent_likelihood
+        - inherent_impact
+      properties:
+        organization_id:
+          $ref: "#/components/schemas/GID"
+          description: Organization ID
+        name:
+          type: string
+          description: Risk name
+        description:
+          type: string
+          description: Risk description
+        category:
+          type: string
+          description: Risk category
+        owner_id:
+          $ref: "#/components/schemas/GID"
+          description: Owner ID
+        treatment:
+          $ref: "#/components/schemas/RiskTreatment"
+          description: Risk treatment
+        inherent_likelihood:
+          type: integer
+          description: Inherent likelihood
+        inherent_impact:
+          type: integer
+          description: Inherent impact
+        residual_likelihood:
+          type: integer
+          description: Residual likelihood
+        residual_impact:
+          type: integer
+          description: Residual impact
+        note:
+          type: string
+          description: Risk note
+
+    AddRiskOutput:
+      type: object
+      required:
+        - risk
+      properties:
+        risk:
+          $ref: "#/components/schemas/Risk"
+
+    UpdateRiskInput:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          $ref: "#/components/schemas/GID"
+          description: Risk ID
+        name:
+          type: string
+          description: Risk name
+        description:
+          type: ["string", "null"]
+          description: Risk description
+          go.probo.inc/mcpgen/omittable: true
+        category:
+          type: string
+          description: Risk category
+        owner_id:
+          anyOf:
+            - type: string
+              $ref: "#/components/schemas/GID"
+            - type: "null"
+          description: Owner ID
+          go.probo.inc/mcpgen/omittable: true
+        treatment:
+          $ref: "#/components/schemas/RiskTreatment"
+          description: Risk treatment
+        inherent_likelihood:
+          type: integer
+          description: Inherent likelihood
+        inherent_impact:
+          type: integer
+          description: Inherent impact
+        residual_likelihood:
+          type: integer
+          description: Residual likelihood
+        residual_impact:
+          type: integer
+          description: Residual impact
+        note:
+          type: string
+          description: Risk note
+
+    UpdateRiskOutput:
+      type: object
+      required:
+        - risk
+      properties:
+        risk:
+          $ref: "#/components/schemas/Risk"
+
+    DeleteRiskInput:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          $ref: "#/components/schemas/GID"
+          description: Risk ID
+
+    DeleteRiskOutput:
+      type: object
+      required:
+        - deleted_risk_id
+      properties:
+        deleted_risk_id:
+          $ref: "#/components/schemas/GID"
+          description: Deleted risk ID
+
+    MeasureState:
+      type: string
+      enum:
+        - NOT_STARTED
+        - IN_PROGRESS
+        - NOT_APPLICABLE
+        - IMPLEMENTED
+      go.probo.inc/mcpgen/type: go.probo.inc/probo/pkg/coredata.MeasureState
+
+    MeasureOrderField:
+      type: string
+      enum:
+        - CREATED_AT
+        - NAME
+      go.probo.inc/mcpgen/type: go.probo.inc/probo/pkg/coredata.MeasureOrderField
+
+    MeasureOrderBy:
+      type: object
+      required:
+        - field
+        - direction
+      properties:
+        field:
+          $ref: "#/components/schemas/MeasureOrderField"
+          description: Measure order field
+        direction:
+          $ref: "#/components/schemas/OrderDirection"
+          description: Measure order direction
+
+    Measure:
+      type: object
+      required:
+        - id
+        - category
+        - name
+        - state
+        - created_at
+        - updated_at
+      properties:
+        id:
+          $ref: "#/components/schemas/GID"
+          description: Measure ID
+        category:
+          type: string
+          description: Measure category
+        name:
+          type: string
+          description: Measure name
+        description:
+          type:
+            - string
+            - "null"
+          description: Measure description
+        state:
+          $ref: "#/components/schemas/MeasureState"
+          description: Measure state
+        created_at:
+          type: string
+          format: date-time
+          description: Creation timestamp
+        updated_at:
+          type: string
+          format: date-time
+          description: Update timestamp
+
+    ListMeasuresInput:
+      type: object
+      required:
+        - organization_id
+      properties:
+        organization_id:
+          $ref: "#/components/schemas/GID"
+          description: Organization ID
+        order_by:
+          $ref: "#/components/schemas/MeasureOrderBy"
+          description: Measure order by
+        size:
+          type: integer
+          description: Page size
+        cursor:
+          $ref: "#/components/schemas/CursorKey"
+          description: Page cursor
+        filter:
+          type: object
+          properties:
+            query:
+              type: string
+              description: Search query
+            state:
+              $ref: "#/components/schemas/MeasureState"
+              description: Measure state filter
+
+    ListMeasuresOutput:
+      type: object
+      required:
+        - measures
+      properties:
+        next_cursor:
+          $ref: "#/components/schemas/CursorKey"
+          description: Next cursor
+        measures:
+          type: array
+          items:
+            $ref: "#/components/schemas/Measure"
+
+    GetMeasureInput:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          $ref: "#/components/schemas/GID"
+          description: Measure ID
+
+    GetMeasureOutput:
+      type: object
+      required:
+        - measure
+      properties:
+        measure:
+          $ref: "#/components/schemas/Measure"
+
+    AddMeasureInput:
+      type: object
+      required:
+        - organization_id
+        - name
+        - category
+      properties:
+        organization_id:
+          $ref: "#/components/schemas/GID"
+          description: Organization ID
+        name:
+          type: string
+          description: Measure name
+        description:
+          type: string
+          description: Measure description
+        category:
+          type: string
+          description: Measure category
+
+    AddMeasureOutput:
+      type: object
+      required:
+        - measure
+      properties:
+        measure:
+          $ref: "#/components/schemas/Measure"
+
+    UpdateMeasureInput:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          $ref: "#/components/schemas/GID"
+          description: Measure ID
+        name:
+          type: string
+          description: Measure name
+        description:
+          type: ["string", "null"]
+          description: Measure description
+          go.probo.inc/mcpgen/omittable: true
+        category:
+          type: string
+          description: Measure category
+        state:
+          $ref: "#/components/schemas/MeasureState"
+          description: Measure state
+
+    UpdateMeasureOutput:
+      type: object
+      required:
+        - measure
+      properties:
+        measure:
+          $ref: "#/components/schemas/Measure"
+
+    FrameworkOrderField:
+      type: string
+      enum:
+        - CREATED_AT
+      go.probo.inc/mcpgen/type: go.probo.inc/probo/pkg/coredata.FrameworkOrderField
+
+    FrameworkOrderBy:
+      type: object
+      required:
+        - field
+        - direction
+      properties:
+        field:
+          $ref: "#/components/schemas/FrameworkOrderField"
+          description: Framework order field
+        direction:
+          $ref: "#/components/schemas/OrderDirection"
+          description: Framework order direction
+
+    Framework:
+      type: object
+      required:
+        - id
+        - organization_id
+        - name
+        - created_at
+        - updated_at
+      properties:
+        id:
+          $ref: "#/components/schemas/GID"
+          description: Framework ID
+        organization_id:
+          $ref: "#/components/schemas/GID"
+          description: Organization ID
+        name:
+          type: string
+          description: Framework name
+        description:
+          type:
+            - string
+            - "null"
+          description: Framework description
+        created_at:
+          type: string
+          format: date-time
+          description: Creation timestamp
+        updated_at:
+          type: string
+          format: date-time
+          description: Update timestamp
+
+    ListFrameworksInput:
+      type: object
+      required:
+        - organization_id
+      properties:
+        organization_id:
+          $ref: "#/components/schemas/GID"
+          description: Organization ID
+        order_by:
+          $ref: "#/components/schemas/FrameworkOrderBy"
+          description: Framework order by
+        size:
+          type: integer
+          description: Page size
+        cursor:
+          $ref: "#/components/schemas/CursorKey"
+          description: Page cursor
+
+    ListFrameworksOutput:
+      type: object
+      required:
+        - frameworks
+      properties:
+        next_cursor:
+          $ref: "#/components/schemas/CursorKey"
+          description: Next cursor
+        frameworks:
+          type: array
+          items:
+            $ref: "#/components/schemas/Framework"
+
+    GetFrameworkInput:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          $ref: "#/components/schemas/GID"
+          description: Framework ID
+
+    GetFrameworkOutput:
+      type: object
+      required:
+        - framework
+      properties:
+        framework:
+          $ref: "#/components/schemas/Framework"
+
+    AddFrameworkInput:
+      type: object
+      required:
+        - organization_id
+        - name
+      properties:
+        organization_id:
+          $ref: "#/components/schemas/GID"
+          description: Organization ID
+        name:
+          type: string
+          description: Framework name
+        description:
+          type: string
+          description: Framework description
+
+    AddFrameworkOutput:
+      type: object
+      required:
+        - framework
+      properties:
+        framework:
+          $ref: "#/components/schemas/Framework"
+
+    UpdateFrameworkInput:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          $ref: "#/components/schemas/GID"
+          description: Framework ID
+        name:
+          type: string
+          description: Framework name
+        description:
+          type: ["string", "null"]
+          description: Framework description
+          go.probo.inc/mcpgen/omittable: true
+
+    UpdateFrameworkOutput:
+      type: object
+      required:
+        - framework
+      properties:
+        framework:
+          $ref: "#/components/schemas/Framework"
+
+    AssetType:
+      type: string
+      enum:
+        - PHYSICAL
+        - VIRTUAL
+      go.probo.inc/mcpgen/type: go.probo.inc/probo/pkg/coredata.AssetType
+
+    AssetOrderField:
+      type: string
+      enum:
+        - CREATED_AT
+        - AMOUNT
+      go.probo.inc/mcpgen/type: go.probo.inc/probo/pkg/coredata.AssetOrderField
+
+    AssetOrderBy:
+      type: object
+      required:
+        - field
+        - direction
+      properties:
+        field:
+          $ref: "#/components/schemas/AssetOrderField"
+          description: Asset order field
+        direction:
+          $ref: "#/components/schemas/OrderDirection"
+          description: Asset order direction
+
+    Asset:
+      type: object
+      required:
+        - id
+        - organization_id
+        - name
+        - amount
+        - owner_id
+        - asset_type
+        - data_types_stored
+        - created_at
+        - updated_at
+      properties:
+        id:
+          $ref: "#/components/schemas/GID"
+          description: Asset ID
+        organization_id:
+          $ref: "#/components/schemas/GID"
+          description: Organization ID
+        snapshot_id:
+          type:
+            - string
+            - "null"
+          description: Snapshot ID
+        name:
+          type: string
+          description: Asset name
+        amount:
+          type: integer
+          description: Asset amount
+        owner_id:
+          $ref: "#/components/schemas/GID"
+          description: Owner ID
+        asset_type:
+          $ref: "#/components/schemas/AssetType"
+          description: Asset type
+        data_types_stored:
+          type: string
+          description: Data types stored
+        created_at:
+          type: string
+          format: date-time
+          description: Creation timestamp
+        updated_at:
+          type: string
+          format: date-time
+          description: Update timestamp
+
+    ListAssetsInput:
+      type: object
+      required:
+        - organization_id
+      properties:
+        organization_id:
+          $ref: "#/components/schemas/GID"
+          description: Organization ID
+        order_by:
+          $ref: "#/components/schemas/AssetOrderBy"
+          description: Asset order by
+        size:
+          type: integer
+          description: Page size
+        cursor:
+          $ref: "#/components/schemas/CursorKey"
+          description: Page cursor
+        filter:
+          type: object
+          properties:
+            snapshot_id:
+              $ref: "#/components/schemas/GID"
+              description: Snapshot ID
+
+    ListAssetsOutput:
+      type: object
+      required:
+        - assets
+      properties:
+        next_cursor:
+          $ref: "#/components/schemas/CursorKey"
+          description: Next cursor
+        assets:
+          type: array
+          items:
+            $ref: "#/components/schemas/Asset"
+
+    GetAssetInput:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          $ref: "#/components/schemas/GID"
+          description: Asset ID
+
+    GetAssetOutput:
+      type: object
+      required:
+        - asset
+      properties:
+        asset:
+          $ref: "#/components/schemas/Asset"
+
+    AddAssetInput:
+      type: object
+      required:
+        - organization_id
+        - name
+        - amount
+        - owner_id
+        - asset_type
+        - data_types_stored
+      properties:
+        organization_id:
+          $ref: "#/components/schemas/GID"
+          description: Organization ID
+        name:
+          type: string
+          description: Asset name
+        amount:
+          type: integer
+          description: Asset amount
+        owner_id:
+          $ref: "#/components/schemas/GID"
+          description: Owner ID
+        asset_type:
+          $ref: "#/components/schemas/AssetType"
+          description: Asset type
+        data_types_stored:
+          type: string
+          description: Data types stored
+        vendor_ids:
+          type: array
+          items:
+            $ref: "#/components/schemas/GID"
+          description: Vendor IDs
+
+    AddAssetOutput:
+      type: object
+      required:
+        - asset
+      properties:
+        asset:
+          $ref: "#/components/schemas/Asset"
+
+    UpdateAssetInput:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          $ref: "#/components/schemas/GID"
+          description: Asset ID
+        name:
+          type: string
+          description: Asset name
+        amount:
+          type: integer
+          description: Asset amount
+        owner_id:
+          anyOf:
+            - type: string
+              $ref: "#/components/schemas/GID"
+            - type: "null"
+          description: Owner ID
+        asset_type:
+          $ref: "#/components/schemas/AssetType"
+          description: Asset type
+        data_types_stored:
+          type: string
+          description: Data types stored
+        vendor_ids:
+          type: array
+          items:
+            $ref: "#/components/schemas/GID"
+          description: Vendor IDs
+
+    UpdateAssetOutput:
+      type: object
+      required:
+        - asset
+      properties:
+        asset:
+          $ref: "#/components/schemas/Asset"
+
+    DataClassification:
+      type: string
+      enum:
+        - PUBLIC
+        - INTERNAL
+        - CONFIDENTIAL
+        - SECRET
+      go.probo.inc/mcpgen/type: go.probo.inc/probo/pkg/coredata.DataClassification
+
+    DatumOrderField:
+      type: string
+      enum:
+        - CREATED_AT
+        - NAME
+        - DATA_CLASSIFICATION
+      go.probo.inc/mcpgen/type: go.probo.inc/probo/pkg/coredata.DatumOrderField
+
+    DatumOrderBy:
+      type: object
+      required:
+        - field
+        - direction
+      properties:
+        field:
+          $ref: "#/components/schemas/DatumOrderField"
+          description: Datum order field
+        direction:
+          $ref: "#/components/schemas/OrderDirection"
+          description: Datum order direction
+
+    Datum:
+      type: object
+      required:
+        - id
+        - organization_id
+        - name
+        - data_classification
+        - owner_id
+        - created_at
+        - updated_at
+      properties:
+        id:
+          $ref: "#/components/schemas/GID"
+          description: Datum ID
+        organization_id:
+          $ref: "#/components/schemas/GID"
+          description: Organization ID
+        snapshot_id:
+          anyOf:
+            - $ref: "#/components/schemas/GID"
+              description: Snapshot ID
+            - type: "null"
+              description: No snapshot
+          description: Snapshot ID
+        name:
+          type: string
+          description: Datum name
+        data_classification:
+          $ref: "#/components/schemas/DataClassification"
+          description: Data classification
+        owner_id:
+          $ref: "#/components/schemas/GID"
+          description: Owner ID
+        created_at:
+          type: string
+          format: date-time
+          description: Creation timestamp
+        updated_at:
+          type: string
+          format: date-time
+          description: Update timestamp
+
+    ListDataInput:
+      type: object
+      required:
+        - organization_id
+      properties:
+        organization_id:
+          $ref: "#/components/schemas/GID"
+          description: Organization ID
+        order_by:
+          $ref: "#/components/schemas/DatumOrderBy"
+          description: Datum order by
+        size:
+          type: integer
+          description: Page size
+        cursor:
+          $ref: "#/components/schemas/CursorKey"
+          description: Page cursor
+        filter:
+          type: object
+          properties:
+            snapshot_id:
+              $ref: "#/components/schemas/GID"
+              description: Snapshot ID
+
+    ListDataOutput:
+      type: object
+      required:
+        - data
+      properties:
+        next_cursor:
+          $ref: "#/components/schemas/CursorKey"
+          description: Next cursor
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Datum"
+
+    GetDatumInput:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          $ref: "#/components/schemas/GID"
+          description: Datum ID
+
+    GetDatumOutput:
+      type: object
+      required:
+        - datum
+      properties:
+        datum:
+          $ref: "#/components/schemas/Datum"
+
+    AddDatumInput:
+      type: object
+      required:
+        - organization_id
+        - name
+        - data_classification
+        - owner_id
+      properties:
+        organization_id:
+          $ref: "#/components/schemas/GID"
+          description: Organization ID
+        name:
+          type: string
+          description: Datum name
+        data_classification:
+          $ref: "#/components/schemas/DataClassification"
+          description: Data classification
+        owner_id:
+          $ref: "#/components/schemas/GID"
+          description: Owner ID
+        vendor_ids:
+          type: array
+          items:
+            $ref: "#/components/schemas/GID"
+          description: Vendor IDs
+
+    AddDatumOutput:
+      type: object
+      required:
+        - datum
+      properties:
+        datum:
+          $ref: "#/components/schemas/Datum"
+
+    UpdateDatumInput:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          $ref: "#/components/schemas/GID"
+          description: Datum ID
+        name:
+          type: string
+          description: Datum name
+        data_classification:
+          $ref: "#/components/schemas/DataClassification"
+          description: Data classification
+        owner_id:
+          anyOf:
+            - type: string
+              $ref: "#/components/schemas/GID"
+            - type: "null"
+          description: Owner ID
+        vendor_ids:
+          type: array
+          items:
+            $ref: "#/components/schemas/GID"
+          description: Vendor IDs
+
+    UpdateDatumOutput:
+      type: object
+      required:
+        - datum
+      properties:
+        datum:
+          $ref: "#/components/schemas/Datum"
+
+    NonconformityStatus:
+      type: string
+      enum:
+        - OPEN
+        - IN_PROGRESS
+        - CLOSED
+      go.probo.inc/mcpgen/type: go.probo.inc/probo/pkg/coredata.NonconformityStatus
+
+    NonconformityOrderField:
+      type: string
+      enum:
+        - CREATED_AT
+        - REFERENCE_ID
+        - DATE_IDENTIFIED
+        - DUE_DATE
+        - STATUS
+      go.probo.inc/mcpgen/type: go.probo.inc/probo/pkg/coredata.NonconformityOrderField
+
+    NonconformityOrderBy:
+      type: object
+      required:
+        - field
+        - direction
+      properties:
+        field:
+          $ref: "#/components/schemas/NonconformityOrderField"
+          description: Nonconformity order field
+        direction:
+          $ref: "#/components/schemas/OrderDirection"
+          description: Nonconformity order direction
+
+    Nonconformity:
+      type: object
+      required:
+        - id
+        - organization_id
+        - reference_id
+        - root_cause
+        - owner_id
+        - status
+        - created_at
+        - updated_at
+      properties:
+        id:
+          $ref: "#/components/schemas/GID"
+          description: Nonconformity ID
+        organization_id:
+          $ref: "#/components/schemas/GID"
+          description: Organization ID
+        snapshot_id:
+          anyOf:
+            - $ref: "#/components/schemas/GID"
+              description: Snapshot ID
+            - type: "null"
+              description: No snapshot
+          description: Snapshot ID
+        reference_id:
+          type: string
+          description: Reference ID
+        description:
+          type:
+            - string
+            - "null"
+          description: Description
+        audit_id:
+          anyOf:
+            - $ref: "#/components/schemas/GID"
+              description: Audit ID
+            - type: "null"
+              description: No audit
+          description: Audit ID
+        date_identified:
+          type:
+            - string
+            - "null"
+          format: date-time
+          description: Date identified
+        root_cause:
+          type: string
+          description: Root cause
+        corrective_action:
+          type:
+            - string
+            - "null"
+          description: Corrective action
+        owner_id:
+          $ref: "#/components/schemas/GID"
+          description: Owner ID
+        due_date:
+          type:
+            - string
+            - "null"
+          format: date-time
+          description: Due date
+        status:
+          $ref: "#/components/schemas/NonconformityStatus"
+          description: Status
+        effectiveness_check:
+          type:
+            - string
+            - "null"
+          description: Effectiveness check
+        created_at:
+          type: string
+          format: date-time
+          description: Creation timestamp
+        updated_at:
+          type: string
+          format: date-time
+          description: Update timestamp
+
+    ListNonconformitiesInput:
+      type: object
+      required:
+        - organization_id
+      properties:
+        organization_id:
+          $ref: "#/components/schemas/GID"
+          description: Organization ID
+        order_by:
+          $ref: "#/components/schemas/NonconformityOrderBy"
+          description: Nonconformity order by
+        size:
+          type: integer
+          description: Page size
+        cursor:
+          $ref: "#/components/schemas/CursorKey"
+          description: Page cursor
+        filter:
+          type: object
+          properties:
+            snapshot_id:
+              $ref: "#/components/schemas/GID"
+              description: Snapshot ID
+
+    ListNonconformitiesOutput:
+      type: object
+      required:
+        - nonconformities
+      properties:
+        next_cursor:
+          $ref: "#/components/schemas/CursorKey"
+          description: Next cursor
+        nonconformities:
+          type: array
+          items:
+            $ref: "#/components/schemas/Nonconformity"
+
+    GetNonconformityInput:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          $ref: "#/components/schemas/GID"
+          description: Nonconformity ID
+
+    GetNonconformityOutput:
+      type: object
+      required:
+        - nonconformity
+      properties:
+        nonconformity:
+          $ref: "#/components/schemas/Nonconformity"
+
+    AddNonconformityInput:
+      type: object
+      required:
+        - organization_id
+        - reference_id
+        - root_cause
+        - owner_id
+        - status
+      properties:
+        organization_id:
+          $ref: "#/components/schemas/GID"
+          description: Organization ID
+        reference_id:
+          type: string
+          description: Reference ID
+        description:
+          type: string
+          description: Description
+        audit_id:
+          anyOf:
+            - $ref: "#/components/schemas/GID"
+              description: Audit ID
+            - type: "null"
+              description: No audit
+          description: Audit ID
+        date_identified:
+          type: string
+          format: date-time
+          description: Date identified
+        root_cause:
+          type: string
+          description: Root cause
+        corrective_action:
+          type: string
+          description: Corrective action
+        owner_id:
+          $ref: "#/components/schemas/GID"
+          description: Owner ID
+        due_date:
+          type: string
+          format: date-time
+          description: Due date
+        status:
+          anyOf:
+            - $ref: "#/components/schemas/NonconformityStatus"
+              description: Nonconformity status
+            - type: "null"
+              description: No status
+          description: Status
+        effectiveness_check:
+          type: string
+          description: Effectiveness check
+
+    AddNonconformityOutput:
+      type: object
+      required:
+        - nonconformity
+      properties:
+        nonconformity:
+          $ref: "#/components/schemas/Nonconformity"
+
+    UpdateNonconformityInput:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          $ref: "#/components/schemas/GID"
+          description: Nonconformity ID
+        reference_id:
+          type: string
+          description: Reference ID
+        description:
+          type: ["string", "null"]
+          description: Description
+          go.probo.inc/mcpgen/omittable: true
+        date_identified:
+          type: ["string", "null"]
+          format: date-time
+          description: Date identified
+          go.probo.inc/mcpgen/omittable: true
+        root_cause:
+          type: string
+          description: Root cause
+        corrective_action:
+          type: ["string", "null"]
+          description: Corrective action
+          go.probo.inc/mcpgen/omittable: true
+        owner_id:
+          anyOf:
+            - type: string
+              $ref: "#/components/schemas/GID"
+            - type: "null"
+          description: Owner ID
+        audit_id:
+          anyOf:
+            - type: string
+              $ref: "#/components/schemas/GID"
+            - type: "null"
+          description: Audit ID
+          go.probo.inc/mcpgen/omittable: true
+        due_date:
+          type: ["string", "null"]
+          format: date-time
+          description: Due date
+          go.probo.inc/mcpgen/omittable: true
+        status:
+          $ref: "#/components/schemas/NonconformityStatus"
+          description: Status
+        effectiveness_check:
+          type: ["string", "null"]
+          description: Effectiveness check
+          go.probo.inc/mcpgen/omittable: true
+
+    UpdateNonconformityOutput:
+      type: object
+      required:
+        - nonconformity
+      properties:
+        nonconformity:
+          $ref: "#/components/schemas/Nonconformity"
+
+    ObligationStatus:
+      type: string
+      enum:
+        - NON_COMPLIANT
+        - PARTIALLY_COMPLIANT
+        - COMPLIANT
+      go.probo.inc/mcpgen/type: go.probo.inc/probo/pkg/coredata.ObligationStatus
+
+    ObligationType:
+      type: string
+      enum:
+        - LEGAL
+        - CONTRACTUAL
+      go.probo.inc/mcpgen/type: go.probo.inc/probo/pkg/coredata.ObligationType
+
+    ObligationOrderField:
+      type: string
+      enum:
+        - CREATED_AT
+        - LAST_REVIEW_DATE
+        - DUE_DATE
+        - STATUS
+      go.probo.inc/mcpgen/type: go.probo.inc/probo/pkg/coredata.ObligationOrderField
+
+    ObligationOrderBy:
+      type: object
+      required:
+        - field
+        - direction
+      properties:
+        field:
+          $ref: "#/components/schemas/ObligationOrderField"
+          description: Obligation order field
+        direction:
+          $ref: "#/components/schemas/OrderDirection"
+          description: Obligation order direction
+
+    Obligation:
+      type: object
+      required:
+        - id
+        - organization_id
+        - owner_id
+        - status
+        - created_at
+        - updated_at
+      properties:
+        id:
+          $ref: "#/components/schemas/GID"
+          description: Obligation ID
+        organization_id:
+          $ref: "#/components/schemas/GID"
+          description: Organization ID
+        snapshot_id:
+          anyOf:
+            - $ref: "#/components/schemas/GID"
+              description: Snapshot ID
+            - type: "null"
+              description: No snapshot
+          description: Snapshot ID
+        source_id:
+          type:
+            - string
+            - "null"
+          description: Source ID
+        area:
+          type:
+            - string
+            - "null"
+          description: Area
+        source:
+          type:
+            - string
+            - "null"
+          description: Source
+        requirement:
+          type:
+            - string
+            - "null"
+          description: Requirement
+        actions_to_be_implemented:
+          type:
+            - string
+            - "null"
+          description: Actions to be implemented
+        regulator:
+          type:
+            - string
+            - "null"
+          description: Regulator
+        owner_id:
+          $ref: "#/components/schemas/GID"
+          description: Owner ID
+        last_review_date:
+          type:
+            - string
+            - "null"
+          format: date-time
+          description: Last review date
+        due_date:
+          type:
+            - string
+            - "null"
+          format: date-time
+          description: Due date
+        status:
+          $ref: "#/components/schemas/ObligationStatus"
+          description: Status
+        created_at:
+          type: string
+          format: date-time
+          description: Creation timestamp
+        updated_at:
+          type: string
+          format: date-time
+          description: Update timestamp
+
+    ListObligationsInput:
+      type: object
+      required:
+        - organization_id
+      properties:
+        organization_id:
+          $ref: "#/components/schemas/GID"
+          description: Organization ID
+        order_by:
+          $ref: "#/components/schemas/ObligationOrderBy"
+          description: Obligation order by
+        size:
+          type: integer
+          description: Page size
+        cursor:
+          $ref: "#/components/schemas/CursorKey"
+          description: Page cursor
+        filter:
+          type: object
+          properties:
+            snapshot_id:
+              $ref: "#/components/schemas/GID"
+              description: Snapshot ID
+
+    ListObligationsOutput:
+      type: object
+      required:
+        - obligations
+      properties:
+        next_cursor:
+          $ref: "#/components/schemas/CursorKey"
+          description: Next cursor
+        obligations:
+          type: array
+          items:
+            $ref: "#/components/schemas/Obligation"
+
+    GetObligationInput:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          $ref: "#/components/schemas/GID"
+          description: Obligation ID
+
+    GetObligationOutput:
+      type: object
+      required:
+        - obligation
+      properties:
+        obligation:
+          $ref: "#/components/schemas/Obligation"
+
+    AddObligationInput:
+      type: object
+      required:
+        - organization_id
+        - owner_id
+        - status
+        - type
+      properties:
+        organization_id:
+          $ref: "#/components/schemas/GID"
+          description: Organization ID
+        area:
+          type: string
+          description: Area
+        source:
+          type: string
+          description: Source
+        requirement:
+          type: string
+          description: Requirement
+        actions_to_be_implemented:
+          type: string
+          description: Actions to be implemented
+        regulator:
+          type: string
+          description: Regulator
+        owner_id:
+          $ref: "#/components/schemas/GID"
+          description: Owner ID
+        last_review_date:
+          type: string
+          format: date-time
+          description: Last review date
+        due_date:
+          type: string
+          format: date-time
+          description: Due date
+        status:
+          anyOf:
+            - $ref: "#/components/schemas/ObligationStatus"
+              description: Obligation status
+            - type: "null"
+              description: No status
+          description: Status
+        type:
+          anyOf:
+            - $ref: "#/components/schemas/ObligationType"
+              description: Obligation type
+            - type: "null"
+              description: No type
+          description: Type
+
+    AddObligationOutput:
+      type: object
+      required:
+        - obligation
+      properties:
+        obligation:
+          $ref: "#/components/schemas/Obligation"
+
+    UpdateObligationInput:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          $ref: "#/components/schemas/GID"
+          description: Obligation ID
+        area:
+          type: ["string", "null"]
+          description: Area
+          go.probo.inc/mcpgen/omittable: true
+        source:
+          type: ["string", "null"]
+          description: Source
+          go.probo.inc/mcpgen/omittable: true
+        requirement:
+          type: ["string", "null"]
+          description: Requirement
+          go.probo.inc/mcpgen/omittable: true
+        actions_to_be_implemented:
+          type: ["string", "null"]
+          description: Actions to be implemented
+          go.probo.inc/mcpgen/omittable: true
+        regulator:
+          type: ["string", "null"]
+          description: Regulator
+          go.probo.inc/mcpgen/omittable: true
+        owner_id:
+          anyOf:
+            - type: string
+              $ref: "#/components/schemas/GID"
+            - type: "null"
+          description: Owner ID
+        last_review_date:
+          type: ["string", "null"]
+          format: date-time
+          description: Last review date
+          go.probo.inc/mcpgen/omittable: true
+        due_date:
+          type: ["string", "null"]
+          format: date-time
+          description: Due date
+          go.probo.inc/mcpgen/omittable: true
+        status:
+          anyOf:
+            - $ref: "#/components/schemas/ObligationStatus"
+              description: Obligation status
+            - type: "null"
+              description: No status
+          description: Status
+        type:
+          anyOf:
+            - $ref: "#/components/schemas/ObligationType"
+              description: Obligation type
+            - type: "null"
+              description: No type
+          description: Type
+
+    UpdateObligationOutput:
+      type: object
+      required:
+        - obligation
+      properties:
+        obligation:
+          $ref: "#/components/schemas/Obligation"
+
+    ContinualImprovementStatus:
+      type: string
+      enum:
+        - OPEN
+        - IN_PROGRESS
+        - CLOSED
+      go.probo.inc/mcpgen/type: go.probo.inc/probo/pkg/coredata.ContinualImprovementStatus
+
+    ContinualImprovementPriority:
+      type: string
+      enum:
+        - LOW
+        - MEDIUM
+        - HIGH
+      go.probo.inc/mcpgen/type: go.probo.inc/probo/pkg/coredata.ContinualImprovementPriority
+
+    ContinualImprovementOrderField:
+      type: string
+      enum:
+        - CREATED_AT
+        - REFERENCE_ID
+        - TARGET_DATE
+        - STATUS
+        - PRIORITY
+      go.probo.inc/mcpgen/type: go.probo.inc/probo/pkg/coredata.ContinualImprovementOrderField
+
+    ContinualImprovementOrderBy:
+      type: object
+      required:
+        - field
+        - direction
+      properties:
+        field:
+          $ref: "#/components/schemas/ContinualImprovementOrderField"
+          description: Continual improvement order field
+        direction:
+          $ref: "#/components/schemas/OrderDirection"
+          description: Continual improvement order direction
+
+    ContinualImprovement:
+      type: object
+      required:
+        - id
+        - organization_id
+        - reference_id
+        - owner_id
+        - status
+        - priority
+        - created_at
+        - updated_at
+      properties:
+        id:
+          $ref: "#/components/schemas/GID"
+          description: Continual improvement ID
+        organization_id:
+          $ref: "#/components/schemas/GID"
+          description: Organization ID
+        snapshot_id:
+          anyOf:
+            - $ref: "#/components/schemas/GID"
+              description: Snapshot ID
+            - type: "null"
+              description: No snapshot
+          description: Snapshot ID
+        source_id:
+          type:
+            - string
+            - "null"
+          description: Source ID
+        reference_id:
+          type: string
+          description: Reference ID
+        description:
+          type:
+            - string
+            - "null"
+          description: Description
+        source:
+          type:
+            - string
+            - "null"
+          description: Source
+        owner_id:
+          $ref: "#/components/schemas/GID"
+          description: Owner ID
+        target_date:
+          type:
+            - string
+            - "null"
+          format: date-time
+          description: Target date
+        status:
+          $ref: "#/components/schemas/ContinualImprovementStatus"
+          description: Status
+        priority:
+          $ref: "#/components/schemas/ContinualImprovementPriority"
+          description: Priority
+        created_at:
+          type: string
+          format: date-time
+          description: Creation timestamp
+        updated_at:
+          type: string
+          format: date-time
+          description: Update timestamp
+
+    ListContinualImprovementsInput:
+      type: object
+      required:
+        - organization_id
+      properties:
+        organization_id:
+          $ref: "#/components/schemas/GID"
+          description: Organization ID
+        order_by:
+          $ref: "#/components/schemas/ContinualImprovementOrderBy"
+          description: Continual improvement order by
+        size:
+          type: integer
+          description: Page size
+        cursor:
+          $ref: "#/components/schemas/CursorKey"
+          description: Page cursor
+        filter:
+          type: object
+          properties:
+            snapshot_id:
+              $ref: "#/components/schemas/GID"
+              description: Snapshot ID
+
+    ListContinualImprovementsOutput:
+      type: object
+      required:
+        - continual_improvements
+      properties:
+        next_cursor:
+          $ref: "#/components/schemas/CursorKey"
+          description: Next cursor
+        continual_improvements:
+          type: array
+          items:
+            $ref: "#/components/schemas/ContinualImprovement"
+
+    GetContinualImprovementInput:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          $ref: "#/components/schemas/GID"
+          description: Continual improvement ID
+
+    GetContinualImprovementOutput:
+      type: object
+      required:
+        - continual_improvement
+      properties:
+        continual_improvement:
+          $ref: "#/components/schemas/ContinualImprovement"
+
+    AddContinualImprovementInput:
+      type: object
+      required:
+        - organization_id
+        - reference_id
+        - owner_id
+      properties:
+        organization_id:
+          $ref: "#/components/schemas/GID"
+          description: Organization ID
+        reference_id:
+          type: string
+          description: Reference ID
+        description:
+          type: string
+          description: Description
+        source:
+          type: string
+          description: Source
+        owner_id:
+          $ref: "#/components/schemas/GID"
+          description: Owner ID
+        target_date:
+          type: string
+          format: date-time
+          description: Target date
+        status:
+          anyOf:
+            - $ref: "#/components/schemas/ContinualImprovementStatus"
+              description: Continual improvement status
+            - type: "null"
+              description: No status
+          description: Status
+        priority:
+          anyOf:
+            - $ref: "#/components/schemas/ContinualImprovementPriority"
+              description: Continual improvement priority
+            - type: "null"
+              description: No priority
+          description: Priority
+
+    AddContinualImprovementOutput:
+      type: object
+      required:
+        - continual_improvement
+      properties:
+        continual_improvement:
+          $ref: "#/components/schemas/ContinualImprovement"
+
+    UpdateContinualImprovementInput:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          $ref: "#/components/schemas/GID"
+          description: Continual improvement ID
+        reference_id:
+          type: string
+          description: Reference ID
+        description:
+          type: ["string", "null"]
+          description: Description
+          go.probo.inc/mcpgen/omittable: true
+        source:
+          type: ["string", "null"]
+          description: Source
+          go.probo.inc/mcpgen/omittable: true
+        owner_id:
+          anyOf:
+            - type: string
+              $ref: "#/components/schemas/GID"
+            - type: "null"
+          description: Owner ID
+        target_date:
+          type: ["string", "null"]
+          format: date-time
+          description: Target date
+          go.probo.inc/mcpgen/omittable: true
+        status:
+          anyOf:
+            - $ref: "#/components/schemas/ContinualImprovementStatus"
+              description: Continual improvement status
+            - type: "null"
+              description: No status
+          description: Status
+        priority:
+          anyOf:
+            - $ref: "#/components/schemas/ContinualImprovementPriority"
+              description: Continual improvement priority
+            - type: "null"
+              description: No priority
+          description: Priority
+
+    UpdateContinualImprovementOutput:
+      type: object
+      required:
+        - continual_improvement
+      properties:
+        continual_improvement:
+          $ref: "#/components/schemas/ContinualImprovement"
+
+    AuditState:
+      type: string
+      enum:
+        - NOT_STARTED
+        - IN_PROGRESS
+        - COMPLETED
+        - REJECTED
+        - OUTDATED
+      go.probo.inc/mcpgen/type: go.probo.inc/probo/pkg/coredata.AuditState
+
+    TrustCenterVisibility:
+      type: string
+      enum:
+        - NONE
+        - PRIVATE
+        - PUBLIC
+      go.probo.inc/mcpgen/type: go.probo.inc/probo/pkg/coredata.TrustCenterVisibility
+
+    AuditOrderField:
+      type: string
+      enum:
+        - CREATED_AT
+        - VALID_FROM
+        - VALID_UNTIL
+        - STATE
+      go.probo.inc/mcpgen/type: go.probo.inc/probo/pkg/coredata.AuditOrderField
+
+    AuditOrderBy:
+      type: object
+      required:
+        - field
+        - direction
+      properties:
+        field:
+          $ref: "#/components/schemas/AuditOrderField"
+          description: Audit order field
+        direction:
+          $ref: "#/components/schemas/OrderDirection"
+          description: Audit order direction
+
+    Audit:
+      type: object
+      required:
+        - id
+        - organization_id
+        - framework_id
+        - state
+        - trust_center_visibility
+        - created_at
+        - updated_at
+      properties:
+        id:
+          $ref: "#/components/schemas/GID"
+          description: Audit ID
+        organization_id:
+          $ref: "#/components/schemas/GID"
+          description: Organization ID
+        framework_id:
+          $ref: "#/components/schemas/GID"
+          description: Framework ID
+        name:
+          type:
+            - string
+            - "null"
+          description: Audit name
+        valid_from:
+          type:
+            - string
+            - "null"
+          format: date-time
+          description: Valid from date
+        valid_until:
+          type:
+            - string
+            - "null"
+          format: date-time
+          description: Valid until date
+        state:
+          $ref: "#/components/schemas/AuditState"
+          description: Audit state
+        trust_center_visibility:
+          $ref: "#/components/schemas/TrustCenterVisibility"
+          description: Trust center visibility
+        created_at:
+          type: string
+          format: date-time
+          description: Creation timestamp
+        updated_at:
+          type: string
+          format: date-time
+          description: Update timestamp
+
+    ListAuditsInput:
+      type: object
+      required:
+        - organization_id
+      properties:
+        organization_id:
+          $ref: "#/components/schemas/GID"
+          description: Organization ID
+        order_by:
+          $ref: "#/components/schemas/AuditOrderBy"
+          description: Audit order by
+        size:
+          type: integer
+          description: Page size
+        cursor:
+          $ref: "#/components/schemas/CursorKey"
+          description: Page cursor
+
+    ListAuditsOutput:
+      type: object
+      required:
+        - audits
+      properties:
+        next_cursor:
+          $ref: "#/components/schemas/CursorKey"
+          description: Next cursor
+        audits:
+          type: array
+          items:
+            $ref: "#/components/schemas/Audit"
+
+    GetAuditInput:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          $ref: "#/components/schemas/GID"
+          description: Audit ID
+
+    GetAuditOutput:
+      type: object
+      required:
+        - audit
+      properties:
+        audit:
+          $ref: "#/components/schemas/Audit"
+
+    AddAuditInput:
+      type: object
+      required:
+        - organization_id
+        - framework_id
+      properties:
+        organization_id:
+          $ref: "#/components/schemas/GID"
+          description: Organization ID
+        framework_id:
+          $ref: "#/components/schemas/GID"
+          description: Framework ID
+        name:
+          type: string
+          description: Audit name
+        valid_from:
+          type: string
+          format: date-time
+          description: Valid from date
+        valid_until:
+          type: string
+          format: date-time
+          description: Valid until date
+        state:
+          $ref: "#/components/schemas/AuditState"
+          description: Audit state
+
+    AddAuditOutput:
+      type: object
+      required:
+        - audit
+      properties:
+        audit:
+          $ref: "#/components/schemas/Audit"
+
+    UpdateAuditInput:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          $ref: "#/components/schemas/GID"
+          description: Audit ID
+        name:
+          type: ["string", "null"]
+          description: Audit name
+          go.probo.inc/mcpgen/omittable: true
+        valid_from:
+          type:
+            - string
+            - "null"
+          format: date-time
+          description: Valid from date
+        valid_until:
+          type:
+            - string
+            - "null"
+          format: date-time
+          description: Valid until date
+        state:
+          anyOf:
+            - $ref: "#/components/schemas/AuditState"
+              description: Audit state
+            - type: "null"
+              description: No state
+          description: Audit state
+        trust_center_visibility:
+          anyOf:
+            - $ref: "#/components/schemas/TrustCenterVisibility"
+              description: Trust center visibility
+            - type: "null"
+              description: No trust center visibility
+          description: Trust center visibility
+
+    UpdateAuditOutput:
+      type: object
+      required:
+        - audit
+      properties:
+        audit:
+          $ref: "#/components/schemas/Audit"
+
+    ControlOrderField:
+      type: string
+      enum:
+        - CREATED_AT
+        - SECTION_TITLE
+      go.probo.inc/mcpgen/type: go.probo.inc/probo/pkg/coredata.ControlOrderField
+
+    ControlOrderBy:
+      type: object
+      required:
+        - field
+        - direction
+      properties:
+        field:
+          $ref: "#/components/schemas/ControlOrderField"
+          description: Control order field
+        direction:
+          $ref: "#/components/schemas/OrderDirection"
+          description: Control order direction
+
+    Control:
+      type: object
+      required:
+        - id
+        - organization_id
+        - framework_id
+        - section_title
+        - name
+        - created_at
+        - updated_at
+      properties:
+        id:
+          $ref: "#/components/schemas/GID"
+          description: Control ID
+        organization_id:
+          $ref: "#/components/schemas/GID"
+          description: Organization ID
+        framework_id:
+          $ref: "#/components/schemas/GID"
+          description: Framework ID
+        section_title:
+          type: string
+          description: Section title
+        name:
+          type: string
+          description: Control name
+        description:
+          type:
+            - string
+            - "null"
+          description: Control description
+        created_at:
+          type: string
+          format: date-time
+          description: Creation timestamp
+        updated_at:
+          type: string
+          format: date-time
+          description: Update timestamp
+
+    ListControlsInput:
+      type: object
+      required:
+        - organization_id
+      properties:
+        organization_id:
+          $ref: "#/components/schemas/GID"
+          description: Organization ID
+        framework_id:
+          $ref: "#/components/schemas/GID"
+          description: Framework ID
+        order_by:
+          $ref: "#/components/schemas/ControlOrderBy"
+          description: Control order by
+        size:
+          type: integer
+          description: Page size
+        cursor:
+          $ref: "#/components/schemas/CursorKey"
+          description: Page cursor
+        filter:
+          type: object
+          properties:
+            query:
+              type: string
+              description: Search query
+
+    ListControlsOutput:
+      type: object
+      required:
+        - controls
+      properties:
+        next_cursor:
+          $ref: "#/components/schemas/CursorKey"
+          description: Next cursor
+        controls:
+          type: array
+          items:
+            $ref: "#/components/schemas/Control"
+
+    GetControlInput:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          $ref: "#/components/schemas/GID"
+          description: Control ID
+
+    GetControlOutput:
+      type: object
+      required:
+        - control
+      properties:
+        control:
+          $ref: "#/components/schemas/Control"
+
+    AddControlInput:
+      type: object
+      required:
+        - organization_id
+        - framework_id
+        - section_title
+        - name
+      properties:
+        organization_id:
+          $ref: "#/components/schemas/GID"
+          description: Organization ID
+        framework_id:
+          $ref: "#/components/schemas/GID"
+          description: Framework ID
+        section_title:
+          type: string
+          description: Section title
+        name:
+          type: string
+          description: Control name
+        description:
+          type: string
+          description: Control description
+
+    AddControlOutput:
+      type: object
+      required:
+        - control
+      properties:
+        control:
+          $ref: "#/components/schemas/Control"
+
+    UpdateControlInput:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          $ref: "#/components/schemas/GID"
+          description: Control ID
+        section_title:
+          type: string
+          description: Section title
+        name:
+          type: string
+          description: Control name
+        description:
+          type: ["string", "null"]
+          description: Control description
+          go.probo.inc/mcpgen/omittable: true
+
+    UpdateControlOutput:
+      type: object
+      required:
+        - control
+      properties:
+        control:
+          $ref: "#/components/schemas/Control"
+
+    LinkControlMeasureInput:
+      type: object
+      required:
+        - control_id
+        - measure_id
+      properties:
+        control_id:
+          $ref: "#/components/schemas/GID"
+          description: Control ID
+        measure_id:
+          $ref: "#/components/schemas/GID"
+          description: Measure ID
+
+    LinkControlMeasureOutput:
+      type: object
+
+    UnlinkControlMeasureInput:
+      type: object
+      required:
+        - control_id
+        - measure_id
+      properties:
+        control_id:
+          $ref: "#/components/schemas/GID"
+          description: Control ID
+        measure_id:
+          $ref: "#/components/schemas/GID"
+          description: Measure ID
+
+    UnlinkControlMeasureOutput:
+      type: object
+
+    LinkControlDocumentInput:
+      type: object
+      required:
+        - control_id
+        - document_id
+      properties:
+        control_id:
+          $ref: "#/components/schemas/GID"
+          description: Control ID
+        document_id:
+          $ref: "#/components/schemas/GID"
+          description: Document ID
+
+    LinkControlDocumentOutput:
+      type: object
+
+    UnlinkControlDocumentInput:
+      type: object
+      required:
+        - control_id
+        - document_id
+      properties:
+        control_id:
+          $ref: "#/components/schemas/GID"
+          description: Control ID
+        document_id:
+          $ref: "#/components/schemas/GID"
+          description: Document ID
+
+    UnlinkControlDocumentOutput:
+      type: object
+
+    LinkControlAuditInput:
+      type: object
+      required:
+        - control_id
+        - audit_id
+      properties:
+        control_id:
+          $ref: "#/components/schemas/GID"
+          description: Control ID
+        audit_id:
+          $ref: "#/components/schemas/GID"
+          description: Audit ID
+
+    LinkControlAuditOutput:
+      type: object
+
+    UnlinkControlAuditInput:
+      type: object
+      required:
+        - control_id
+        - audit_id
+      properties:
+        control_id:
+          $ref: "#/components/schemas/GID"
+          description: Control ID
+        audit_id:
+          $ref: "#/components/schemas/GID"
+          description: Audit ID
+
+    UnlinkControlAuditOutput:
+      type: object
+
+    LinkControlSnapshotInput:
+      type: object
+      required:
+        - control_id
+        - snapshot_id
+      properties:
+        control_id:
+          $ref: "#/components/schemas/GID"
+          description: Control ID
+        snapshot_id:
+          $ref: "#/components/schemas/GID"
+          description: Snapshot ID
+
+    LinkControlSnapshotOutput:
+      type: object
+
+    UnlinkControlSnapshotInput:
+      type: object
+      required:
+        - control_id
+        - snapshot_id
+      properties:
+        control_id:
+          $ref: "#/components/schemas/GID"
+          description: Control ID
+        snapshot_id:
+          $ref: "#/components/schemas/GID"
+          description: Snapshot ID
+
+    UnlinkControlSnapshotOutput:
+      type: object
+
+    TaskState:
+      type: string
+      enum:
+        - TODO
+        - DONE
+      go.probo.inc/mcpgen/type: go.probo.inc/probo/pkg/coredata.TaskState
+
+    TaskOrderField:
+      type: string
+      enum:
+        - CREATED_AT
+      go.probo.inc/mcpgen/type: go.probo.inc/probo/pkg/coredata.TaskOrderField
+
+    TaskOrderBy:
+      type: object
+      required:
+        - field
+        - direction
+      properties:
+        field:
+          $ref: "#/components/schemas/TaskOrderField"
+          description: Task order field
+        direction:
+          $ref: "#/components/schemas/OrderDirection"
+          description: Task order direction
+
+    Task:
+      type: object
+      required:
+        - id
+        - organization_id
+        - name
+        - state
+        - created_at
+        - updated_at
+      properties:
+        id:
+          $ref: "#/components/schemas/GID"
+          description: Task ID
+        organization_id:
+          $ref: "#/components/schemas/GID"
+          description: Organization ID
+        measure_id:
+          anyOf:
+            - $ref: "#/components/schemas/GID"
+              description: Measure ID
+            - type: "null"
+              description: No measure
+          description: Measure ID
+        name:
+          type: string
+          description: Task name
+        description:
+          anyOf:
+            - type: string
+              description: Task description
+            - type: "null"
+              description: No description
+          description: Task description
+        state:
+          $ref: "#/components/schemas/TaskState"
+          description: Task state
+        time_estimate:
+          anyOf:
+            - $ref: "#/components/schemas/Duration"
+            - type: "null"
+              description: No time estimate
+          description: Time estimate
+        deadline:
+          anyOf:
+            - type: string
+              format: date-time
+              description: Deadline
+            - type: "null"
+              description: No deadline
+          description: Deadline
+        assigned_to_id:
+          anyOf:
+            - $ref: "#/components/schemas/GID"
+              description: Assigned to person ID
+            - type: "null"
+              description: Not assigned
+          description: Assigned to person ID
+        created_at:
+          type: string
+          format: date-time
+          description: Creation timestamp
+        updated_at:
+          type: string
+          format: date-time
+          description: Update timestamp
+
+    ListTasksInput:
+      type: object
+      required:
+        - organization_id
+      properties:
+        organization_id:
+          $ref: "#/components/schemas/GID"
+          description: Organization ID
+        measure_id:
+          $ref: "#/components/schemas/GID"
+          description: Measure ID
+        order_by:
+          $ref: "#/components/schemas/TaskOrderBy"
+          description: Task order by
+        size:
+          type: integer
+          description: Page size
+        cursor:
+          $ref: "#/components/schemas/CursorKey"
+          description: Page cursor
+
+    ListTasksOutput:
+      type: object
+      required:
+        - tasks
+      properties:
+        tasks:
+          type: array
+          items:
+            $ref: "#/components/schemas/Task"
+          description: List of tasks
+        next_cursor:
+          anyOf:
+            - $ref: "#/components/schemas/CursorKey"
+            - type: "null"
+          description: Next page cursor
+
+    GetTaskInput:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          $ref: "#/components/schemas/GID"
+          description: Task ID
+
+    GetTaskOutput:
+      type: object
+      required:
+        - task
+      properties:
+        task:
+          $ref: "#/components/schemas/Task"
+
+    AddTaskInput:
+      type: object
+      required:
+        - organization_id
+        - name
+      properties:
+        organization_id:
+          $ref: "#/components/schemas/GID"
+          description: Organization ID
+        measure_id:
+          anyOf:
+            - $ref: "#/components/schemas/GID"
+              description: Measure ID
+            - type: "null"
+              description: No measure
+          description: Measure ID
+        name:
+          type: string
+          description: Task name
+        description:
+          type: string
+          description: Task description
+        time_estimate:
+          $ref: "#/components/schemas/Duration"
+          description: Time estimate
+        deadline:
+          type: string
+          format: date-time
+          description: Deadline
+        assigned_to_id:
+          anyOf:
+            - $ref: "#/components/schemas/GID"
+              description: Assigned to person ID
+            - type: "null"
+              description: Not assigned
+          description: Assigned to person ID
+
+    AddTaskOutput:
+      type: object
+      required:
+        - task
+      properties:
+        task:
+          $ref: "#/components/schemas/Task"
+
+    UpdateTaskInput:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          $ref: "#/components/schemas/GID"
+          description: Task ID
+        name:
+          type: string
+          description: Task name
+        description:
+          type: ["string", "null"]
+          description: Task description
+          go.probo.inc/mcpgen/omittable: true
+        state:
+          anyOf:
+            - $ref: "#/components/schemas/TaskState"
+              description: Task state
+            - type: "null"
+              description: No state
+          description: Task state
+        time_estimate:
+          anyOf:
+            - $ref: "#/components/schemas/Duration"
+            - type: "null"
+              description: No time estimate
+          description: Time estimate
+          go.probo.inc/mcpgen/omittable: true
+        deadline:
+          anyOf:
+            - type: string
+              format: date-time
+              description: Deadline
+            - type: "null"
+              description: No deadline
+          description: Deadline
+          go.probo.inc/mcpgen/omittable: true
+        assigned_to_id:
+          anyOf:
+            - $ref: "#/components/schemas/GID"
+              description: Assigned to person ID
+            - type: "null"
+              description: Not assigned
+          description: Assigned to person ID
+          go.probo.inc/mcpgen/omittable: true
+        measure_id:
+          anyOf:
+            - $ref: "#/components/schemas/GID"
+              description: Measure ID
+            - type: "null"
+              description: No measure
+          description: Measure ID
+          go.probo.inc/mcpgen/omittable: true
+
+    UpdateTaskOutput:
+      type: object
+      required:
+        - task
+      properties:
+        task:
+          $ref: "#/components/schemas/Task"
+
+    AssignTaskInput:
+      type: object
+      required:
+        - id
+        - assigned_to_id
+      properties:
+        id:
+          $ref: "#/components/schemas/GID"
+          description: Task ID
+        assigned_to_id:
+          $ref: "#/components/schemas/GID"
+          description: Assigned to person ID
+
+    AssignTaskOutput:
+      type: object
+      required:
+        - task
+      properties:
+        task:
+          $ref: "#/components/schemas/Task"
+
+    UnassignTaskInput:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          $ref: "#/components/schemas/GID"
+          description: Task ID
+
+    UnassignTaskOutput:
+      type: object
+      required:
+        - task
+      properties:
+        task:
+          $ref: "#/components/schemas/Task"
+
+    DeleteTaskInput:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          $ref: "#/components/schemas/GID"
+          description: Task ID
+
+    DeleteTaskOutput:
+      type: object
+      required:
+        - deleted_task_id
+      properties:
+        deleted_task_id:
+          $ref: "#/components/schemas/GID"
+          description: Deleted task ID
+
+    SnapshotsType:
+      type: string
+      enum:
+        - RISKS
+        - VENDORS
+        - ASSETS
+        - DATA
+        - NONCONFORMITIES
+        - OBLIGATIONS
+        - CONTINUAL_IMPROVEMENTS
+        - PROCESSING_ACTIVITIES
+        - STATES_OF_APPLICABILITY
+      go.probo.inc/mcpgen/type: go.probo.inc/probo/pkg/coredata.SnapshotsType
+
+    SnapshotOrderField:
+      type: string
+      enum:
+        - CREATED_AT
+        - NAME
+        - TYPE
+      go.probo.inc/mcpgen/type: go.probo.inc/probo/pkg/coredata.SnapshotOrderField
+
+    SnapshotOrderBy:
+      type: object
+      required:
+        - field
+        - direction
+      properties:
+        field:
+          $ref: "#/components/schemas/SnapshotOrderField"
+          description: Snapshot order field
+        direction:
+          $ref: "#/components/schemas/OrderDirection"
+          description: Snapshot order direction
+
+    Snapshot:
+      type: object
+      required:
+        - id
+        - organization_id
+        - name
+        - type
+        - created_at
+      properties:
+        id:
+          $ref: "#/components/schemas/GID"
+          description: Snapshot ID
+        organization_id:
+          $ref: "#/components/schemas/GID"
+          description: Organization ID
+        name:
+          type: string
+          description: Snapshot name
+        description:
+          anyOf:
+            - type: string
+              description: Snapshot description
+            - type: "null"
+              description: No description
+          description: Snapshot description
+        type:
+          $ref: "#/components/schemas/SnapshotsType"
+          description: Snapshot type
+        created_at:
+          type: string
+          format: date-time
+          description: Creation timestamp
+
+    ListSnapshotsInput:
+      type: object
+      required:
+        - organization_id
+      properties:
+        organization_id:
+          $ref: "#/components/schemas/GID"
+          description: Organization ID
+        order_by:
+          $ref: "#/components/schemas/SnapshotOrderBy"
+          description: Snapshot order by
+        size:
+          type: integer
+          description: Page size
+        cursor:
+          $ref: "#/components/schemas/CursorKey"
+          description: Page cursor
+
+    ListSnapshotsOutput:
+      type: object
+      required:
+        - snapshots
+      properties:
+        snapshots:
+          type: array
+          items:
+            $ref: "#/components/schemas/Snapshot"
+          description: List of snapshots
+        next_cursor:
+          anyOf:
+            - $ref: "#/components/schemas/CursorKey"
+            - type: "null"
+          description: Next page cursor
+
+    GetSnapshotInput:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          $ref: "#/components/schemas/GID"
+          description: Snapshot ID
+
+    GetSnapshotOutput:
+      type: object
+      required:
+        - snapshot
+      properties:
+        snapshot:
+          $ref: "#/components/schemas/Snapshot"
+
+    TakeSnapshotInput:
+      type: object
+      required:
+        - organization_id
+        - name
+        - type
+      properties:
+        organization_id:
+          $ref: "#/components/schemas/GID"
+          description: Organization ID
+        name:
+          type: string
+          description: Snapshot name
+        description:
+          type: string
+          description: Snapshot description
+        type:
+          $ref: "#/components/schemas/SnapshotsType"
+          description: Snapshot type (determines which collection to snapshot)
+
+    TakeSnapshotOutput:
+      type: object
+      required:
+        - snapshot
+      properties:
+        snapshot:
+          $ref: "#/components/schemas/Snapshot"
+
+    DocumentType:
+      type: string
+      enum:
+        - OTHER
+        - ISMS
+        - POLICY
+        - PROCEDURE
+      go.probo.inc/mcpgen/type: go.probo.inc/probo/pkg/coredata.DocumentType
+
+    DocumentClassification:
+      type: string
+      enum:
+        - PUBLIC
+        - INTERNAL
+        - CONFIDENTIAL
+        - SECRET
+      go.probo.inc/mcpgen/type: go.probo.inc/probo/pkg/coredata.DocumentClassification
+
+    DocumentStatus:
+      type: string
+      enum:
+        - DRAFT
+        - PUBLISHED
+      go.probo.inc/mcpgen/type: go.probo.inc/probo/pkg/coredata.DocumentStatus
+
+    DocumentVersionSignatureState:
+      type: string
+      enum:
+        - REQUESTED
+        - SIGNED
+      go.probo.inc/mcpgen/type: go.probo.inc/probo/pkg/coredata.DocumentVersionSignatureState
+
+    DocumentOrderField:
+      type: string
+      enum:
+        - CREATED_AT
+        - TITLE
+        - DOCUMENT_TYPE
+      go.probo.inc/mcpgen/type: go.probo.inc/probo/pkg/coredata.DocumentOrderField
+
+    DocumentOrderBy:
+      type: object
+      required:
+        - field
+        - direction
+      properties:
+        field:
+          $ref: "#/components/schemas/DocumentOrderField"
+          description: Document order field
+        direction:
+          $ref: "#/components/schemas/OrderDirection"
+          description: Document order direction
+
+    DocumentVersionOrderField:
+      type: string
+      enum:
+        - CREATED_AT
+        - VERSION
+      go.probo.inc/mcpgen/type: go.probo.inc/probo/pkg/coredata.DocumentVersionOrderField
+
+    DocumentVersionOrderBy:
+      type: object
+      required:
+        - field
+        - direction
+      properties:
+        field:
+          $ref: "#/components/schemas/DocumentVersionOrderField"
+          description: Document version order field
+        direction:
+          $ref: "#/components/schemas/OrderDirection"
+          description: Document version order direction
+
+    DocumentVersionSignatureOrderField:
+      type: string
+      enum:
+        - CREATED_AT
+        - SIGNED_AT
+      go.probo.inc/mcpgen/type: go.probo.inc/probo/pkg/coredata.DocumentVersionSignatureOrderField
+
+    DocumentVersionSignatureOrderBy:
+      type: object
+      required:
+        - field
+        - direction
+      properties:
+        field:
+          $ref: "#/components/schemas/DocumentVersionSignatureOrderField"
+          description: Document version signature order field
+        direction:
+          $ref: "#/components/schemas/OrderDirection"
+          description: Document version signature order direction
+
+    Document:
+      type: object
+      required:
+        - id
+        - organization_id
+        - approver_ids
+        - title
+        - document_type
+        - classification
+        - trust_center_visibility
+        - created_at
+        - updated_at
+      properties:
+        id:
+          $ref: "#/components/schemas/GID"
+          description: Document ID
+        organization_id:
+          $ref: "#/components/schemas/GID"
+          description: Organization ID
+        approver_ids:
+          type: array
+          items:
+            $ref: "#/components/schemas/GID"
+          description: Approver IDs
+        title:
+          type: string
+          description: Document title
+        document_type:
+          $ref: "#/components/schemas/DocumentType"
+          description: Document type
+        classification:
+          $ref: "#/components/schemas/DocumentClassification"
+          description: Document classification
+        current_published_version:
+          type:
+            - integer
+            - "null"
+          description: Current published version number
+        trust_center_visibility:
+          $ref: "#/components/schemas/TrustCenterVisibility"
+          description: Trust center visibility
+        created_at:
+          type: string
+          format: date-time
+          description: Creation timestamp
+        updated_at:
+          type: string
+          format: date-time
+          description: Update timestamp
+
+    DocumentVersion:
+      type: object
+      required:
+        - id
+        - organization_id
+        - document_id
+        - title
+        - approver_ids
+        - version_number
+        - classification
+        - content
+        - changelog
+        - status
+        - created_at
+        - updated_at
+      properties:
+        id:
+          $ref: "#/components/schemas/GID"
+          description: Document version ID
+        organization_id:
+          $ref: "#/components/schemas/GID"
+          description: Organization ID
+        document_id:
+          $ref: "#/components/schemas/GID"
+          description: Document ID
+        title:
+          type: string
+          description: Document version title
+        approver_ids:
+          type: array
+          items:
+            $ref: "#/components/schemas/GID"
+          description: Approver IDs
+        version_number:
+          type: integer
+          description: Version number
+        classification:
+          $ref: "#/components/schemas/DocumentClassification"
+          description: Document classification
+        content:
+          type: string
+          description: Document content
+        changelog:
+          type: string
+          description: Changelog
+        status:
+          $ref: "#/components/schemas/DocumentStatus"
+          description: Document status
+        published_at:
+          type:
+            - string
+            - "null"
+          format: date-time
+          description: Published timestamp
+        created_at:
+          type: string
+          format: date-time
+          description: Creation timestamp
+        updated_at:
+          type: string
+          format: date-time
+          description: Update timestamp
+
+    DocumentVersionSignature:
+      type: object
+      required:
+        - id
+        - organization_id
+        - document_version_id
+        - state
+        - signed_by
+        - requested_at
+        - created_at
+        - updated_at
+      properties:
+        id:
+          $ref: "#/components/schemas/GID"
+          description: Document version signature ID
+        organization_id:
+          $ref: "#/components/schemas/GID"
+          description: Organization ID
+        document_version_id:
+          $ref: "#/components/schemas/GID"
+          description: Document version ID
+        state:
+          $ref: "#/components/schemas/DocumentVersionSignatureState"
+          description: Signature state
+        signed_by:
+          $ref: "#/components/schemas/GID"
+          description: Signatory ID
+        signed_at:
+          type:
+            - string
+            - "null"
+          format: date-time
+          description: Signed timestamp
+        requested_at:
+          type: string
+          format: date-time
+          description: Requested timestamp
+        created_at:
+          type: string
+          format: date-time
+          description: Creation timestamp
+        updated_at:
+          type: string
+          format: date-time
+          description: Update timestamp
+
+    ListDocumentsInput:
+      type: object
+      required:
+        - organization_id
+      properties:
+        organization_id:
+          $ref: "#/components/schemas/GID"
+          description: Organization ID
+        order_by:
+          $ref: "#/components/schemas/DocumentOrderBy"
+          description: Document order by
+        size:
+          type: integer
+          description: Page size
+        cursor:
+          $ref: "#/components/schemas/CursorKey"
+          description: Page cursor
+        filter:
+          type: object
+          properties:
+            query:
+              type: string
+              description: Search query
+            trust_center_visibilities:
+              type: array
+              items:
+                $ref: "#/components/schemas/TrustCenterVisibility"
+              description: Trust center visibilities
+
+    ListDocumentsOutput:
+      type: object
+      required:
+        - documents
+      properties:
+        next_cursor:
+          $ref: "#/components/schemas/CursorKey"
+          description: Next cursor
+        documents:
+          type: array
+          items:
+            $ref: "#/components/schemas/Document"
+
+    GetDocumentInput:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          $ref: "#/components/schemas/GID"
+          description: Document ID
+
+    GetDocumentOutput:
+      type: object
+      required:
+        - document
+      properties:
+        document:
+          $ref: "#/components/schemas/Document"
+
+    AddDocumentInput:
+      type: object
+      required:
+        - organization_id
+        - title
+        - content
+        - approver_ids
+        - classification
+        - document_type
+      properties:
+        organization_id:
+          $ref: "#/components/schemas/GID"
+          description: Organization ID
+        title:
+          type: string
+          description: Document title
+        content:
+          type: string
+          description: Document content
+        approver_ids:
+          type: array
+          items:
+            $ref: "#/components/schemas/GID"
+          description: Approver IDs
+        classification:
+          $ref: "#/components/schemas/DocumentClassification"
+          description: Document classification
+        document_type:
+          $ref: "#/components/schemas/DocumentType"
+          description: Document type
+        trust_center_visibility:
+          $ref: "#/components/schemas/TrustCenterVisibility"
+          description: Trust center visibility
+
+    AddDocumentOutput:
+      type: object
+      required:
+        - document
+        - document_version
+      properties:
+        document:
+          $ref: "#/components/schemas/Document"
+        document_version:
+          $ref: "#/components/schemas/DocumentVersion"
+
+    UpdateDocumentInput:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          $ref: "#/components/schemas/GID"
+          description: Document ID
+        title:
+          type: string
+          description: Document title
+        approver_ids:
+          type: array
+          items:
+            $ref: "#/components/schemas/GID"
+          description: Approver IDs
+        classification:
+          $ref: "#/components/schemas/DocumentClassification"
+          description: Document classification
+        document_type:
+          $ref: "#/components/schemas/DocumentType"
+          description: Document type
+        trust_center_visibility:
+          $ref: "#/components/schemas/TrustCenterVisibility"
+          description: Trust center visibility
+
+    UpdateDocumentOutput:
+      type: object
+      required:
+        - document
+      properties:
+        document:
+          $ref: "#/components/schemas/Document"
+
+    ListDocumentVersionsInput:
+      type: object
+      required:
+        - document_id
+      properties:
+        document_id:
+          $ref: "#/components/schemas/GID"
+          description: Document ID
+        order_by:
+          $ref: "#/components/schemas/DocumentVersionOrderBy"
+          description: Document version order by
+        size:
+          type: integer
+          description: Page size
+        cursor:
+          $ref: "#/components/schemas/CursorKey"
+          description: Page cursor
+
+    ListDocumentVersionsOutput:
+      type: object
+      required:
+        - document_versions
+      properties:
+        next_cursor:
+          $ref: "#/components/schemas/CursorKey"
+          description: Next cursor
+        document_versions:
+          type: array
+          items:
+            $ref: "#/components/schemas/DocumentVersion"
+
+    GetDocumentVersionInput:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          $ref: "#/components/schemas/GID"
+          description: Document version ID
+
+    GetDocumentVersionOutput:
+      type: object
+      required:
+        - document_version
+      properties:
+        document_version:
+          $ref: "#/components/schemas/DocumentVersion"
+
+    CreateDraftDocumentVersionInput:
+      type: object
+      required:
+        - document_id
+      properties:
+        document_id:
+          $ref: "#/components/schemas/GID"
+          description: Document ID
+
+    CreateDraftDocumentVersionOutput:
+      type: object
+      required:
+        - document_version
+      properties:
+        document_version:
+          $ref: "#/components/schemas/DocumentVersion"
+
+    UpdateDocumentVersionInput:
+      type: object
+      required:
+        - document_version_id
+        - content
+      properties:
+        document_version_id:
+          $ref: "#/components/schemas/GID"
+          description: Document version ID
+        content:
+          type: string
+          description: Document content
+
+    UpdateDocumentVersionOutput:
+      type: object
+      required:
+        - document_version
+      properties:
+        document_version:
+          $ref: "#/components/schemas/DocumentVersion"
+
+    DeleteDraftDocumentVersionInput:
+      type: object
+      required:
+        - document_version_id
+      properties:
+        document_version_id:
+          $ref: "#/components/schemas/GID"
+          description: Document version ID
+
+    DeleteDraftDocumentVersionOutput:
+      type: object
+      required:
+        - deleted_document_version_id
+      properties:
+        deleted_document_version_id:
+          $ref: "#/components/schemas/GID"
+          description: Deleted document version ID
+
+    PublishDocumentVersionInput:
+      type: object
+      required:
+        - document_id
+      properties:
+        document_id:
+          $ref: "#/components/schemas/GID"
+          description: Document ID
+        changelog:
+          type: string
+          description: Changelog
+
+    PublishDocumentVersionOutput:
+      type: object
+      required:
+        - document
+        - document_version
+      properties:
+        document:
+          $ref: "#/components/schemas/Document"
+        document_version:
+          $ref: "#/components/schemas/DocumentVersion"
+
+    DeleteDocumentInput:
+      type: object
+      required:
+        - document_id
+      properties:
+        document_id:
+          $ref: "#/components/schemas/GID"
+          description: Document ID
+
+    DeleteDocumentOutput:
+      type: object
+      required:
+        - deleted_document_id
+      properties:
+        deleted_document_id:
+          $ref: "#/components/schemas/GID"
+          description: Deleted document ID
+
+    ListDocumentVersionSignaturesInput:
+      type: object
+      required:
+        - document_version_id
+      properties:
+        document_version_id:
+          $ref: "#/components/schemas/GID"
+          description: Document version ID
+        order_by:
+          $ref: "#/components/schemas/DocumentVersionSignatureOrderBy"
+          description: Document version signature order by
+        size:
+          type: integer
+          description: Page size
+        cursor:
+          $ref: "#/components/schemas/CursorKey"
+          description: Page cursor
+        filter:
+          type: object
+          properties:
+            states:
+              type: array
+              items:
+                $ref: "#/components/schemas/DocumentVersionSignatureState"
+              description: Signature states
+            active_contract:
+              type: boolean
+              description: Signatory contract status
+
+    ListDocumentVersionSignaturesOutput:
+      type: object
+      required:
+        - document_version_signatures
+      properties:
+        next_cursor:
+          $ref: "#/components/schemas/CursorKey"
+          description: Next cursor
+        document_version_signatures:
+          type: array
+          items:
+            $ref: "#/components/schemas/DocumentVersionSignature"
+
+    GetDocumentVersionSignatureInput:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          $ref: "#/components/schemas/GID"
+          description: Document version signature ID
+
+    GetDocumentVersionSignatureOutput:
+      type: object
+      required:
+        - document_version_signature
+      properties:
+        document_version_signature:
+          $ref: "#/components/schemas/DocumentVersionSignature"
+
+    RequestDocumentVersionSignatureInput:
+      type: object
+      required:
+        - document_version_id
+        - signatory_id
+      properties:
+        document_version_id:
+          $ref: "#/components/schemas/GID"
+          description: Document version ID
+        signatory_id:
+          $ref: "#/components/schemas/GID"
+          description: Signatory ID (Profile ID)
+
+    RequestDocumentVersionSignatureOutput:
+      type: object
+      required:
+        - document_version_signature
+      properties:
+        document_version_signature:
+          $ref: "#/components/schemas/DocumentVersionSignature"
+
+    CancelSignatureRequestInput:
+      type: object
+      required:
+        - document_version_signature_id
+      properties:
+        document_version_signature_id:
+          $ref: "#/components/schemas/GID"
+          description: Document version signature ID
+
+    CancelSignatureRequestOutput:
+      type: object
+      required:
+        - deleted_document_version_signature_id
+      properties:
+        deleted_document_version_signature_id:
+          $ref: "#/components/schemas/GID"
+          description: Deleted document version signature ID
+
+    MeetingOrderField:
+      type: string
+      enum:
+        - CREATED_AT
+        - DATE
+        - NAME
+      go.probo.inc/mcpgen/type: go.probo.inc/probo/pkg/coredata.MeetingOrderField
+
+    MeetingOrderBy:
+      type: object
+      required:
+        - field
+        - direction
+      properties:
+        field:
+          $ref: "#/components/schemas/MeetingOrderField"
+          description: Meeting order field
+        direction:
+          $ref: "#/components/schemas/OrderDirection"
+          description: Meeting order direction
+
+    Meeting:
+      type: object
+      required:
+        - id
+        - name
+        - date
+        - created_at
+        - updated_at
+      properties:
+        id:
+          $ref: "#/components/schemas/GID"
+          description: Meeting ID
+        name:
+          type: string
+          description: Meeting name
+        date:
+          type: string
+          format: date-time
+          description: Meeting date
+        minutes:
+          anyOf:
+            - type: string
+              description: Meeting minutes
+            - type: "null"
+              description: No minutes
+          description: Meeting minutes
+        created_at:
+          type: string
+          format: date-time
+          description: Creation timestamp
+        updated_at:
+          type: string
+          format: date-time
+          description: Update timestamp
+
+    ListMeetingsInput:
+      type: object
+      required:
+        - organization_id
+      properties:
+        organization_id:
+          $ref: "#/components/schemas/GID"
+          description: Organization ID
+        order_by:
+          $ref: "#/components/schemas/MeetingOrderBy"
+          description: Meeting order by
+        size:
+          type: integer
+          description: Page size
+        cursor:
+          $ref: "#/components/schemas/CursorKey"
+          description: Page cursor
+
+    ListMeetingsOutput:
+      type: object
+      required:
+        - meetings
+      properties:
+        meetings:
+          type: array
+          items:
+            $ref: "#/components/schemas/Meeting"
+          description: List of meetings
+        next_cursor:
+          anyOf:
+            - $ref: "#/components/schemas/CursorKey"
+            - type: "null"
+          description: Next page cursor
+
+    GetMeetingInput:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          $ref: "#/components/schemas/GID"
+          description: Meeting ID
+
+    GetMeetingOutput:
+      type: object
+      required:
+        - meeting
+      properties:
+        meeting:
+          $ref: "#/components/schemas/Meeting"
+
+    AddMeetingInput:
+      type: object
+      required:
+        - organization_id
+        - name
+        - date
+      properties:
+        organization_id:
+          $ref: "#/components/schemas/GID"
+          description: Organization ID
+        name:
+          type: string
+          description: Meeting name
+        date:
+          type: string
+          format: date-time
+          description: Meeting date
+        attendee_ids:
+          type: array
+          items:
+            $ref: "#/components/schemas/GID"
+          description: List of attendee profile IDs
+        minutes:
+          anyOf:
+            - type: string
+              description: Meeting minutes
+            - type: "null"
+              description: No minutes
+          description: Meeting minutes
+
+    AddMeetingOutput:
+      type: object
+      required:
+        - meeting
+      properties:
+        meeting:
+          $ref: "#/components/schemas/Meeting"
+
+    UpdateMeetingInput:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          $ref: "#/components/schemas/GID"
+          description: Meeting ID
+        name:
+          type: string
+          description: Meeting name
+        date:
+          type: string
+          format: date-time
+          description: Meeting date
+        attendee_ids:
+          type: array
+          items:
+            $ref: "#/components/schemas/GID"
+          description: List of attendee profile IDs
+        minutes:
+          type: ["string", "null"]
+          description: Meeting minutes
+          go.probo.inc/mcpgen/omittable: true
+
+    UpdateMeetingOutput:
+      type: object
+      required:
+        - meeting
+      properties:
+        meeting:
+          $ref: "#/components/schemas/Meeting"
+
+    DeleteMeetingInput:
+      type: object
+      required:
+        - id
+      properties:
+        id:
+          $ref: "#/components/schemas/GID"
+          description: Meeting ID
+
+    DeleteMeetingOutput:
+      type: object
+      required:
+        - deleted_meeting_id
+      properties:
+        deleted_meeting_id:
+          $ref: "#/components/schemas/GID"
+          description: Deleted meeting ID
+
+    ListMeetingAttendeesInput:
+      type: object
+      required:
+        - meeting_id
+      properties:
+        meeting_id:
+          $ref: "#/components/schemas/GID"
+          description: Meeting ID
+
+    ListMeetingAttendeesOutput:
+      type: object
+      required:
+        - attendees
+      properties:
+        attendees:
+          type: array
+          items:
+            $ref: "#/components/schemas/Profile"
+          description: List of attendee profiles
+
+tools:
+  - name: listOrganizations
+    description: List all organizations the user has access to
+    hints:
+      readonly: true
+      idempotent: true
+    inputSchema:
+      $ref: "#/components/schemas/ListOrganizationsInput"
+    outputSchema:
+      $ref: "#/components/schemas/ListOrganizationsOutput"
+  - name: listVendors
+    description: List all vendors for the organization
+    hints:
+      readonly: true
+      idempotent: true
+    inputSchema:
+      $ref: "#/components/schemas/ListVendorsInput"
+    outputSchema:
+      $ref: "#/components/schemas/ListVendorsOutput"
+  - name: listProfiles
+    description: List all profiles for the organization
+    hints:
+      readonly: true
+      idempotent: true
+    inputSchema:
+      $ref: "#/components/schemas/ListProfilesInput"
+    outputSchema:
+      $ref: "#/components/schemas/ListProfilesOutput"
+  - name: addVendor
+    description: Add a new vendor to the organization
+    hints:
+      readonly: false
+    inputSchema:
+      $ref: "#/components/schemas/AddVendorInput"
+    outputSchema:
+      $ref: "#/components/schemas/AddVendorOutput"
+  - name: updateVendor
+    description: Update an existing vendor
+    hints:
+      readonly: false
+    inputSchema:
+      $ref: "#/components/schemas/UpdateVendorInput"
+    outputSchema:
+      $ref: "#/components/schemas/UpdateVendorOutput"
+  - name: getProfile
+    description: Get a profile by ID
+    hints:
+      readonly: true
+      idempotent: true
+    inputSchema:
+      $ref: "#/components/schemas/GetProfileInput"
+    outputSchema:
+      $ref: "#/components/schemas/GetProfileOutput"
+  - name: updateProfile
+    description: Update an existing profile
+    hints:
+      readonly: false
+    inputSchema:
+      $ref: "#/components/schemas/UpdateProfileInput"
+    outputSchema:
+      $ref: "#/components/schemas/UpdateProfileOutput"
+  - name: listRisks
+    description: List all risks for the organization
+    hints:
+      readonly: true
+      idempotent: true
+    inputSchema:
+      $ref: "#/components/schemas/ListRisksInput"
+    outputSchema:
+      $ref: "#/components/schemas/ListRisksOutput"
+  - name: getRisk
+    description: Get a risk by ID
+    hints:
+      readonly: true
+      idempotent: true
+    inputSchema:
+      $ref: "#/components/schemas/GetRiskInput"
+    outputSchema:
+      $ref: "#/components/schemas/GetRiskOutput"
+  - name: addRisk
+    description: Add a new risk to the organization
+    hints:
+      readonly: false
+    inputSchema:
+      $ref: "#/components/schemas/AddRiskInput"
+    outputSchema:
+      $ref: "#/components/schemas/AddRiskOutput"
+  - name: updateRisk
+    description: Update an existing risk
+    hints:
+      readonly: false
+    inputSchema:
+      $ref: "#/components/schemas/UpdateRiskInput"
+    outputSchema:
+      $ref: "#/components/schemas/UpdateRiskOutput"
+  - name: deleteRisk
+    description: Delete a risk
+    hints:
+      readonly: false
+      destructive: true
+    inputSchema:
+      $ref: "#/components/schemas/DeleteRiskInput"
+    outputSchema:
+      $ref: "#/components/schemas/DeleteRiskOutput"
+  - name: listMeasures
+    description: List all measures for the organization
+    hints:
+      readonly: true
+      idempotent: true
+    inputSchema:
+      $ref: "#/components/schemas/ListMeasuresInput"
+    outputSchema:
+      $ref: "#/components/schemas/ListMeasuresOutput"
+  - name: getMeasure
+    description: Get a measure by ID
+    hints:
+      readonly: true
+      idempotent: true
+    inputSchema:
+      $ref: "#/components/schemas/GetMeasureInput"
+    outputSchema:
+      $ref: "#/components/schemas/GetMeasureOutput"
+  - name: addMeasure
+    description: Add a new measure to the organization
+    hints:
+      readonly: false
+    inputSchema:
+      $ref: "#/components/schemas/AddMeasureInput"
+    outputSchema:
+      $ref: "#/components/schemas/AddMeasureOutput"
+  - name: updateMeasure
+    description: Update an existing measure
+    hints:
+      readonly: false
+    inputSchema:
+      $ref: "#/components/schemas/UpdateMeasureInput"
+    outputSchema:
+      $ref: "#/components/schemas/UpdateMeasureOutput"
+  - name: listFrameworks
+    description: List all frameworks for the organization
+    hints:
+      readonly: true
+      idempotent: true
+    inputSchema:
+      $ref: "#/components/schemas/ListFrameworksInput"
+    outputSchema:
+      $ref: "#/components/schemas/ListFrameworksOutput"
+  - name: getFramework
+    description: Get a framework by ID
+    hints:
+      readonly: true
+      idempotent: true
+    inputSchema:
+      $ref: "#/components/schemas/GetFrameworkInput"
+    outputSchema:
+      $ref: "#/components/schemas/GetFrameworkOutput"
+  - name: addFramework
+    description: Add a new framework to the organization
+    hints:
+      readonly: false
+    inputSchema:
+      $ref: "#/components/schemas/AddFrameworkInput"
+    outputSchema:
+      $ref: "#/components/schemas/AddFrameworkOutput"
+  - name: updateFramework
+    description: Update an existing framework
+    hints:
+      readonly: false
+    inputSchema:
+      $ref: "#/components/schemas/UpdateFrameworkInput"
+    outputSchema:
+      $ref: "#/components/schemas/UpdateFrameworkOutput"
+  - name: listAssets
+    description: List all assets for the organization
+    hints:
+      readonly: true
+      idempotent: true
+    inputSchema:
+      $ref: "#/components/schemas/ListAssetsInput"
+    outputSchema:
+      $ref: "#/components/schemas/ListAssetsOutput"
+  - name: getAsset
+    description: Get an asset by ID
+    hints:
+      readonly: true
+      idempotent: true
+    inputSchema:
+      $ref: "#/components/schemas/GetAssetInput"
+    outputSchema:
+      $ref: "#/components/schemas/GetAssetOutput"
+  - name: addAsset
+    description: Add a new asset to the organization
+    hints:
+      readonly: false
+    inputSchema:
+      $ref: "#/components/schemas/AddAssetInput"
+    outputSchema:
+      $ref: "#/components/schemas/AddAssetOutput"
+  - name: updateAsset
+    description: Update an existing asset
+    hints:
+      readonly: false
+    inputSchema:
+      $ref: "#/components/schemas/UpdateAssetInput"
+    outputSchema:
+      $ref: "#/components/schemas/UpdateAssetOutput"
+  - name: listData
+    description: List all data for the organization
+    hints:
+      readonly: true
+      idempotent: true
+    inputSchema:
+      $ref: "#/components/schemas/ListDataInput"
+    outputSchema:
+      $ref: "#/components/schemas/ListDataOutput"
+  - name: getDatum
+    description: Get a datum by ID
+    hints:
+      readonly: true
+      idempotent: true
+    inputSchema:
+      $ref: "#/components/schemas/GetDatumInput"
+    outputSchema:
+      $ref: "#/components/schemas/GetDatumOutput"
+  - name: addDatum
+    description: Add a new datum to the organization
+    hints:
+      readonly: false
+    inputSchema:
+      $ref: "#/components/schemas/AddDatumInput"
+    outputSchema:
+      $ref: "#/components/schemas/AddDatumOutput"
+  - name: updateDatum
+    description: Update an existing datum
+    hints:
+      readonly: false
+    inputSchema:
+      $ref: "#/components/schemas/UpdateDatumInput"
+    outputSchema:
+      $ref: "#/components/schemas/UpdateDatumOutput"
+  - name: listNonconformities
+    description: List all nonconformities for the organization
+    hints:
+      readonly: true
+      idempotent: true
+    inputSchema:
+      $ref: "#/components/schemas/ListNonconformitiesInput"
+    outputSchema:
+      $ref: "#/components/schemas/ListNonconformitiesOutput"
+  - name: getNonconformity
+    description: Get a nonconformity by ID
+    hints:
+      readonly: true
+      idempotent: true
+    inputSchema:
+      $ref: "#/components/schemas/GetNonconformityInput"
+    outputSchema:
+      $ref: "#/components/schemas/GetNonconformityOutput"
+  - name: addNonconformity
+    description: Add a new nonconformity to the organization
+    hints:
+      readonly: false
+    inputSchema:
+      $ref: "#/components/schemas/AddNonconformityInput"
+    outputSchema:
+      $ref: "#/components/schemas/AddNonconformityOutput"
+  - name: updateNonconformity
+    description: Update an existing nonconformity
+    hints:
+      readonly: false
+    inputSchema:
+      $ref: "#/components/schemas/UpdateNonconformityInput"
+    outputSchema:
+      $ref: "#/components/schemas/UpdateNonconformityOutput"
+  - name: listObligations
+    description: List all obligations for the organization
+    hints:
+      readonly: true
+      idempotent: true
+    inputSchema:
+      $ref: "#/components/schemas/ListObligationsInput"
+    outputSchema:
+      $ref: "#/components/schemas/ListObligationsOutput"
+  - name: getObligation
+    description: Get an obligation by ID
+    hints:
+      readonly: true
+      idempotent: true
+    inputSchema:
+      $ref: "#/components/schemas/GetObligationInput"
+    outputSchema:
+      $ref: "#/components/schemas/GetObligationOutput"
+  - name: addObligation
+    description: Add a new obligation to the organization
+    hints:
+      readonly: false
+    inputSchema:
+      $ref: "#/components/schemas/AddObligationInput"
+    outputSchema:
+      $ref: "#/components/schemas/AddObligationOutput"
+  - name: updateObligation
+    description: Update an existing obligation
+    hints:
+      readonly: false
+    inputSchema:
+      $ref: "#/components/schemas/UpdateObligationInput"
+    outputSchema:
+      $ref: "#/components/schemas/UpdateObligationOutput"
+  - name: listContinualImprovements
+    description: List all continual improvements for the organization
+    hints:
+      readonly: true
+      idempotent: true
+    inputSchema:
+      $ref: "#/components/schemas/ListContinualImprovementsInput"
+    outputSchema:
+      $ref: "#/components/schemas/ListContinualImprovementsOutput"
+  - name: getContinualImprovement
+    description: Get a continual improvement by ID
+    hints:
+      readonly: true
+      idempotent: true
+    inputSchema:
+      $ref: "#/components/schemas/GetContinualImprovementInput"
+    outputSchema:
+      $ref: "#/components/schemas/GetContinualImprovementOutput"
+  - name: addContinualImprovement
+    description: Add a new continual improvement to the organization
+    hints:
+      readonly: false
+    inputSchema:
+      $ref: "#/components/schemas/AddContinualImprovementInput"
+    outputSchema:
+      $ref: "#/components/schemas/AddContinualImprovementOutput"
+  - name: updateContinualImprovement
+    description: Update an existing continual improvement
+    hints:
+      readonly: false
+    inputSchema:
+      $ref: "#/components/schemas/UpdateContinualImprovementInput"
+    outputSchema:
+      $ref: "#/components/schemas/UpdateContinualImprovementOutput"
+  - name: listAudits
+    description: List all audits for the organization
+    hints:
+      readonly: true
+      idempotent: true
+    inputSchema:
+      $ref: "#/components/schemas/ListAuditsInput"
+    outputSchema:
+      $ref: "#/components/schemas/ListAuditsOutput"
+  - name: getAudit
+    description: Get an audit by ID
+    hints:
+      readonly: true
+      idempotent: true
+    inputSchema:
+      $ref: "#/components/schemas/GetAuditInput"
+    outputSchema:
+      $ref: "#/components/schemas/GetAuditOutput"
+  - name: addAudit
+    description: Add a new audit to the organization
+    hints:
+      readonly: false
+    inputSchema:
+      $ref: "#/components/schemas/AddAuditInput"
+    outputSchema:
+      $ref: "#/components/schemas/AddAuditOutput"
+  - name: updateAudit
+    description: Update an existing audit
+    hints:
+      readonly: false
+    inputSchema:
+      $ref: "#/components/schemas/UpdateAuditInput"
+    outputSchema:
+      $ref: "#/components/schemas/UpdateAuditOutput"
+  - name: listControls
+    description: List all controls for the organization or framework
+    hints:
+      readonly: true
+      idempotent: true
+    inputSchema:
+      $ref: "#/components/schemas/ListControlsInput"
+    outputSchema:
+      $ref: "#/components/schemas/ListControlsOutput"
+  - name: getControl
+    description: Get a control by ID
+    hints:
+      readonly: true
+      idempotent: true
+    inputSchema:
+      $ref: "#/components/schemas/GetControlInput"
+    outputSchema:
+      $ref: "#/components/schemas/GetControlOutput"
+  - name: addControl
+    description: Add a new control to a framework
+    hints:
+      readonly: false
+    inputSchema:
+      $ref: "#/components/schemas/AddControlInput"
+    outputSchema:
+      $ref: "#/components/schemas/AddControlOutput"
+  - name: updateControl
+    description: Update an existing control
+    hints:
+      readonly: false
+    inputSchema:
+      $ref: "#/components/schemas/UpdateControlInput"
+    outputSchema:
+      $ref: "#/components/schemas/UpdateControlOutput"
+  - name: linkControlMeasure
+    description: Link a measure to a control
+    hints:
+      readonly: false
+    inputSchema:
+      $ref: "#/components/schemas/LinkControlMeasureInput"
+    outputSchema:
+      $ref: "#/components/schemas/LinkControlMeasureOutput"
+  - name: unlinkControlMeasure
+    description: Unlink a measure from a control
+    hints:
+      readonly: false
+    inputSchema:
+      $ref: "#/components/schemas/UnlinkControlMeasureInput"
+    outputSchema:
+      $ref: "#/components/schemas/UnlinkControlMeasureOutput"
+  - name: linkControlDocument
+    description: Link a document to a control
+    hints:
+      readonly: false
+    inputSchema:
+      $ref: "#/components/schemas/LinkControlDocumentInput"
+    outputSchema:
+      $ref: "#/components/schemas/LinkControlDocumentOutput"
+  - name: unlinkControlDocument
+    description: Unlink a document from a control
+    hints:
+      readonly: false
+    inputSchema:
+      $ref: "#/components/schemas/UnlinkControlDocumentInput"
+    outputSchema:
+      $ref: "#/components/schemas/UnlinkControlDocumentOutput"
+  - name: linkControlAudit
+    description: Link an audit to a control
+    hints:
+      readonly: false
+    inputSchema:
+      $ref: "#/components/schemas/LinkControlAuditInput"
+    outputSchema:
+      $ref: "#/components/schemas/LinkControlAuditOutput"
+  - name: unlinkControlAudit
+    description: Unlink an audit from a control
+    hints:
+      readonly: false
+    inputSchema:
+      $ref: "#/components/schemas/UnlinkControlAuditInput"
+    outputSchema:
+      $ref: "#/components/schemas/UnlinkControlAuditOutput"
+  - name: linkControlSnapshot
+    description: Link a snapshot to a control
+    hints:
+      readonly: false
+    inputSchema:
+      $ref: "#/components/schemas/LinkControlSnapshotInput"
+    outputSchema:
+      $ref: "#/components/schemas/LinkControlSnapshotOutput"
+  - name: unlinkControlSnapshot
+    description: Unlink a snapshot from a control
+    hints:
+      readonly: false
+    inputSchema:
+      $ref: "#/components/schemas/UnlinkControlSnapshotInput"
+    outputSchema:
+      $ref: "#/components/schemas/UnlinkControlSnapshotOutput"
+  - name: listTasks
+    description: List all tasks for the organization or measure
+    hints:
+      readonly: true
+      idempotent: true
+    inputSchema:
+      $ref: "#/components/schemas/ListTasksInput"
+    outputSchema:
+      $ref: "#/components/schemas/ListTasksOutput"
+  - name: getTask
+    description: Get a task by ID
+    hints:
+      readonly: true
+      idempotent: true
+    inputSchema:
+      $ref: "#/components/schemas/GetTaskInput"
+    outputSchema:
+      $ref: "#/components/schemas/GetTaskOutput"
+  - name: addTask
+    description: Add a new task to the organization
+    hints:
+      readonly: false
+    inputSchema:
+      $ref: "#/components/schemas/AddTaskInput"
+    outputSchema:
+      $ref: "#/components/schemas/AddTaskOutput"
+  - name: updateTask
+    description: Update an existing task
+    hints:
+      readonly: false
+    inputSchema:
+      $ref: "#/components/schemas/UpdateTaskInput"
+    outputSchema:
+      $ref: "#/components/schemas/UpdateTaskOutput"
+  - name: assignTask
+    description: Assign a task to a person
+    hints:
+      readonly: false
+    inputSchema:
+      $ref: "#/components/schemas/AssignTaskInput"
+    outputSchema:
+      $ref: "#/components/schemas/AssignTaskOutput"
+  - name: unassignTask
+    description: Unassign a task from a person
+    hints:
+      readonly: false
+    inputSchema:
+      $ref: "#/components/schemas/UnassignTaskInput"
+    outputSchema:
+      $ref: "#/components/schemas/UnassignTaskOutput"
+  - name: deleteTask
+    description: Delete a task
+    hints:
+      readonly: false
+      destructive: true
+    inputSchema:
+      $ref: "#/components/schemas/DeleteTaskInput"
+    outputSchema:
+      $ref: "#/components/schemas/DeleteTaskOutput"
+  - name: listSnapshots
+    description: List all snapshots for the organization
+    hints:
+      readonly: true
+      idempotent: true
+    inputSchema:
+      $ref: "#/components/schemas/ListSnapshotsInput"
+    outputSchema:
+      $ref: "#/components/schemas/ListSnapshotsOutput"
+  - name: getSnapshot
+    description: Get a snapshot by ID
+    hints:
+      readonly: true
+      idempotent: true
+    inputSchema:
+      $ref: "#/components/schemas/GetSnapshotInput"
+    outputSchema:
+      $ref: "#/components/schemas/GetSnapshotOutput"
+  - name: takeSnapshot
+    description: Take a snapshot of a collection of objects (risks, vendors, assets, data, nonconformities, obligations, continual improvements, or processing activities)
+    hints:
+      readonly: false
+    inputSchema:
+      $ref: "#/components/schemas/TakeSnapshotInput"
+    outputSchema:
+      $ref: "#/components/schemas/TakeSnapshotOutput"
+  - name: listDocuments
+    description: List all documents for the organization
+    hints:
+      readonly: true
+      idempotent: true
+    inputSchema:
+      $ref: "#/components/schemas/ListDocumentsInput"
+    outputSchema:
+      $ref: "#/components/schemas/ListDocumentsOutput"
+  - name: getDocument
+    description: Get a document by ID
+    hints:
+      readonly: true
+      idempotent: true
+    inputSchema:
+      $ref: "#/components/schemas/GetDocumentInput"
+    outputSchema:
+      $ref: "#/components/schemas/GetDocumentOutput"
+  - name: addDocument
+    description: Add a new document to the organization
+    hints:
+      readonly: false
+    inputSchema:
+      $ref: "#/components/schemas/AddDocumentInput"
+    outputSchema:
+      $ref: "#/components/schemas/AddDocumentOutput"
+  - name: updateDocument
+    description: Update an existing document
+    hints:
+      readonly: false
+    inputSchema:
+      $ref: "#/components/schemas/UpdateDocumentInput"
+    outputSchema:
+      $ref: "#/components/schemas/UpdateDocumentOutput"
+  - name: listDocumentVersions
+    description: List all versions for a document
+    hints:
+      readonly: true
+      idempotent: true
+    inputSchema:
+      $ref: "#/components/schemas/ListDocumentVersionsInput"
+    outputSchema:
+      $ref: "#/components/schemas/ListDocumentVersionsOutput"
+  - name: getDocumentVersion
+    description: Get a document version by ID
+    hints:
+      readonly: true
+      idempotent: true
+    inputSchema:
+      $ref: "#/components/schemas/GetDocumentVersionInput"
+    outputSchema:
+      $ref: "#/components/schemas/GetDocumentVersionOutput"
+  - name: createDraftDocumentVersion
+    description: Create a new draft version from the latest published version
+    hints:
+      readonly: false
+    inputSchema:
+      $ref: "#/components/schemas/CreateDraftDocumentVersionInput"
+    outputSchema:
+      $ref: "#/components/schemas/CreateDraftDocumentVersionOutput"
+  - name: updateDocumentVersion
+    description: Update an existing draft document version content
+    hints:
+      readonly: false
+    inputSchema:
+      $ref: "#/components/schemas/UpdateDocumentVersionInput"
+    outputSchema:
+      $ref: "#/components/schemas/UpdateDocumentVersionOutput"
+  - name: deleteDraftDocumentVersion
+    description: Delete a draft document version
+    hints:
+      readonly: false
+    inputSchema:
+      $ref: "#/components/schemas/DeleteDraftDocumentVersionInput"
+    outputSchema:
+      $ref: "#/components/schemas/DeleteDraftDocumentVersionOutput"
+  - name: publishDocumentVersion
+    description: Publish a draft document version
+    hints:
+      readonly: false
+    inputSchema:
+      $ref: "#/components/schemas/PublishDocumentVersionInput"
+    outputSchema:
+      $ref: "#/components/schemas/PublishDocumentVersionOutput"
+  - name: deleteDocument
+    description: Delete a document
+    hints:
+      readonly: false
+      destructive: true
+    inputSchema:
+      $ref: "#/components/schemas/DeleteDocumentInput"
+    outputSchema:
+      $ref: "#/components/schemas/DeleteDocumentOutput"
+  - name: listDocumentVersionSignatures
+    description: List all signatures for a document version
+    hints:
+      readonly: true
+      idempotent: true
+    inputSchema:
+      $ref: "#/components/schemas/ListDocumentVersionSignaturesInput"
+    outputSchema:
+      $ref: "#/components/schemas/ListDocumentVersionSignaturesOutput"
+  - name: getDocumentVersionSignature
+    description: Get a document version signature by ID
+    hints:
+      readonly: true
+      idempotent: true
+    inputSchema:
+      $ref: "#/components/schemas/GetDocumentVersionSignatureInput"
+    outputSchema:
+      $ref: "#/components/schemas/GetDocumentVersionSignatureOutput"
+  - name: requestDocumentVersionSignature
+    description: Request a signature for a document version
+    hints:
+      readonly: false
+    inputSchema:
+      $ref: "#/components/schemas/RequestDocumentVersionSignatureInput"
+    outputSchema:
+      $ref: "#/components/schemas/RequestDocumentVersionSignatureOutput"
+  - name: cancelSignatureRequest
+    description: Cancel a document version signature request
+    hints:
+      readonly: false
+      destructive: true
+    inputSchema:
+      $ref: "#/components/schemas/CancelSignatureRequestInput"
+    outputSchema:
+      $ref: "#/components/schemas/CancelSignatureRequestOutput"
+  - name: listMeetings
+    description: List all meetings for the organization
+    hints:
+      readonly: true
+      idempotent: true
+    inputSchema:
+      $ref: "#/components/schemas/ListMeetingsInput"
+    outputSchema:
+      $ref: "#/components/schemas/ListMeetingsOutput"
+  - name: getMeeting
+    description: Get a meeting by ID
+    hints:
+      readonly: true
+      idempotent: true
+    inputSchema:
+      $ref: "#/components/schemas/GetMeetingInput"
+    outputSchema:
+      $ref: "#/components/schemas/GetMeetingOutput"
+  - name: addMeeting
+    description: Add a new meeting to the organization
+    hints:
+      readonly: false
+    inputSchema:
+      $ref: "#/components/schemas/AddMeetingInput"
+    outputSchema:
+      $ref: "#/components/schemas/AddMeetingOutput"
+  - name: updateMeeting
+    description: Update an existing meeting
+    hints:
+      readonly: false
+    inputSchema:
+      $ref: "#/components/schemas/UpdateMeetingInput"
+    outputSchema:
+      $ref: "#/components/schemas/UpdateMeetingOutput"
+  - name: deleteMeeting
+    description: Delete a meeting
+    hints:
+      readonly: false
+      destructive: true
+    inputSchema:
+      $ref: "#/components/schemas/DeleteMeetingInput"
+    outputSchema:
+      $ref: "#/components/schemas/DeleteMeetingOutput"
+  - name: listMeetingAttendees
+    description: List all attendees for a meeting
+    hints:
+      readonly: true
+      idempotent: true
+    inputSchema:
+      $ref: "#/components/schemas/ListMeetingAttendeesInput"
+    outputSchema:
+      $ref: "#/components/schemas/ListMeetingAttendeesOutput"

@@ -1,0 +1,189 @@
+import { sprintf } from "@probo/helpers";
+import { useTranslate } from "@probo/i18n";
+import { useConfirm } from "@probo/ui";
+import { useCallback } from "react";
+import { graphql } from "relay-runtime";
+
+import { useMutationWithToasts } from "../useMutationWithToasts";
+
+export const connectionListKey = "FrameworksListQuery_frameworks";
+
+export const frameworksQuery = graphql`
+  query FrameworkGraphListQuery($organizationId: ID!) {
+    organization: node(id: $organizationId) {
+      ... on Organization {
+        id
+        canCreateFramework: permission(action: "core:framework:create")
+        frameworks(first: 100)
+          @connection(key: "FrameworksListQuery_frameworks") {
+          __id
+          edges {
+            node {
+              id
+              canUpdate: permission(action: "core:framework:update")
+              canDelete: permission(action: "core:framework:delete")
+              ...FrameworksPageCardFragment
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
+const deleteFrameworkMutation = graphql`
+  mutation FrameworkGraphDeleteMutation(
+    $input: DeleteFrameworkInput!
+    $connections: [ID!]!
+  ) {
+    deleteFramework(input: $input) {
+      deletedFrameworkId @deleteEdge(connections: $connections)
+    }
+  }
+`;
+
+export const useDeleteFrameworkMutation = (
+  framework: { id: string; name: string },
+  connectionId: string,
+) => {
+  const [commitDelete] = useMutationWithToasts(deleteFrameworkMutation, {
+    errorMessage: "Failed to delete framework",
+    successMessage: "Framework deleted successfully",
+  });
+  const confirm = useConfirm();
+  const { __ } = useTranslate();
+
+  return useCallback(
+    (options?: { onSuccess?: () => void }) => {
+      return confirm(
+        () => {
+          return commitDelete({
+            variables: {
+              input: {
+                frameworkId: framework.id,
+              },
+              connections: [connectionId],
+            },
+            ...options,
+          });
+        },
+        {
+          message: sprintf(
+            __(
+              "This will permanently delete framework \"%s\". This action cannot be undone.",
+            ),
+            framework.name,
+          ),
+        },
+      );
+    },
+    [framework, connectionId, commitDelete, confirm, __],
+  );
+};
+
+export const frameworkNodeQuery = graphql`
+  query FrameworkGraphNodeQuery($frameworkId: ID!) {
+    node(id: $frameworkId) {
+      ... on Framework {
+        id
+        name
+        ...FrameworkDetailPageFragment
+      }
+    }
+  }
+`;
+
+export const frameworkControlNodeQuery = graphql`
+  query FrameworkGraphControlNodeQuery($controlId: ID!) {
+    node(id: $controlId) {
+      ... on Control {
+        id
+        name
+        sectionTitle
+        description
+        canUpdate: permission(action: "core:control:update")
+        canDelete: permission(action: "core:control:delete")
+        canCreateMeasureMapping: permission(
+          action: "core:control:create-measure-mapping"
+        )
+        canDeleteMeasureMapping: permission(
+          action: "core:control:delete-measure-mapping"
+        )
+        canCreateDocumentMapping: permission(
+          action: "core:control:create-document-mapping"
+        )
+        canDeleteDocumentMapping: permission(
+          action: "core:control:delete-document-mapping"
+        )
+        canCreateAuditMapping: permission(
+          action: "core:control:create-audit-mapping"
+        )
+        canDeleteAuditMapping: permission(
+          action: "core:control:delete-audit-mapping"
+        )
+        canCreateSnapshotMapping: permission(
+          action: "core:control:create-snapshot-mapping"
+        )
+        canDeleteSnapshotMapping: permission(
+          action: "core:control:delete-snapshot-mapping"
+        )
+        canCreateObligationMapping: permission(
+          action: "core:control:create-obligation-mapping"
+        )
+        canDeleteObligationMapping: permission(
+          action: "core:control:delete-obligation-mapping"
+        )
+        ...FrameworkControlDialogFragment
+        measures(first: 100)
+          @connection(key: "FrameworkGraphControl_measures") {
+          __id
+          edges {
+            node {
+              id
+              ...LinkedMeasuresCardFragment
+            }
+          }
+        }
+        documents(first: 100)
+          @connection(key: "FrameworkGraphControl_documents") {
+          __id
+          edges {
+            node {
+              id
+              ...LinkedDocumentsCardFragment
+            }
+          }
+        }
+        audits(first: 100) @connection(key: "FrameworkGraphControl_audits") {
+          __id
+          edges {
+            node {
+              id
+              ...LinkedAuditsCardFragment
+            }
+          }
+        }
+        obligations(first: 100)
+          @connection(key: "FrameworkGraphControl_obligations") {
+          __id
+          edges {
+            node {
+              id
+              ...LinkedObligationsCardFragment
+            }
+          }
+        }
+        snapshots(first: 100)
+          @connection(key: "FrameworkGraphControl_snapshots") {
+          __id
+          edges {
+            node {
+              id
+              ...LinkedSnapshotsCardFragment
+            }
+          }
+        }
+      }
+    }
+  }
+`;

@@ -1,0 +1,1 @@
+ALTER TABLE policies ADD COLUMN review_date TIMESTAMP WITH TIME ZONE; 

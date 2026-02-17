@@ -1,0 +1,1 @@
+ALTER TABLE risks_mitigations ADD COLUMN tenant_id TEXT NOT NULL;

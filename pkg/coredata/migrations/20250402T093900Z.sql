@@ -1,0 +1,1 @@
+ALTER TABLE evidences ALTER COLUMN task_id SET NOT NULL;

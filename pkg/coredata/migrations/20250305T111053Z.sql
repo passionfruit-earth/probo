@@ -1,0 +1,1 @@
+ALTER TABLE policies ADD COLUMN owner_id TEXT REFERENCES peoples(id) NOT NULL;

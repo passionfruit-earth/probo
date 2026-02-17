@@ -1,0 +1,2 @@
+ALTER TABLE controls ADD COLUMN reference_id TEXT NOT NULL DEFAULT '';
+ALTER TABLE controls ALTER COLUMN reference_id DROP DEFAULT;

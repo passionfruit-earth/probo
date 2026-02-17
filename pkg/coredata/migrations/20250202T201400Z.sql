@@ -1,0 +1,1 @@
+ALTER TABLE usrmgr_sessions ADD COLUMN expired_at TIMESTAMP WITH TIME ZONE NOT NULL;

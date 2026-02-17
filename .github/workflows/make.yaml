@@ -1,0 +1,255 @@
+name: "make"
+on:
+  push:
+    branches:
+      - "main"
+  pull_request:
+    branches:
+      - "main"
+
+jobs:
+  release-snapshot:
+    name: "release-snapshot"
+    runs-on: "ubuntu-24.04-64cores"
+    permissions:
+      contents: "read"
+      packages: "write"
+      id-token: "write"
+      security-events: "write"
+    steps:
+      - uses: "actions/checkout@v6"
+        with:
+          fetch-depth: 0
+          submodules: recursive
+      - uses: "actions/setup-go@v6"
+        with:
+          go-version: "1.25.7"
+          cache: true
+      - uses: "actions/setup-node@v6"
+        with:
+          node-version-file: ".nvmrc"
+          cache: "npm"
+      - run: "npm i -g npm@11.8.0"
+      - run: "npm ci"
+      - uses: "docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130" # v3.7.0
+      - uses: "docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f" # v3.12.0
+      - uses: "sigstore/cosign-installer@053f9b74638557590800a301da1ba82351507e2c" # v3.8.1
+      - name: Cache Trivy database
+        uses: "actions/cache@v5"
+        with:
+          path: ~/.cache/trivy
+          key: trivy-db-${{ runner.os }}-${{ github.run_id }}
+          restore-keys: |
+            trivy-db-${{ runner.os }}-
+      - uses: "anchore/sbom-action/download-syft@deef08a0db64bfad603422135db61477b16cef56" # v0.22.1
+      - uses: "goreleaser/goreleaser-action@e435ccd777264be153ace6237001ef4d979d3a7a" # v6.4.0
+        with:
+          distribution: "goreleaser"
+          version: "~> v2"
+          args: "release --clean --snapshot"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Scan Docker image with Trivy
+        if: github.ref == 'refs/heads/main'
+        uses: "aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8" # 0.33.1
+        with:
+          image-ref: "ghcr.io/getprobo/probo:latest-amd64"
+          format: "sarif"
+          output: "trivy-results.sarif"
+          exit-code: 0
+          ignore-unfixed: true
+          vuln-type: "os,library"
+          severity: "CRITICAL,HIGH"
+          cache-dir: ~/.cache/trivy
+      - name: Scan Docker image with Trivy
+        if: github.ref != 'refs/heads/main'
+        uses: "aquasecurity/trivy-action@b6643a29fecd7f34b3597bc6acb0a98b03d33ff8" # 0.33.1
+        with:
+          image-ref: "ghcr.io/getprobo/probo:latest-amd64"
+          format: "table"
+          exit-code: 1
+          ignore-unfixed: true
+          vuln-type: "os,library"
+          severity: "CRITICAL,HIGH"
+          cache-dir: ~/.cache/trivy
+      - name: Upload Trivy scan results to GitHub Security tab
+        if: github.ref == 'refs/heads/main'
+        uses: github/codeql-action/upload-sarif@6bc82e05fd0ea64601dd4b465378bbcf57de0314 # v4.32.1
+        with:
+          sarif_file: "trivy-results.sarif"
+      - uses: anchore/sbom-action@deef08a0db64bfad603422135db61477b16cef56 #v0.22.1
+        with:
+          path: ./
+          format: cyclonedx-json
+          output-file: sbom.json
+      - name: Cache grype binary
+        uses: actions/cache@v5
+        id: grype-cache
+        with:
+          path: ~/.local/bin/grype
+          key: grype-${{ runner.os }}-v0.97.1
+      - name: Install grype with retry
+        if: steps.grype-cache.outputs.cache-hit != 'true'
+        id: grype-install
+        shell: bash
+        run: |
+          set -euo pipefail
+          GRYPE_VERSION="v0.97.1"
+          GRYPE_DIR="${HOME}/.local/bin"
+          mkdir -p "${GRYPE_DIR}"
+
+          # Download with retry logic
+          MAX_RETRIES=3
+          RETRY_DELAY=10
+
+          for i in $(seq 1 $MAX_RETRIES); do
+            echo "Attempt $i of $MAX_RETRIES: Installing grype ${GRYPE_VERSION}..."
+            if curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b "${GRYPE_DIR}" "${GRYPE_VERSION}"; then
+              echo "Grype installed successfully"
+              exit 0
+            fi
+
+            if [ $i -lt $MAX_RETRIES ]; then
+              echo "Installation failed, retrying in ${RETRY_DELAY} seconds..."
+              sleep $RETRY_DELAY
+              RETRY_DELAY=$((RETRY_DELAY * 2))
+            fi
+          done
+
+          echo "Failed to install grype after $MAX_RETRIES attempts"
+          exit 1
+      - name: Add grype to PATH
+        run: echo "${HOME}/.local/bin" >> "$GITHUB_PATH"
+      - uses: anchore/scan-action@8d2fce09422cd6037e577f4130e9b925e9a37175 #v7.3.1
+        with:
+          sbom: "sbom.json"
+          fail-build: true
+          severity-cutoff: critical
+          output-format: table
+
+  lint:
+    name: "lint"
+    runs-on: "ubuntu-22.04"
+    permissions:
+      contents: "read"
+    steps:
+      - uses: "actions/checkout@v6"
+        with:
+          submodules: recursive
+      - uses: "actions/setup-go@v6"
+        with:
+          go-version: "1.25.7"
+          cache: true
+      - uses: "actions/setup-node@v6"
+        with:
+          node-version-file: ".nvmrc"
+          cache: "npm"
+      - uses: golangci/golangci-lint-action@1e7e51e771db61008b38414a730f564565cf7c20 # v9.2.0
+        with:
+          install-only: true
+      - run: "npm i -g npm@11.8.0"
+      - run: "npm ci"
+      - run: "make build"
+      - run: "make lint"
+
+  test:
+    name: "test"
+    runs-on: "ubuntu-22.04"
+    permissions:
+      contents: "read"
+    steps:
+      - uses: "actions/checkout@v6"
+        with:
+          submodules: recursive
+      - uses: "actions/setup-go@v6"
+        with:
+          go-version: "1.25.7"
+          cache: true
+      - uses: "actions/setup-node@v6"
+        with:
+          node-version-file: ".nvmrc"
+          cache: "npm"
+      - run: "npm i -g npm@11.8.0"
+      - run: "npm ci"
+      - run: "make build"
+      - run: "make test"
+        env:
+          GOTESTSUM_JUNITFILE: "junit.xml"
+      - name: "Upload test results"
+        uses: "actions/upload-artifact@v6"
+        if: "always()"
+        with:
+          name: "junit-results"
+          path: "junit.xml"
+          retention-days: 30
+      - run: "make coverage-report"
+      - uses: "actions/upload-artifact@v6"
+        with:
+          name: "coverage-reports"
+          path: |
+            coverage.out
+            coverage.html
+          retention-days: 30
+      # Trivy ignore does not work for license scanning in Github action
+      # - uses: "aquasecurity/trivy-action@0.33.1"
+      #   with:
+      #     scan-type: "fs"
+      #     scanners: "license"
+      #     severity: "UNKNOWN,HIGH,CRITICAL"
+      #     exit-code: 1
+      #     trivyignores: ".trivyignore.yaml"
+      #     trivy-config: "trivy.yaml"
+
+  test-e2e:
+    name: "test-e2e"
+    runs-on: "ubuntu-22.04"
+    permissions:
+      contents: "read"
+    steps:
+      - uses: "actions/checkout@v6"
+        with:
+          submodules: recursive
+      - uses: "actions/setup-go@v6"
+        with:
+          go-version: "1.25.7"
+          cache: true
+      - uses: "actions/setup-node@v6"
+        with:
+          node-version-file: ".nvmrc"
+          cache: "npm"
+      - run: "npm i -g npm@11.8.0"
+      - run: "sudo apt-get install -y mkcert"
+      - run: "sudo mkcert -install 2>&1 | grep -v 'no Firefox and/or Chrome/Chromium security databases found' || true"
+      - uses: "docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130" # v3.7.0
+      - uses: "docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f" # v3.12.0
+      - uses: "docker/setup-compose-action@364cc21a5de5b1ee4a7f5f9d3fa374ce0ccde746" # v1.2.0
+      - run: "npm ci"
+      - run: "make stack-up"
+      - run: "make stack-ps"
+      - name: "Inject root CA into e2e config"
+        run: |
+          # Use Python to properly inject the root CA PEM content into YAML
+          python3 << 'EOF'
+          import yaml
+
+          with open('compose/pebble/certs/rootCA.pem', 'r') as f:
+              root_ca = f.read()
+
+          with open('e2e/console/testdata/config.yaml', 'r') as f:
+              config = yaml.safe_load(f)
+
+          config['probod']['custom-domains']['acme']['root-ca'] = root_ca
+
+          with open('e2e/console/testdata/config.yaml', 'w') as f:
+              yaml.dump(config, f, default_flow_style=False, allow_unicode=True)
+          EOF
+      - run: "SKIP_APPS=1 make test-e2e"
+        env:
+          GOTESTSUM_JUNITFILE: "junit-e2e.xml"
+      - name: "Upload test results"
+        uses: "actions/upload-artifact@v6"
+        if: "always()"
+        with:
+          name: "junit-e2e-results"
+          path: "junit-e2e.xml"
+          retention-days: 30

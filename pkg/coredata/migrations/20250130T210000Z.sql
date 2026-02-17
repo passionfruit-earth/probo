@@ -1,0 +1,3 @@
+ALTER TABLE evidences
+  ADD COLUMN mime_type TEXT NOT NULL,
+  ADD COLUMN size NUMERIC NOT NULL;

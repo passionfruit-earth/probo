@@ -1,0 +1,1 @@
+ALTER TABLE organizations RENAME COLUMN logo_url TO logo_object_key;

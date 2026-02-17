@@ -1,0 +1,1 @@
+ALTER TABLE frameworks ADD COLUMN reference_id TEXT;

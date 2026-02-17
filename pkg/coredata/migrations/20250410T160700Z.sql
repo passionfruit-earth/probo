@@ -1,0 +1,1 @@
+UPDATE vendors SET category = 'Other' WHERE category IS NULL;

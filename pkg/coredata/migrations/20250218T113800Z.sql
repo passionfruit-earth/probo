@@ -1,0 +1,1 @@
+ALTER TABLE vendors ADD COLUMN privacy_policy_url TEXT;

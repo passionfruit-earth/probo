@@ -1,0 +1,1 @@
+ALTER TABLE frameworks DROP COLUMN content_ref;

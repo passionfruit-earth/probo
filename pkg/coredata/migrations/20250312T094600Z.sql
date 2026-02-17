@@ -1,0 +1,1 @@
+ALTER TABLE usrmgr_user_organizations RENAME TO users_organizations;

@@ -1,0 +1,7 @@
+CREATE TABLE evidences (
+  id TEXT PRIMARY KEY,
+  task_id TEXT REFERENCES tasks(id) NOT NULL,
+  object_key TEXT NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL
+);

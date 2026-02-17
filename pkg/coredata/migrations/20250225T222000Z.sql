@@ -1,0 +1,1 @@
+ALTER TABLE usrmgr_users ALTER COLUMN fullname SET NOT NULL;

@@ -1,0 +1,1 @@
+ALTER TABLE usrmgr_users ADD COLUMN fullname TEXT;

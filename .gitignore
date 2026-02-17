@@ -1,0 +1,15 @@
+bin/
+node_modules/
+.turbo
+.vscode
+dist/
+.react-email/
+sbom.json
+sbom-docker.json
+*_sbom.json
+*.out
+*.DS_Store
+*.pem
+*.crt
+*.key
+compose/keycloak/probo-realm.json

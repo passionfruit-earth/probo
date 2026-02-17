@@ -1,0 +1,1 @@
+ALTER TABLE tasks ALTER COLUMN time_estimate DROP NOT NULL;

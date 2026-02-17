@@ -1,0 +1,2 @@
+ALTER TABLE vendors ADD COLUMN description TEXT NOT NULL DEFAULT '';
+ALTER TABLE vendors ALTER COLUMN description DROP DEFAULT; 
