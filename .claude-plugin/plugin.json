@@ -1,8 +1,15 @@
 {
   "name": "probo-security",
-  "description": "ISO 27001 security verification commands for Probo. Scan GitHub, AWS, and other systems for compliance gaps.",
+  "description": "ISO 27001 security verification and compliance management for Probo. Scan systems for compliance gaps, manage measures, risks, and tasks.",
   "author": {
     "name": "Passionfruit",
     "email": "dev@passionfruit.earth"
+  },
+  "commands": {
+    "scan": "Scan a system for ISO 27001 controls (aws|github|google|slack|linear|vercel|notion|posthog|attio|fireflies|azure|loops|all)",
+    "scan-vendor": "Research vendor certifications and security posture",
+    "setup-integrations": "Set up API tokens for security scanning (slack|linear|vercel|notion|posthog|attio|fireflies|loops|all)",
+    "probo-list": "List measures, risks, vendors, tasks from Probo",
+    "probo-create": "Create measures, risks, tasks, vendors in Probo"
   }
 }
