@@ -101,6 +101,9 @@ curl -s "$API_URL" -H "Content-Type: application/json" -H "Authorization: Bearer
 
 ## Update Document
 
+Documents use **versioning** for audit trail safety. You cannot directly edit published content.
+
+### Update metadata only (safe)
 ```bash
 curl -s "$API_URL" -H "Content-Type: application/json" -H "Authorization: Bearer $API_KEY" \
   -d '{"query": "mutation { updateDocument(input: {id: \"DOC_ID\", title: \"New title\"}) { document { id title } } }"}'
@@ -110,6 +113,29 @@ curl -s "$API_URL" -H "Content-Type: application/json" -H "Authorization: Bearer
 - `id` (required): Document ID
 - `title` (optional): New title
 - `documentType` (optional): POLICY | PROCEDURE | GUIDELINE | STANDARD | RECORD | OTHER
+- `description` (optional): Document description
+- `classification` (optional): PUBLIC | INTERNAL | CONFIDENTIAL | RESTRICTED
+
+### Update content (creates new version)
+
+**Step 1:** Create a new draft version
+```bash
+curl -s "$API_URL" -H "Content-Type: application/json" -H "Authorization: Bearer $API_KEY" \
+  -d '{"query": "mutation { createDraftDocumentVersion(input: {documentId: \"DOC_ID\", content: \"# Updated Policy\\n\\nNew content here...\"}) { documentVersion { id version } } }"}'
+```
+
+**Step 2:** Publish the new version (requires confirmation)
+```bash
+curl -s "$API_URL" -H "Content-Type: application/json" -H "Authorization: Bearer $API_KEY" \
+  -d '{"query": "mutation { publishDocumentVersion(input: {documentVersionId: \"VERSION_ID\"}) { documentVersion { id version } } }"}'
+```
+
+**Version workflow:**
+1. Draft → can edit freely
+2. Published → locked, creates audit trail
+3. To update published → create new draft → publish
+
+**Safety:** Always confirm with user before publishing. Published versions may require signatures.
 
 ---
 
@@ -140,3 +166,6 @@ updateTask(input: {id: "...", assigneeId: "USER_ID"})
 - Use `probo-list` to find item IDs
 - Always verify changes were applied
 - Document reasons for state changes in scan logs
+- **Documents:** Always create new version for content changes (audit trail)
+- **Documents:** Confirm with user before publishing (may require signatures)
+- **No deletes:** Use Probo UI for any deletions
