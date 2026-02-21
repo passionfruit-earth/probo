@@ -13,6 +13,33 @@ During the ISO 27001 setup process, we identified several improvements needed fo
 
 ## Feature Requests
 
+### 0. GitHub Sync / Continuous APIs (CURRENT)
+
+**Problem:** Compliance requires continuous monitoring of development practices - PR reviews, branch protection, security scanning, etc. Currently no automated way to verify these controls.
+
+**Requirements:**
+- OAuth2 integration with GitHub
+- Sync repository metadata (branch protection rules, required reviews)
+- Track PR review compliance
+- Monitor security alerts (Dependabot, code scanning)
+- Evidence collection for audit (automated screenshots/exports)
+
+**Proposed Solution:**
+- Add `ConnectorProviderGitHub` following existing connector patterns
+- Create `GitHubService` in `/pkg/probo/`
+- GraphQL schema for GitHub entities
+- Webhook listener for real-time updates
+- Periodic sync for compliance checks
+
+**Key Files:**
+- `/pkg/connector/` - Connector framework
+- `/pkg/probo/slack_service.go` - Similar OAuth2 pattern
+- `/pkg/coredata/connector_provider.go` - Add GitHub provider
+
+**Status:** IN_PROGRESS
+
+---
+
 ### 1. Quality Mark for Agent-Generated Content
 
 **Problem:** When the agent creates measures, policies, or other content, there's no way to distinguish it from manually created content or Probo default content.
@@ -376,33 +403,6 @@ Agent:
 
 ---
 
-### 8. GitHub Sync / Continuous APIs
-
-**Problem:** Compliance requires continuous monitoring of development practices - PR reviews, branch protection, security scanning, etc. Currently no automated way to verify these controls.
-
-**Requirements:**
-- OAuth2 integration with GitHub
-- Sync repository metadata (branch protection rules, required reviews)
-- Track PR review compliance
-- Monitor security alerts (Dependabot, code scanning)
-- Evidence collection for audit (automated screenshots/exports)
-
-**Proposed Solution:**
-- Add `ConnectorProviderGitHub` following existing connector patterns
-- Create `GitHubService` in `/pkg/probo/`
-- GraphQL schema for GitHub entities
-- Webhook listener for real-time updates
-- Periodic sync for compliance checks
-
-**Key Files:**
-- `/pkg/connector/` - Connector framework
-- `/pkg/probo/slack_service.go` - Similar OAuth2 pattern
-- `/pkg/coredata/connector_provider.go` - Add GitHub provider
-
-**Status:** IN_PROGRESS
-
----
-
 ## Priority Order
 
 | Priority | Feature | Impact |
@@ -428,5 +428,6 @@ Agent:
 
 | Date | Change | By |
 |------|--------|-----|
-| 2026-02-21 | Initial creation based on ISO 27001 setup session | Claude/Passionfruit |
+| 2026-02-21 | Started GitHub Sync implementation (Priority 0) | Claude |
 | 2026-02-21 | Added smart vendor gathering features (8-13) | Claude/Passionfruit |
+| 2026-02-21 | Initial creation based on ISO 27001 setup session | Claude/Passionfruit |
