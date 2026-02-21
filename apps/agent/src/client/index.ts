@@ -255,6 +255,30 @@ export class ProboClient {
     return this.client.request(mutation, { input });
   }
 
+  async createTask(input: {
+    organizationId: string;
+    name: string;
+    description?: string;
+    measureId?: string;
+    assignedToId?: string;
+    deadline?: string;
+  }) {
+    const mutation = gql`
+      mutation CreateTask($input: CreateTaskInput!) {
+        createTask(input: $input) {
+          taskEdge {
+            node {
+              id
+              name
+              state
+            }
+          }
+        }
+      }
+    `;
+    return this.client.request(mutation, { input });
+  }
+
   // Document operations
   async listDocuments(organizationId: string) {
     const query = gql`
