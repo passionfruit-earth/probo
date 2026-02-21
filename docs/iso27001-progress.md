@@ -189,13 +189,55 @@ We're using a **bottom-up approach**:
 
 ---
 
-## Phase 4: Implementation & Evidence - PENDING
+## Phase 4: Implementation & Evidence - IN PROGRESS
 
-For each implemented measure, collect evidence:
-- Screenshots of configurations
-- Policy documents
-- Process documentation
-- System exports
+**Goal:** Verify controls are actually working and collect audit evidence.
+
+### Tools Created
+
+| Tool | Purpose | Location |
+|------|---------|----------|
+| AWS Verification Script | Automated AWS control checks | `scripts/verify-aws-controls.sh` |
+| Evidence Checklist | Manual verification guide | `docs/evidence-collection-checklist.md` |
+
+### AWS Controls to Verify
+
+Run `./scripts/verify-aws-controls.sh` to check:
+
+| Control | What to Verify | Status |
+|---------|---------------|--------|
+| EU Data Residency | Region is eu-west-1 or eu-central-1 | [ ] |
+| RDS Encryption | StorageEncrypted = true | [ ] |
+| RDS Backups | BackupRetentionPeriod >= 7 | [ ] |
+| RDS Multi-AZ | MultiAZ = true | [ ] |
+| S3 Encryption | Default encryption enabled | [ ] |
+| S3 Versioning | Versioning enabled | [ ] |
+| VPC Flow Logs | Flow logs configured | [ ] |
+| CloudTrail | Multi-region trail active | [ ] |
+| KMS Keys | Customer-managed keys exist | [ ] |
+| ALB TLS | HTTPS listener with TLS 1.2+ | [ ] |
+
+### Other Evidence to Collect
+
+| Category | Evidence Needed | Status |
+|----------|----------------|--------|
+| Authentication | Entra SSO config, MFA enforcement | [ ] |
+| Access Control | GitHub branch protection, IAM policies | [ ] |
+| Monitoring | CloudWatch alarms, alert destinations | [ ] |
+| Vendors | DPAs, SOC2 reports, trust page screenshots | [ ] |
+| Training | Completion records, materials | [ ] |
+
+### How to Run Verification
+
+```bash
+# Make executable
+chmod +x scripts/verify-aws-controls.sh
+
+# Run with your AWS profile
+./scripts/verify-aws-controls.sh [profile-name]
+
+# Evidence saved to ./aws-evidence-YYYYMMDD/
+```
 
 ---
 
@@ -301,6 +343,7 @@ Security profiles gathered for 13 vendors (see `vendor-security-profiles.md`):
 | `iso27001-measures-log.md` | Detailed rationale for each measure |
 | `iso27001-probo-reference.md` | Probo IDs and API reference |
 | `vendor-security-profiles.md` | Detailed vendor security info |
+| `evidence-collection-checklist.md` | AWS and control verification guide |
 | `agent-development-plan.md` | Feature backlog for agent improvements |
 
 ---
