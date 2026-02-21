@@ -64,7 +64,7 @@ export default function DocumentsPage(props: {
   usePageTitle(__("Documents"));
 
   const canSendAnySignatureNotifications = organization.documents.edges.some(
-    ({ node: { canSendSigningNotifications } }) => canSendSigningNotifications,
+    ({ node }) => node?.canSendSigningNotifications,
   );
 
   const [documentListConnectionId, setDocumentListConnectionId] = useState(

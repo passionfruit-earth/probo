@@ -71,7 +71,8 @@ export function DocumentList(props: {
   );
 
   const documents = pagination.data.documents.edges
-    .map(({ node }) => node);
+    .map(({ node }) => node)
+    .filter((node): node is NonNullable<typeof node> => node != null);
   const connectionId = pagination.data.documents.__id;
 
   const [bulkDeleteDocuments] = useBulkDeleteDocumentsMutation();
