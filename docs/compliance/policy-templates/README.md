@@ -55,6 +55,46 @@ Each policy template should include:
 4. Publish in Probo
 5. Obtain signatures if required
 
+## Writing Auditor-Friendly Policies
+
+Auditors look for policies that are **real, practical, and actually used**. Avoid generic templates.
+
+### Do
+- **Be specific to Passionfruit** - Reference actual tools (Slack, GitHub, AWS), real roles, actual processes
+- **Keep it short** - 2-4 pages max. Auditors prefer concise over comprehensive
+- **Use concrete examples** - "All production deployments require PR approval" not "appropriate controls shall be implemented"
+- **Match reality** - Only write what you actually do. Auditors will check
+- **Use active voice** - "The CTO approves..." not "Approval shall be obtained..."
+- **Include version history** - Shows the policy is maintained
+- **Date everything** - Created, last reviewed, next review due
+
+### Don't
+- **No filler phrases** - Cut "in order to ensure", "it is important that", "shall be deemed to"
+- **No passive voice walls** - "Access shall be granted based on..." sounds templated
+- **No over-promising** - Don't claim 24/7 monitoring if you don't have it
+- **No orphan policies** - Every policy needs an owner who actually reviews it
+- **No copy-paste from standards** - Auditors recognize ISO text immediately
+
+### Red Flags Auditors Look For
+- Generic company name placeholders (`[COMPANY NAME]`)
+- Policies that don't match interviews ("We do X" but policy says Y)
+- No evidence of review (same version for years)
+- Overly formal language that doesn't match company culture
+- Controls described that don't exist in practice
+
+### Good Example
+> **Password Requirements**
+> All Passionfruit accounts must use passwords with:
+> - Minimum 12 characters
+> - Managed via 1Password (company vault)
+> - MFA enabled via Microsoft Entra
+>
+> Lars reviews access quarterly via the GitHub org member list.
+
+### Bad Example
+> **Password Requirements**
+> In order to ensure the security and integrity of organizational information assets, all personnel shall be required to implement appropriate password controls in accordance with industry best practices and applicable regulatory requirements.
+
 ## Sources
 
 Templates based on:
