@@ -122,13 +122,21 @@ For each integration, automatically generate:
 3. **Change log** - What changed since last check
 4. **Attachable evidence** - Link to measures in Probo
 
-### Risk & Task Creation
+### Risk & Task Creation (DONE)
 
 When compliance checks fail, automatically:
 1. **Map issue to ISO control** (e.g., "no branch protection" → A.8.25)
 2. **Create risk** if severity is medium/high or multiple repos affected
 3. **Create task** with recommended remediation actions
 4. **Skip** low-severity issues affecting only 1-2 repos
+
+**CLI Command:** `/sync risks` (or `/sync risks --dry-run` to preview)
+
+**Implementation:** `apps/agent/src/evidence/risks.ts`
+- `createRisksFromEvidence()` - analyzes evidence and creates risks/tasks
+- Groups issues by ISO control to avoid duplicates
+- Maps severity to inherentLikelihood/inherentImpact (1-5 scale)
+- Creates tasks with recommended remediation actions
 
 Issue → Control mapping:
 | Issue | Control | Severity |
@@ -139,6 +147,23 @@ Issue → Control mapping:
 | 2FA not enforced | A.5.17 Authentication | Medium |
 | Too many admins | A.5.15 Access control | Low |
 
+**Example output:**
+```
+/sync risks
+
+Creating risks from compliance evidence...
+
+Risks created:
+  - [A.8.25] Secure development lifecycle - Compliance Gap
+  - [A.8.8] Management of technical vulnerabilities - Compliance Gap
+
+Tasks created:
+  - Review compliance gap: A.8.25 - Secure development lifecycle
+  - Review compliance gap: A.8.8 - Management of technical vulnerabilities
+
+Summary: 2 risks, 2 tasks created, 0 skipped
+```
+
 ### File Structure
 
 ```
@@ -147,9 +172,11 @@ apps/agent/src/
 │   ├── compliance-agent.ts  # Main agent with tool execution
 │   ├── tools.ts             # All agent tools (GitHub, Google, Probo)
 │   └── index.ts
-├── evidence/               # NEW: Evidence storage system
+├── evidence/               # Evidence storage and automation
 │   ├── store.ts            # Local file-based evidence storage
 │   ├── checks.ts           # Compliance check runners
+│   ├── sync.ts             # Sync evidence to Probo documents
+│   ├── risks.ts            # Auto-create risks/tasks from evidence
 │   └── index.ts
 ├── integrations/
 │   ├── github/             # DONE
@@ -573,6 +600,7 @@ Agent:
 
 | Date | Change | By |
 |------|--------|-----|
+| 2026-02-21 | Added risk/task auto-creation from failing evidence (`/sync risks`) | Claude |
 | 2026-02-21 | Added evidence storage system (`apps/agent/src/evidence/`) | Claude |
 | 2026-02-21 | Added `/scan` and `/evidence` CLI commands | Claude |
 | 2026-02-21 | Google Workspace integration complete (client + tools) | Claude |
