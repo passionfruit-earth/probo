@@ -29,20 +29,20 @@ These MUST be implemented by every organization:
 
 | Clause | Title | Status |
 |--------|-------|--------|
-| 4 | Context of the organization | NOT_STARTED |
+| 4 | Context of the organization | IN_PROGRESS |
 | 4.1 | Understanding the organization and its context | NOT_STARTED |
 | 4.2 | Understanding needs and expectations of interested parties | NOT_STARTED |
-| 4.3 | Determining the scope of the ISMS | DRAFT |
-| 4.4 | Information security management system | NOT_STARTED |
-| 5 | Leadership | NOT_STARTED |
-| 5.1 | Leadership and commitment | NOT_STARTED |
-| 5.2 | Information Security Policy | NOT_STARTED |
-| 5.3 | Organizational roles, responsibilities and authorities | NOT_STARTED |
-| 6 | Planning | IN_PROGRESS |
-| 6.1 | Actions to address risks and opportunities | IN_PROGRESS |
-| 6.1.2 | Information security risk assessment | IN_PROGRESS |
-| 6.1.3 | Information security risk treatment | IN_PROGRESS |
-| 6.2 | Information security objectives and planning | NOT_STARTED |
+| 4.3 | Determining the scope of the ISMS | IMPLEMENTED |
+| 4.4 | Information security management system | IN_PROGRESS |
+| 5 | Leadership | IN_PROGRESS |
+| 5.1 | Leadership and commitment | IMPLEMENTED |
+| 5.2 | Information Security Policy | IMPLEMENTED |
+| 5.3 | Organizational roles, responsibilities and authorities | PARTIAL |
+| 6 | Planning | IMPLEMENTED |
+| 6.1 | Actions to address risks and opportunities | IMPLEMENTED |
+| 6.1.2 | Information security risk assessment | IMPLEMENTED |
+| 6.1.3 | Information security risk treatment | IMPLEMENTED |
+| 6.2 | Information security objectives and planning | PARTIAL |
 | 6.3 | Planning of changes | NOT_STARTED |
 | 7 | Support | NOT_STARTED |
 | 7.1 | Resources | NOT_STARTED |
@@ -109,6 +109,10 @@ We're using a **bottom-up approach**:
 **Documents Created in Probo:**
 - Incident Response Plan (ID: `2delmZUAAAEACgAAAZyBB92Ti1ha589s`)
 - Business Continuity Plan (ID: `2delmZUAAAEACgAAAZyBCTbg73Nskffa`)
+- Information Security Policy (ID: `2delmZUAAAEACgAAAZyBK4FqVlXMfR4a`)
+- ISMS Scope Statement (ID: `2delmZUAAAEACgAAAZyBL_19QhhOt-6d`)
+- Risk Assessment Methodology (ID: `2delmZUAAAEACgAAAZyBMRAsSsUUMvi0`)
+- Statement of Applicability (ID: `2delmZUAAAEACgAAAZyBQ_orHneoAGYh`)
 
 ### Medium Priority Gaps
 
@@ -123,7 +127,7 @@ We're using a **bottom-up approach**:
 
 ---
 
-## Phase 3: Mandatory Documentation - PENDING
+## Phase 3: Mandatory Documentation - IN PROGRESS
 
 **These documents are REQUIRED by ISO 27001 clauses 4-10:**
 
@@ -131,7 +135,7 @@ We're using a **bottom-up approach**:
 
 | Document | Clause | Status | Notes |
 |----------|--------|--------|-------|
-| ISMS Scope Statement | 4.3 | DRAFT | Define boundaries and applicability |
+| ISMS Scope Statement | 4.3 | IMPLEMENTED | ID: `2delmZUAAAEACgAAAZyBL_19QhhOt-6d` |
 | Context Analysis | 4.1 | NOT_STARTED | Internal/external issues affecting ISMS |
 | Interested Parties Analysis | 4.2 | NOT_STARTED | Who has requirements (customers, regulators, etc.) |
 
@@ -139,18 +143,18 @@ We're using a **bottom-up approach**:
 
 | Document | Clause | Status | Notes |
 |----------|--------|--------|-------|
-| Information Security Policy | 5.2 | NOT_STARTED | Top-level management commitment |
-| Roles & Responsibilities | 5.3 | NOT_STARTED | Who is responsible for what |
+| Information Security Policy | 5.2 | IMPLEMENTED | ID: `2delmZUAAAEACgAAAZyBK4FqVlXMfR4a` |
+| Roles & Responsibilities | 5.3 | PARTIAL | Defined in Information Security Policy |
 
 ### Clause 6 - Planning
 
 | Document | Clause | Status | Notes |
 |----------|--------|--------|-------|
-| Risk Assessment Methodology | 6.1.2 | NOT_STARTED | How risks are identified/evaluated |
-| Risk Assessment Report | 6.1.2 | NOT_STARTED | Actual risk register |
-| Risk Treatment Plan | 6.1.3 | NOT_STARTED | How risks will be addressed |
-| Statement of Applicability (SoA) | 6.1.3 | NOT_STARTED | Which Annex A controls apply and why |
-| Information Security Objectives | 6.2 | NOT_STARTED | Measurable security goals |
+| Risk Assessment Methodology | 6.1.2 | IMPLEMENTED | ID: `2delmZUAAAEACgAAAZyBMRAsSsUUMvi0` |
+| Risk Assessment Report | 6.1.2 | IMPLEMENTED | 10 risks in Probo risk register |
+| Risk Treatment Plan | 6.1.3 | IMPLEMENTED | Treatment documented per risk |
+| Statement of Applicability (SoA) | 6.1.3 | IMPLEMENTED | ID: `2delmZUAAAEACgAAAZyBQ_orHneoAGYh` |
+| Information Security Objectives | 6.2 | PARTIAL | Defined in Information Security Policy |
 
 ### Clause 7 - Support
 
@@ -215,9 +219,10 @@ For each implemented measure, collect evidence:
 
 | Task | Input | Output | Reference |
 |------|-------|--------|-----------|
-| Create Information Security Policy | Interview notes, company context | Formal policy document | ISO 27001 clause 5.2 |
-| Create Risk Assessment Methodology | Company context, industry | Risk methodology document | ISO 27001 clause 6.1.2 |
-| Create ISMS Scope Document | Scope summary, interview notes | Formal scope statement | ISO 27001 clause 4.3 |
+| ~~Create Information Security Policy~~ | ~~Interview notes, company context~~ | ~~Formal policy document~~ | ~~ISO 27001 clause 5.2~~ ✓ |
+| ~~Create Risk Assessment Methodology~~ | ~~Company context, industry~~ | ~~Risk methodology document~~ | ~~ISO 27001 clause 6.1.2~~ ✓ |
+| ~~Create ISMS Scope Document~~ | ~~Scope summary, interview notes~~ | ~~Formal scope statement~~ | ~~ISO 27001 clause 4.3~~ ✓ |
+| ~~Create Statement of Applicability~~ | ~~Control mapping, risk assessment~~ | ~~SoA document~~ | ~~ISO 27001 clause 6.1.3~~ ✓ |
 | ~~Create Incident Response Plan~~ | ~~Team size (<10), cloud architecture~~ | ~~IR plan document~~ | ~~A.5.24-27~~ ✓ |
 | ~~Create Business Continuity Plan~~ | ~~AWS infrastructure, critical services~~ | ~~BCP document~~ | ~~A.5.29-30~~ ✓ |
 | Create Remote Working Policy | Remote/co-working team context | Policy document | A.6.7 |
@@ -303,6 +308,8 @@ Security profiles gathered for 13 vendors (see `vendor-security-profiles.md`):
 
 | Date | Change | By |
 |------|--------|-----|
+| 2026-02-21 | Created mandatory ISMS docs: Information Security Policy, ISMS Scope, Risk Methodology, SoA | Claude/Passionfruit |
+| 2026-02-21 | Created 10 risks in Probo risk register | Claude/Passionfruit |
 | 2026-02-21 | Created Incident Response Plan and BCP in Probo | Claude/Passionfruit |
 | 2026-02-21 | Added vendor security profiles | Claude/Passionfruit |
 | 2026-02-21 | Added full ISO 27001 clause structure | Claude/Passionfruit |
