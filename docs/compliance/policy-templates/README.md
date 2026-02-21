@@ -95,11 +95,50 @@ Auditors look for policies that are **real, practical, and actually used**. Avoi
 > **Password Requirements**
 > In order to ensure the security and integrity of organizational information assets, all personnel shall be required to implement appropriate password controls in accordance with industry best practices and applicable regulatory requirements.
 
+## Startup Success Stories
+
+Real startups that passed ISO 27001 audits - learn from their approach:
+
+### Ellie.ai (17 people, Finland) - Certified Nov 2025
+- **Approach:** No external consultants, did it themselves
+- **Key insight:** "Because we did the work ourselves, we now truly understand how our security system works"
+- **Lesson:** Security became company-wide responsibility, not one person's job
+- **Source:** [Cyberday case study](https://www.cyberday.ai/success-stories/ellie-ai-earns-enterprise-trust-with-iso-27001)
+
+### Pyne (Berlin B2B SaaS) - Certified Jan 2025
+- **Timeline:** 2 months (Nov 2024 → Jan 2025)
+- **Approach:** Remote-first audit, async evidence upload
+- **Key insight:** Time zone differences became advantage - uploaded evidence overnight for auditor review
+- **Result:** Trust Center with all security credentials accelerated sales
+- **Source:** [Sensiba case study](https://sensiba.com/resources/case-studies/pyne/)
+
+### DETOXI (4 people, German healthtech) - 2024
+- **Challenge:** ISO 27001 was non-negotiable for health insurance partnership
+- **Reality:** No formal ISMS, no audit history, limited resources
+- **Lesson:** Even 4-person startups can achieve certification with right structure
+
+### Common Patterns from Successful Startups
+
+1. **Describe reality, don't invent processes** - If you use GitHub PRs for code review, document that. Don't create fictional processes
+2. **Keep policies short** - 2-6 pages each. Auditors prefer concise and practical
+3. **Capture evidence immediately** - Every control implementation = screenshot/export stored in ISMS folder
+4. **Scope narrowly but credibly** - "Entire organization" becomes endless; too narrow looks suspicious
+5. **Do internal audit first** - Find gaps yourself before external auditor does
+
+### What Auditors Actually Check
+From [ISC2 implementation guide](https://www.isc2.org/Insights/2024/03/Implementing-ISO-27001-2022-for-Startups-and-SMEs):
+- Does Statement of Applicability match actual risk assessment?
+- Do documented controls exist in practice?
+- Is executive management actually involved?
+- Can staff explain their security responsibilities?
+
 ## Sources
 
 Templates based on:
 - ISO 27001:2022 standard requirements
 - ISO 27002:2022 implementation guidance
 - Industry best practices
+- [Drata: ISO 27001 for Startups](https://drata.com/grc-central/get-started-iso-27001/iso-27001-for-startups)
+- [Vanta: ISO 27001 for Startups](https://www.vanta.com/collection/iso-27001/iso-27001-for-startups)
 
 Note: These are templates, not legal documents. Review with compliance/legal before finalizing.
