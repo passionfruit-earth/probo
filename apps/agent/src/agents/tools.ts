@@ -503,13 +503,14 @@ export class ToolExecutor {
             organizationId: input.organizationId as string,
             name: input.name as string,
             description: input.description as string,
+            category: (input.category as string) || "OPERATIONAL",
             treatment: input.treatment as
               | "MITIGATED"
               | "ACCEPTED"
               | "AVOIDED"
               | "TRANSFERRED",
-            likelihood: input.likelihood as number | undefined,
-            impact: input.impact as number | undefined,
+            inherentLikelihood: (input.likelihood as number) || 3,
+            inherentImpact: (input.impact as number) || 3,
           });
           return JSON.stringify(result, null, 2);
         }

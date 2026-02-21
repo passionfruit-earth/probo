@@ -336,7 +336,7 @@ async function processInput(input: string): Promise<void> {
       if (result.risks.length > 0) {
         console.log("Risks created:");
         for (const risk of result.risks) {
-          console.log(`  - [${risk.controlId}] ${risk.name}`);
+          console.log(`  - ${risk.name}`);
         }
       }
 

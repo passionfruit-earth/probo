@@ -236,9 +236,12 @@ export class ProboClient {
     organizationId: string;
     name: string;
     description: string;
+    category: string;
     treatment: "MITIGATED" | "ACCEPTED" | "AVOIDED" | "TRANSFERRED";
-    likelihood?: number;
-    impact?: number;
+    inherentLikelihood: number;
+    inherentImpact: number;
+    residualLikelihood?: number;
+    residualImpact?: number;
   }) {
     const mutation = gql`
       mutation CreateRisk($input: CreateRiskInput!) {

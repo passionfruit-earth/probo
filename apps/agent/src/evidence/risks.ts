@@ -138,8 +138,8 @@ export async function createRisksFromEvidence(
     ].filter(Boolean).join("\n");
 
     // Map severity to likelihood/impact
-    const likelihood = data.severity === "high" ? 4 : data.severity === "medium" ? 3 : 2;
-    const impact = data.severity === "high" ? 4 : data.severity === "medium" ? 3 : 2;
+    const inherentLikelihood = data.severity === "high" ? 4 : data.severity === "medium" ? 3 : 2;
+    const inherentImpact = data.severity === "high" ? 4 : data.severity === "medium" ? 3 : 2;
 
     if (options?.dryRun) {
       result.risks.push({ riskId: "(dry-run)", name: riskName, controlId });
@@ -153,9 +153,10 @@ export async function createRisksFromEvidence(
         organizationId,
         name: riskName,
         description,
+        category: "TECHNICAL",
         treatment: "MITIGATED", // Default to mitigated - needs review
-        likelihood,
-        impact,
+        inherentLikelihood,
+        inherentImpact,
       });
 
       const riskId = (createResult as { createRisk: { riskEdge: { node: { id: string } } } })
