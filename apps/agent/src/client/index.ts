@@ -7,6 +7,7 @@ export interface ProboClientConfig {
 
 export class ProboClient {
   private client: GraphQLClient;
+  private viewerId: string | null = null;
 
   constructor(config: ProboClientConfig) {
     this.client = new GraphQLClient(config.endpoint, {
@@ -14,6 +15,45 @@ export class ProboClient {
         Authorization: `Bearer ${config.apiKey}`,
       },
     });
+  }
+
+  // Get the first profile from the organization (for use as approver, etc.)
+  async getFirstProfileId(organizationId: string): Promise<string> {
+    if (this.viewerId) {
+      return this.viewerId;
+    }
+
+    const query = gql`
+      query GetProfiles($id: ID!) {
+        node(id: $id) {
+          ... on Organization {
+            profiles(first: 1) {
+              edges {
+                node {
+                  id
+                }
+              }
+            }
+          }
+        }
+      }
+    `;
+    const result = await this.client.request<{
+      node: { profiles: { edges: { node: { id: string } }[] } };
+    }>(query, { id: organizationId });
+
+    const profiles = result.node?.profiles?.edges;
+    if (!profiles || profiles.length === 0) {
+      throw new Error("No profiles found in organization");
+    }
+
+    this.viewerId = profiles[0].node.id;
+    return this.viewerId;
+  }
+
+  // Alias for backward compatibility
+  async getViewerId(): Promise<string> {
+    throw new Error("getViewerId requires organizationId - use getFirstProfileId instead");
   }
 
   // Framework operations
@@ -243,6 +283,8 @@ export class ProboClient {
     title: string;
     documentType: string;
     content?: string;
+    approverIds?: string[];
+    classification?: string;
   }) {
     const mutation = gql`
       mutation CreateDocument($input: CreateDocumentInput!) {
@@ -256,7 +298,13 @@ export class ProboClient {
         }
       }
     `;
-    return this.client.request(mutation, { input });
+    // Ensure required fields are always provided
+    const inputWithDefaults = {
+      ...input,
+      approverIds: input.approverIds || [],
+      classification: input.classification || "INTERNAL",
+    };
+    return this.client.request(mutation, { input: inputWithDefaults });
   }
 
   // Vendor operations

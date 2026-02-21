@@ -18,3 +18,9 @@ export {
   ISO27001_CONTROL_MAPPING,
   type CheckResult,
 } from "./checks.js";
+
+export {
+  syncEvidenceToProbo,
+  syncLatestSummaryToProbo,
+  type SyncResult,
+} from "./sync.js";

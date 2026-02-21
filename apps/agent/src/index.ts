@@ -12,7 +12,9 @@ import {
   checkAllGitHubRepositories,
   generateSummaryReport,
   listEvidence,
+  syncLatestSummaryToProbo,
 } from "./evidence/index.js";
+import { ProboClient } from "./client/index.js";
 
 // Load .env file
 dotenvConfig();
@@ -65,6 +67,7 @@ console.log("  Google:", config.googleAccessToken ? "Connected" : "Not configure
 console.log("\nCommands:");
 console.log("  /auth        - Authenticate with integrations (github, logout)");
 console.log("  /scan        - Run compliance checks and save evidence");
+console.log("  /sync        - Sync evidence to Probo");
 console.log("  /evidence    - View saved compliance evidence");
 console.log("  /frameworks  - Import a compliance framework");
 console.log("  /vendor      - Add and assess a vendor");
@@ -248,6 +251,61 @@ async function processInput(input: string): Promise<void> {
       console.log(`    ${date} - Score: ${record.summary.score || "N/A"}, Issues: ${record.summary.issues.length}`);
     }
     console.log("");
+    return;
+  }
+
+  // Sync commands - push evidence to Probo
+  if (trimmed === "/sync" || trimmed === "/sync help") {
+    console.log("\nSync evidence to Probo:");
+    console.log("  /sync github  - Sync GitHub compliance summary");
+    console.log("  /sync google  - Sync Google Workspace compliance summary");
+    console.log("  /sync all     - Sync all available evidence\n");
+    return;
+  }
+
+  if (trimmed === "/sync github" || trimmed === "/sync google" || trimmed === "/sync all") {
+    if (!config.organizationId) {
+      console.log("\nError: PROBO_ORGANIZATION_ID not set.");
+      console.log("Set it in .env to sync evidence to Probo.\n");
+      return;
+    }
+
+    const proboClient = new ProboClient({
+      endpoint: config.proboEndpoint,
+      apiKey: config.proboApiKey,
+    });
+
+    const sources = trimmed === "/sync all"
+      ? ["github", "google"] as const
+      : [trimmed.split(" ")[1] as "github" | "google"];
+
+    console.log("\nSyncing evidence to Probo...\n");
+
+    for (const source of sources) {
+      const records = listEvidence({ source, limit: 1 });
+      if (records.length === 0) {
+        console.log(`  - ${source}: No evidence found (run /scan ${source} first)`);
+        continue;
+      }
+
+      try {
+        const result = await syncLatestSummaryToProbo(
+          proboClient,
+          config.organizationId,
+          source
+        );
+
+        if (result) {
+          console.log(`  ✓ ${source}: Created document "${result.title}"`);
+        } else {
+          console.log(`  ✗ ${source}: Failed to sync`);
+        }
+      } catch (error) {
+        console.log(`  ✗ ${source}: ${error instanceof Error ? error.message : String(error)}`);
+      }
+    }
+
+    console.log("\nDone. View documents in Probo console.\n");
     return;
   }
 
