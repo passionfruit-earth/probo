@@ -13,3 +13,6 @@ sbom-docker.json
 *.crt
 *.key
 compose/keycloak/probo-realm.json
+
+# Local Claude context (not tracked)
+CLAUDE.md
