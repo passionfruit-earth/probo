@@ -11,34 +11,114 @@ During the ISO 27001 setup process, we identified several improvements needed fo
 
 ---
 
-## Feature Requests
+## PRIORITY 0: Continuous Vendor Monitoring (CURRENT)
 
-### 0. GitHub Sync / Continuous APIs (CURRENT)
+### Why This Matters
 
-**Problem:** Compliance requires continuous monitoring of development practices - PR reviews, branch protection, security scanning, etc. Currently no automated way to verify these controls.
+ISO 27001 auditors want to see:
+- **A.5.19-22**: Supplier security - vendor vetting, SOC 2 certs, DPAs
+- **A.8.9**: Configuration management - secure settings enforced
+- **A.8.15**: Logging - proof controls work
+- **A.5.15-18**: Access control - who has access to what
 
-**Requirements:**
-- OAuth2 integration with GitHub
-- Sync repository metadata (branch protection rules, required reviews)
-- Track PR review compliance
-- Monitor security alerts (Dependabot, code scanning)
-- Evidence collection for audit (automated screenshots/exports)
+We need **continuous evidence** from all vendors, not just point-in-time screenshots.
 
-**Proposed Solution:**
-- Add `ConnectorProviderGitHub` following existing connector patterns
-- Create `GitHubService` in `/pkg/probo/`
-- GraphQL schema for GitHub entities
-- Webhook listener for real-time updates
-- Periodic sync for compliance checks
+### Vendor Integration Matrix
 
-**Key Files:**
-- `/pkg/connector/` - Connector framework
-- `/pkg/probo/slack_service.go` - Similar OAuth2 pattern
-- `/pkg/coredata/connector_provider.go` - Add GitHub provider
+| Vendor | ISO Controls | What to Fetch | Auth | Status |
+|--------|--------------|---------------|------|--------|
+| **GitHub** | A.8.25-31 (Secure dev) | Branch protection, required reviews, security alerts, access | PAT | **DONE** |
+| **Google Workspace** | A.5.15-18 (Access), A.8.5 (Auth) | 2FA enforcement, SSO config, sharing settings, user list | OAuth2 | TODO |
+| **AWS** | A.8.20 (Networks), A.5.15 (Access) | IAM policies, security groups, CloudTrail config | Access Key | TODO |
+| **Slack** | A.5.14 (Info transfer) | Retention settings, external sharing, SSO, access | OAuth2 | TODO |
+| **Linear** | A.8.25 (Dev lifecycle) | Project access, integrations | OAuth2 | TODO |
+| **Vercel/Netlify** | A.8.9 (Config mgmt) | Environment vars (names only), access, deploy settings | Token | TODO |
 
-**Status:** IN_PROGRESS
+### Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    Probo Agent                               │
+│                                                              │
+│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐            │
+│  │   GitHub    │ │   Google    │ │    AWS      │  ...       │
+│  │   Client    │ │   Client    │ │   Client    │            │
+│  └──────┬──────┘ └──────┬──────┘ └──────┬──────┘            │
+│         │               │               │                    │
+│         └───────────────┴───────────────┘                    │
+│                         │                                    │
+│              ┌──────────▼──────────┐                        │
+│              │  Compliance Checker │                        │
+│              │  - Fetch settings   │                        │
+│              │  - Check policies   │                        │
+│              │  - Generate evidence│                        │
+│              └──────────┬──────────┘                        │
+│                         │                                    │
+│              ┌──────────▼──────────┐                        │
+│              │   Probo GraphQL     │                        │
+│              │   - Store evidence  │                        │
+│              │   - Update measures │                        │
+│              │   - Create alerts   │                        │
+│              └─────────────────────┘                        │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Implementation Plan
+
+#### Phase 1: GitHub (DONE)
+- [x] GitHub API client (`apps/agent/src/integrations/github/`)
+- [x] Types for repos, branch protection, alerts, PRs
+- [x] Compliance check function
+- [ ] Add as agent tool
+- [ ] Evidence generation
+
+#### Phase 2: Google Workspace
+- [ ] Google Admin SDK client
+- [ ] Fetch: 2FA status, SSO config, org units, users
+- [ ] Compliance checks for access control
+- [ ] Evidence generation
+
+#### Phase 3: AWS
+- [ ] AWS SDK integration
+- [ ] Fetch: IAM policies, security groups, CloudTrail
+- [ ] Compliance checks for infrastructure
+- [ ] Evidence generation
+
+#### Phase 4: Other Vendors
+- [ ] Slack integration
+- [ ] Linear integration
+- [ ] Hosting platforms (Vercel/Netlify)
+
+### Evidence Automation
+
+For each integration, automatically generate:
+1. **Settings snapshot** - JSON export of current config
+2. **Compliance report** - Pass/fail against policy
+3. **Change log** - What changed since last check
+4. **Attachable evidence** - Link to measures in Probo
+
+### File Structure
+
+```
+apps/agent/src/integrations/
+├── github/           # DONE
+│   ├── client.ts
+│   ├── types.ts
+│   └── index.ts
+├── google/           # TODO
+│   ├── client.ts
+│   ├── types.ts
+│   └── index.ts
+├── aws/              # TODO
+│   ├── client.ts
+│   ├── types.ts
+│   └── index.ts
+└── index.ts          # Export all integrations
+```
 
 ---
+
+## Feature Requests
 
 ### 1. Quality Mark for Agent-Generated Content
 
@@ -405,9 +485,19 @@ Agent:
 
 ## Priority Order
 
+### Immediate (Continuous Monitoring)
+
+| Phase | Integration | ISO Controls | Status |
+|-------|-------------|--------------|--------|
+| 1 | **GitHub** | A.8.25-31 Secure dev | **DONE** (client) |
+| 2 | **Google Workspace** | A.5.15-18 Access control | TODO |
+| 3 | **AWS** | A.8.20 Infrastructure | TODO |
+| 4 | **Slack/Other** | Various | TODO |
+
+### Later (Platform Features)
+
 | Priority | Feature | Impact |
 |----------|---------|--------|
-| 0 | **GitHub Sync** | **Continuous compliance** |
 | 1 | Quality Mark | Trust in agent content |
 | 2 | Notes/Rationale | Audit readiness |
 | 3 | Bulk Import (Measures) | Efficiency |
@@ -415,7 +505,7 @@ Agent:
 | 5 | Interview Mode | User experience |
 | 6 | Evidence Templates | Completeness |
 | 7 | Document Generation | End-to-end |
-| 8 | **Automated Vendor Security Gathering** | **Smart data collection** |
+| 8 | Automated Vendor Security Gathering | Smart data collection |
 | 9 | Vendor Security Monitoring | Continuous awareness |
 | 10 | Smart Vendor Questionnaire | Tailored assessment |
 | 11 | Vendor Data Flow Mapping | GDPR/compliance |
@@ -428,6 +518,9 @@ Agent:
 
 | Date | Change | By |
 |------|--------|-----|
-| 2026-02-21 | Started GitHub Sync implementation (Priority 0) | Claude |
+| 2026-02-21 | Restructured plan: Continuous Monitoring as Priority 0 | Claude |
+| 2026-02-21 | Added vendor integration matrix (GitHub, Google, AWS, Slack) | Claude |
+| 2026-02-21 | GitHub client completed in apps/agent/src/integrations/github/ | Claude |
+| 2026-02-21 | Started GitHub Sync implementation | Claude |
 | 2026-02-21 | Added smart vendor gathering features (8-13) | Claude/Passionfruit |
 | 2026-02-21 | Initial creation based on ISO 27001 setup session | Claude/Passionfruit |
