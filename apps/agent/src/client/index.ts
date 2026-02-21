@@ -347,7 +347,7 @@ export class ProboClient {
                   name
                   description
                   websiteUrl
-                  serviceCriticality
+                  certifications
                 }
               }
             }
@@ -386,6 +386,27 @@ export class ProboClient {
           vendor {
             id
             name
+          }
+        }
+      }
+    `;
+    return this.client.request(mutation, { input });
+  }
+
+  async updateVendor(input: {
+    id: string;
+    name?: string;
+    description?: string;
+    websiteUrl?: string;
+    certifications?: string[];
+  }) {
+    const mutation = gql`
+      mutation UpdateVendor($input: UpdateVendorInput!) {
+        updateVendor(input: $input) {
+          vendor {
+            id
+            name
+            certifications
           }
         }
       }

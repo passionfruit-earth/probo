@@ -18,6 +18,10 @@ import {
 } from "./evidence/index.js";
 import { AWSClient } from "./integrations/aws/index.js";
 import { ProboClient } from "./client/index.js";
+import {
+  scanVendorCertifications,
+  formatScanResults,
+} from "./skills/scan-vendor-certs.js";
 
 // Load .env file
 dotenvConfig();
@@ -79,6 +83,7 @@ console.log("  /sync        - Sync evidence to Probo");
 console.log("  /evidence    - View saved compliance evidence");
 console.log("  /frameworks  - Import a compliance framework");
 console.log("  /vendor      - Add and assess a vendor");
+console.log("  /vendors     - Scan vendor certifications");
 console.log("  /risks       - Generate risk assessment");
 console.log("  /github      - Check GitHub repository compliance");
 console.log("  /google      - Check Google Workspace compliance");
@@ -431,6 +436,48 @@ async function processInput(input: string): Promise<void> {
   if (trimmed === "/vendor") {
     console.log("\nTo add a vendor, type:");
     console.log('  "Add vendor [name] with website [url]"\n');
+    return;
+  }
+
+  // Vendor certification scanning
+  if (trimmed === "/vendors" || trimmed === "/vendors help") {
+    console.log("\nVendor certification commands:");
+    console.log("  /vendors scan      - Scan all vendors for certifications and update Probo");
+    console.log("  /vendors scan dry  - Dry run (show what would be updated)");
+    console.log("  /vendors scan [name] - Scan a specific vendor\n");
+    return;
+  }
+
+  if (trimmed.startsWith("/vendors scan")) {
+    if (!config.organizationId) {
+      console.log("\nPROBO_ORGANIZATION_ID not set. Cannot scan vendors.\n");
+      return;
+    }
+
+    const parts = trimmed.split(" ");
+    const isDryRun = parts.includes("dry");
+    const vendorName = parts.slice(2).filter(p => p !== "dry").join(" ") || undefined;
+
+    console.log(`\nScanning vendor certifications${vendorName ? ` for "${vendorName}"` : " (all vendors)"}...`);
+    if (isDryRun) console.log("(Dry run - no changes will be made)");
+    console.log("");
+
+    try {
+      const proboClient = new ProboClient({
+        endpoint: config.proboEndpoint,
+        apiKey: config.proboApiKey,
+      });
+
+      const results = await scanVendorCertifications(proboClient, {
+        organizationId: config.organizationId,
+        vendorName,
+        dryRun: isDryRun,
+      });
+
+      console.log(formatScanResults(results, isDryRun));
+    } catch (error) {
+      console.error("Scan failed:", error instanceof Error ? error.message : String(error));
+    }
     return;
   }
 

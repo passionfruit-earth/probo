@@ -25,9 +25,36 @@ export interface VendorSecurityProfile {
   rawFindings: string[];
 }
 
+export type CertificationType =
+  // SOC certifications
+  | 'SOC1_TYPE1' | 'SOC1_TYPE2' | 'SOC2_TYPE1' | 'SOC2_TYPE2' | 'SOC3'
+  // ISO certifications
+  | 'ISO27001' | 'ISO27017' | 'ISO27018' | 'ISO27701' | 'ISO22301' | 'ISO9001'
+  // Cloud security
+  | 'CSA_STAR_LEVEL1' | 'CSA_STAR_LEVEL2' | 'CAIQ'
+  // US Government
+  | 'FEDRAMP_LOW' | 'FEDRAMP_MODERATE' | 'FEDRAMP_HIGH' | 'FEDRAMP_TAILORED' | 'FEDRAMP_LISAAS'
+  | 'STATERAMP' | 'TXRAMP'
+  // Payment/Financial
+  | 'PCI_DSS' | 'PCI_DSS_LEVEL1' | 'PCI_DSS_LEVEL2' | 'PCI_DSS_LEVEL3' | 'PCI_DSS_LEVEL4'
+  // Healthcare
+  | 'HIPAA' | 'HITRUST'
+  // Privacy
+  | 'GDPR' | 'CCPA'
+  // NIST frameworks
+  | 'NIST_800_53' | 'NIST_800_171' | 'NIST_CSF'
+  // Regional certifications
+  | 'C5' | 'IRAP' | 'MTCS' | 'ENS' | 'KISMS'
+  // UK
+  | 'CYBER_ESSENTIALS' | 'CYBER_ESSENTIALS_PLUS'
+  // Industry specific
+  | 'TISAX' | 'CJIS' | 'ITAR' | 'EAR'
+  // Other
+  | 'OTHER';
+
 export interface Certification {
   name: string;
-  type: 'SOC2_TYPE1' | 'SOC2_TYPE2' | 'ISO27001' | 'ISO27701' | 'HIPAA' | 'GDPR' | 'PCI_DSS' | 'SOC1' | 'OTHER';
+  type: CertificationType;
   issueDate?: string;
   expiryDate?: string;
   scope?: string;
@@ -61,14 +88,82 @@ const TRUST_PLATFORMS = [
 ];
 
 // Certification patterns to look for in page content
-const CERTIFICATION_PATTERNS = [
-  { regex: /SOC\s*2\s*(Type\s*(I{1,2}|1|2))?/gi, type: 'SOC2_TYPE2' as const },
-  { regex: /SOC\s*1/gi, type: 'SOC1' as const },
-  { regex: /ISO\s*27001/gi, type: 'ISO27001' as const },
-  { regex: /ISO\s*27701/gi, type: 'ISO27701' as const },
-  { regex: /HIPAA/gi, type: 'HIPAA' as const },
-  { regex: /GDPR\s*(compliant|certified)?/gi, type: 'GDPR' as const },
-  { regex: /PCI[\s-]DSS/gi, type: 'PCI_DSS' as const },
+const CERTIFICATION_PATTERNS: Array<{ regex: RegExp; type: CertificationType; name?: string }> = [
+  // SOC certifications - order matters, more specific first
+  { regex: /SOC\s*2\s*Type\s*(II|2)/gi, type: 'SOC2_TYPE2', name: 'SOC 2 Type II' },
+  { regex: /SOC\s*2\s*Type\s*(I|1)(?!\s*I)/gi, type: 'SOC2_TYPE1', name: 'SOC 2 Type I' },
+  { regex: /SOC\s*2(?!\s*Type)/gi, type: 'SOC2_TYPE2', name: 'SOC 2' },
+  { regex: /SOC\s*1\s*Type\s*(II|2)/gi, type: 'SOC1_TYPE2', name: 'SOC 1 Type II' },
+  { regex: /SOC\s*1\s*Type\s*(I|1)(?!\s*I)/gi, type: 'SOC1_TYPE1', name: 'SOC 1 Type I' },
+  { regex: /SOC\s*1(?!\s*Type)/gi, type: 'SOC1_TYPE2', name: 'SOC 1' },
+  { regex: /SOC\s*3/gi, type: 'SOC3', name: 'SOC 3' },
+
+  // ISO certifications
+  { regex: /ISO[\s\/]*27001/gi, type: 'ISO27001', name: 'ISO 27001' },
+  { regex: /ISO[\s\/]*27017/gi, type: 'ISO27017', name: 'ISO 27017' },
+  { regex: /ISO[\s\/]*27018/gi, type: 'ISO27018', name: 'ISO 27018' },
+  { regex: /ISO[\s\/]*27701/gi, type: 'ISO27701', name: 'ISO 27701' },
+  { regex: /ISO[\s\/]*22301/gi, type: 'ISO22301', name: 'ISO 22301' },
+  { regex: /ISO[\s\/]*9001/gi, type: 'ISO9001', name: 'ISO 9001' },
+
+  // Cloud Security Alliance
+  { regex: /CSA\s*STAR\s*(Level\s*)?2/gi, type: 'CSA_STAR_LEVEL2', name: 'CSA STAR Level 2' },
+  { regex: /CSA\s*STAR\s*(Level\s*)?1/gi, type: 'CSA_STAR_LEVEL1', name: 'CSA STAR Level 1' },
+  { regex: /CSA\s*STAR(?!\s*(Level|1|2))/gi, type: 'CSA_STAR_LEVEL1', name: 'CSA STAR' },
+  { regex: /CAIQ/gi, type: 'CAIQ', name: 'CAIQ' },
+  { regex: /Cloud\s*Security\s*Alliance/gi, type: 'CSA_STAR_LEVEL1', name: 'Cloud Security Alliance' },
+
+  // FedRAMP - order matters, more specific first
+  { regex: /FedRAMP\s*(Tailored\s*)?Li[\s-]?SaaS/gi, type: 'FEDRAMP_LISAAS', name: 'FedRAMP Tailored LI-SaaS' },
+  { regex: /FedRAMP\s*Tailored/gi, type: 'FEDRAMP_TAILORED', name: 'FedRAMP Tailored' },
+  { regex: /FedRAMP\s*High/gi, type: 'FEDRAMP_HIGH', name: 'FedRAMP High' },
+  { regex: /FedRAMP\s*Moderate/gi, type: 'FEDRAMP_MODERATE', name: 'FedRAMP Moderate' },
+  { regex: /FedRAMP\s*Low/gi, type: 'FEDRAMP_LOW', name: 'FedRAMP Low' },
+  { regex: /FedRAMP\s*ATO/gi, type: 'FEDRAMP_MODERATE', name: 'FedRAMP ATO' },
+  { regex: /FedRAMP(?!\s*(High|Moderate|Low|Tailored|ATO|Li))/gi, type: 'FEDRAMP_MODERATE', name: 'FedRAMP' },
+
+  // StateRAMP / TX-RAMP
+  { regex: /StateRAMP/gi, type: 'STATERAMP', name: 'StateRAMP' },
+  { regex: /TX[\s-]?RAMP/gi, type: 'TXRAMP', name: 'TX-RAMP' },
+
+  // PCI DSS - more specific first
+  { regex: /PCI[\s-]DSS\s*Level\s*1/gi, type: 'PCI_DSS_LEVEL1', name: 'PCI DSS Level 1' },
+  { regex: /PCI[\s-]DSS\s*Level\s*2/gi, type: 'PCI_DSS_LEVEL2', name: 'PCI DSS Level 2' },
+  { regex: /PCI[\s-]DSS\s*Level\s*3/gi, type: 'PCI_DSS_LEVEL3', name: 'PCI DSS Level 3' },
+  { regex: /PCI[\s-]DSS\s*Level\s*4/gi, type: 'PCI_DSS_LEVEL4', name: 'PCI DSS Level 4' },
+  { regex: /PCI[\s-]DSS/gi, type: 'PCI_DSS', name: 'PCI DSS' },
+
+  // Healthcare
+  { regex: /HIPAA/gi, type: 'HIPAA', name: 'HIPAA' },
+  { regex: /HITRUST/gi, type: 'HITRUST', name: 'HITRUST' },
+
+  // Privacy regulations
+  { regex: /GDPR\s*(compliant|certified|ready)?/gi, type: 'GDPR', name: 'GDPR' },
+  { regex: /CCPA\s*(compliant|certified|ready)?/gi, type: 'CCPA', name: 'CCPA' },
+
+  // NIST frameworks
+  { regex: /NIST\s*800[\s-]53/gi, type: 'NIST_800_53', name: 'NIST 800-53' },
+  { regex: /NIST\s*800[\s-]171/gi, type: 'NIST_800_171', name: 'NIST 800-171' },
+  { regex: /NIST\s*CSF/gi, type: 'NIST_CSF', name: 'NIST CSF' },
+  { regex: /NIST\s*Cybersecurity\s*Framework/gi, type: 'NIST_CSF', name: 'NIST Cybersecurity Framework' },
+
+  // Regional certifications
+  { regex: /\bC5\b/g, type: 'C5', name: 'C5' },
+  { regex: /BSI\s*C5/gi, type: 'C5', name: 'BSI C5' },
+  { regex: /\bIRAP\b/g, type: 'IRAP', name: 'IRAP' },
+  { regex: /\bMTCS\b/g, type: 'MTCS', name: 'MTCS' },
+  { regex: /\bENS\b/g, type: 'ENS', name: 'ENS' },
+  { regex: /K[\s-]?ISMS/gi, type: 'KISMS', name: 'K-ISMS' },
+
+  // UK Cyber Essentials
+  { regex: /Cyber\s*Essentials\s*Plus/gi, type: 'CYBER_ESSENTIALS_PLUS', name: 'Cyber Essentials Plus' },
+  { regex: /Cyber\s*Essentials(?!\s*Plus)/gi, type: 'CYBER_ESSENTIALS', name: 'Cyber Essentials' },
+
+  // Industry specific
+  { regex: /TISAX/gi, type: 'TISAX', name: 'TISAX' },
+  { regex: /\bCJIS\b/g, type: 'CJIS', name: 'CJIS' },
+  { regex: /\bITAR\b/g, type: 'ITAR', name: 'ITAR' },
+  { regex: /\bEAR\b/g, type: 'EAR', name: 'EAR' },
 ];
 
 /**
@@ -116,16 +211,18 @@ function getBaseDomain(url: string): string {
  */
 function extractCertifications(content: string): Certification[] {
   const certs: Certification[] = [];
-  const found = new Set<string>();
+  const found = new Set<CertificationType>();
 
-  for (const { regex, type } of CERTIFICATION_PATTERNS) {
+  for (const { regex, type, name } of CERTIFICATION_PATTERNS) {
+    // Reset regex lastIndex for global patterns
+    regex.lastIndex = 0;
     const matches = content.match(regex);
     if (matches && !found.has(type)) {
       found.add(type);
       certs.push({
-        name: matches[0],
+        name: name || matches[0].trim(),
         type,
-        verified: false, // Would need manual verification
+        verified: false,
       });
     }
   }

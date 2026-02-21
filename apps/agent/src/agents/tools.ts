@@ -286,6 +286,26 @@ export const PROBO_TOOLS: Anthropic.Tool[] = [
       required: ["vendorName"],
     },
   },
+  {
+    name: "search_vendor_certifications",
+    description:
+      "Search the web for a vendor's security certifications. Use this when gather_vendor_security_info doesn't find all certifications (e.g., for vendors with JavaScript-based trust portals). Returns search results that should be analyzed for certification information.",
+    input_schema: {
+      type: "object" as const,
+      properties: {
+        vendorName: {
+          type: "string",
+          description: "The vendor/company name to search certifications for",
+        },
+        specificCertifications: {
+          type: "array",
+          items: { type: "string" },
+          description: "Optional: Specific certifications to search for (e.g., ['ISO 27001', 'SOC 2', 'FedRAMP'])",
+        },
+      },
+      required: ["vendorName"],
+    },
+  },
   // GitHub integration tools
   {
     name: "github_list_repos",
@@ -570,9 +590,109 @@ export class ToolExecutor {
             input.websiteUrl as string | undefined
           );
           // Return both structured data and formatted summary
+          const certCount = profile.certifications.length;
+          const suggestion = certCount < 3
+            ? "Note: Only found " + certCount + " certifications via website crawling. Use search_vendor_certifications tool for more comprehensive results."
+            : undefined;
           return JSON.stringify({
             profile,
+            suggestion,
             summary: formatSecurityProfile(profile),
+          }, null, 2);
+        }
+
+        case "search_vendor_certifications": {
+          const vendorName = input.vendorName as string;
+          const specificCerts = input.specificCertifications as string[] | undefined;
+
+          // Build search queries for web search
+          const baseSearches = [
+            `${vendorName} security certifications compliance`,
+            `${vendorName} SOC 2 ISO 27001 certifications`,
+            `${vendorName} trust center compliance certifications`,
+          ];
+
+          const specificSearches = specificCerts?.map(cert =>
+            `${vendorName} ${cert} certification`
+          ) || [];
+
+          // Known trust center URL patterns for major vendors
+          const trustCenterUrls: Record<string, string[]> = {
+            'github': [
+              'https://github.com/trust-center',
+              'https://ghec.github.trust.page/',
+              'https://docs.github.com/en/site-policy/security-policies',
+            ],
+            'microsoft': [
+              'https://www.microsoft.com/en-us/trust-center',
+              'https://servicetrust.microsoft.com/',
+            ],
+            'google': [
+              'https://cloud.google.com/security/compliance',
+              'https://workspace.google.com/security/',
+            ],
+            'aws': [
+              'https://aws.amazon.com/compliance/',
+              'https://aws.amazon.com/compliance/programs/',
+            ],
+            'slack': [
+              'https://slack.com/trust',
+              'https://slack.com/trust/compliance',
+            ],
+            'salesforce': [
+              'https://trust.salesforce.com/',
+              'https://compliance.salesforce.com/',
+            ],
+            'atlassian': [
+              'https://www.atlassian.com/trust',
+              'https://www.atlassian.com/trust/compliance',
+            ],
+            'zoom': [
+              'https://zoom.us/trust',
+              'https://zoom.us/trust/security',
+            ],
+            'dropbox': [
+              'https://www.dropbox.com/security',
+              'https://www.dropbox.com/business/trust',
+            ],
+          };
+
+          const vendorLower = vendorName.toLowerCase();
+          const knownUrls = trustCenterUrls[vendorLower] || [];
+
+          // Common certifications to look for
+          const commonCertifications = [
+            'SOC 1 Type II',
+            'SOC 2 Type II',
+            'SOC 3',
+            'ISO 27001',
+            'ISO 27017',
+            'ISO 27018',
+            'ISO 27701',
+            'CSA STAR Level 2',
+            'CAIQ',
+            'FedRAMP',
+            'PCI DSS',
+            'HIPAA',
+            'HITRUST',
+            'GDPR',
+            'CCPA',
+            'C5',
+            'IRAP',
+            'MTCS',
+          ];
+
+          return JSON.stringify({
+            vendorName,
+            searchQueries: [...baseSearches, ...specificSearches],
+            knownTrustCenterUrls: knownUrls.length > 0 ? knownUrls : undefined,
+            certificationsToLookFor: specificCerts || commonCertifications,
+            instructions: `To find ${vendorName}'s certifications:
+1. Search the web using the provided search queries
+2. Check their trust center or security page${knownUrls.length > 0 ? ` (known URLs: ${knownUrls.join(', ')})` : ''}
+3. Look for the listed certifications in the search results
+4. Major vendors typically have: SOC 2 Type II, ISO 27001, and industry-specific certs
+5. Report back all certifications found with their type/level when available`,
           }, null, 2);
         }
 
