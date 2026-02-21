@@ -35,6 +35,7 @@ const config = {
   organizationId: process.env.PROBO_ORGANIZATION_ID || "",
   // Integrations - check saved auth first, then env var
   githubToken: getGitHubToken(),
+  githubOrg: process.env.GITHUB_ORG, // Organization to scan (optional)
   googleAccessToken: process.env.GOOGLE_ACCESS_TOKEN,
 };
 
@@ -162,16 +163,20 @@ async function processInput(input: string): Promise<void> {
     return;
   }
 
-  if (trimmed === "/scan github") {
+  if (trimmed === "/scan github" || trimmed.startsWith("/scan github ")) {
     if (!isGitHubAuthenticated()) {
       console.log("\nGitHub not authenticated. Run /auth github first.\n");
       return;
     }
 
-    console.log("\nScanning GitHub repositories...\n");
+    // Check for org argument: /scan github <org>
+    const parts = trimmed.split(" ");
+    const org = parts[2] || config.githubOrg;
+
+    console.log(`\nScanning GitHub repositories${org ? ` for org: ${org}` : " (personal)"}...\n`);
     try {
       const client = new GitHubClient({ token: getGitHubToken()! });
-      const results = await checkAllGitHubRepositories(client, { maxRepos: 10 });
+      const results = await checkAllGitHubRepositories(client, { maxRepos: 10, org });
 
       console.log(`Scanned ${results.length} repositories:\n`);
       for (const result of results) {

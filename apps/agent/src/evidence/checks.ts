@@ -81,9 +81,9 @@ export async function checkGitHubRepository(
  */
 export async function checkAllGitHubRepositories(
   client: GitHubClient,
-  options?: { maxRepos?: number; filter?: (repo: { full_name: string; private: boolean }) => boolean }
+  options?: { maxRepos?: number; org?: string; filter?: (repo: { full_name: string; private: boolean }) => boolean }
 ): Promise<CheckResult[]> {
-  const repos = await client.listRepositories();
+  const repos = await client.listRepositories(options?.org);
   const results: CheckResult[] = [];
 
   const filteredRepos = options?.filter
