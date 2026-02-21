@@ -1,17 +1,59 @@
-# Agent Development Plan
+# Compliance Automation Capabilities
 
 **Last Updated:** 2026-02-21
-**Purpose:** Track feature requests and improvements for the Probo compliance agent
+**Purpose:** Track capabilities and feature requests for ISO 27001 compliance automation
 
 ---
 
 ## Context
 
-During the ISO 27001 setup process, we identified several improvements needed for the agent and Probo platform to better support compliance workflows.
+During the ISO 27001 setup process, we identified compliance automation needs. Initially built as a TypeScript agent (`apps/agent/`), we **migrated to Claude Code skills** on 2026-02-21 for simpler maintenance and better team usability.
+
+**Decision rationale:** See `docs/compliance/audit-log.md` entry "2026-02-21 - Skills-based Compliance Automation"
 
 ---
 
-## PRIORITY 0: Continuous Vendor Monitoring (CURRENT)
+## Current Approach: Claude Code Skills
+
+All compliance automation is now via `.claude-plugin/` skills:
+
+| Skill | Purpose | Status |
+|-------|---------|--------|
+| `/scan <system>` | Scan systems for ISO 27001 controls | **ACTIVE** |
+| `/scan-vendor` | Research vendor certifications | **ACTIVE** |
+| `/setup-integrations` | Configure API tokens | **ACTIVE** |
+| `/probo-list` | List items from Probo | **ACTIVE** |
+| `/probo-create` | Create items in Probo | **ACTIVE** |
+| `/probo-update` | Update items in Probo | **ACTIVE** |
+| `/probo-link` | Link items in Probo | **ACTIVE** |
+
+### Supported Systems for Scanning
+
+| System | Auth Method | Scan Status |
+|--------|-------------|-------------|
+| AWS | Access Key + CLI | ✅ Scanned 2026-02-21 |
+| GitHub | CLI (`gh`) | ✅ Scanned 2026-02-21 |
+| Google Workspace | Manual | 🔜 Pending |
+| Slack | Manual (Enterprise-only API) | 🔜 Pending |
+| Linear | Manual | 🔜 Pending |
+| Vercel | Manual | 🔜 Pending |
+| Notion | Manual | 🔜 Pending |
+| PostHog | Manual | 🔜 Pending |
+| Attio | Manual | 🔜 Pending |
+| Fireflies | Manual | 🔜 Pending |
+| Azure | CLI (`az`) | 🔜 Pending |
+| Loops | Manual | 🔜 Pending |
+
+### Evidence Storage
+
+Scan results stored in:
+- `docs/compliance/scan-history/` - Timestamped scan reports
+- Probo Documents - For audit trail
+- Probo Tasks - For remediation tracking
+
+---
+
+## PRIORITY 0: Continuous Vendor Monitoring
 
 ### Why This Matters
 
@@ -25,123 +67,29 @@ We need **continuous evidence** from all vendors, not just point-in-time screens
 
 ### Vendor Integration Matrix
 
-| Vendor | ISO Controls | What to Fetch | Auth | Status |
+| Vendor | ISO Controls | What to Check | Auth | Status |
 |--------|--------------|---------------|------|--------|
-| **GitHub** | A.8.25-31 (Secure dev) | Branch protection, required reviews, security alerts, access | Device Flow OAuth | **DONE** |
-| **Google Workspace** | A.5.15-18 (Access), A.8.5 (Auth) | 2FA enforcement, SSO config, sharing settings, user list | OAuth2 | **DONE** |
-| **AWS** | A.8.20 (Networks), A.5.15 (Access), A.8.15 (Logging) | IAM policies, security groups, CloudTrail, S3 | Access Key | **DONE** |
-| **Slack** | A.5.14 (Info transfer) | Retention settings, external sharing, SSO, access | OAuth2 | TODO |
-| **Linear** | A.8.25 (Dev lifecycle) | Project access, integrations | OAuth2 | TODO |
-| **Vercel/Netlify** | A.8.9 (Config mgmt) | Environment vars (names only), access, deploy settings | Token | TODO |
+| **AWS** | A.8.20 (Networks), A.5.15 (Access), A.8.15 (Logging) | IAM, CloudTrail, S3, Security Groups | CLI | **DONE** |
+| **GitHub** | A.8.25-31 (Secure dev) | Branch protection, required reviews, security alerts | CLI | **DONE** |
+| **Google Workspace** | A.5.15-18 (Access), A.8.5 (Auth) | 2FA enforcement, SSO config, sharing settings | Manual | TODO |
+| **Slack** | A.5.14 (Info transfer) | Retention settings, external sharing, SSO | Manual | TODO |
+| **Linear** | A.8.25 (Dev lifecycle) | Project access, integrations | Manual | TODO |
+| **Vercel** | A.8.9 (Config mgmt) | Environment vars (names only), access, deploy settings | Manual | TODO |
 
-### Architecture
+### Evidence Workflow (Skills-based)
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                      Probo Agent                                 │
-│                                                                  │
-│  ┌──────────────┐ ┌──────────────┐ ┌──────────────┐             │
-│  │   GitHub     │ │   Google     │ │    AWS       │  ...        │
-│  │   Client     │ │   Client     │ │   Client     │             │
-│  │  (OAuth ✓)   │ │   (OAuth)    │ │  (Keys)      │             │
-│  └──────┬───────┘ └──────┬───────┘ └──────┬───────┘             │
-│         │                │                │                      │
-│         └────────────────┴────────────────┘                      │
-│                          │                                       │
-│               ┌──────────▼──────────┐                           │
-│               │  Compliance Checker │                           │
-│               │  - Fetch settings   │                           │
-│               │  - Check policies   │                           │
-│               │  - Score compliance │                           │
-│               └──────────┬──────────┘                           │
-│                          │                                       │
-│         ┌────────────────┴────────────────┐                      │
-│         │                                 │                      │
-│  ┌──────▼───────┐                 ┌───────▼──────┐              │
-│  │ Local Store  │                 │ Probo GraphQL│              │
-│  │ ~/.probo-    │                 │ - Documents  │              │
-│  │  agent/      │                 │ - Measures   │              │
-│  │  evidence/   │                 │ - Risks      │              │
-│  │ (history)    │                 │ (audit trail)│              │
-│  └──────────────┘                 └──────────────┘              │
-└─────────────────────────────────────────────────────────────────┘
+For each scan, the `/scan` skill:
+1. **Runs CLI checks** - AWS CLI, GitHub CLI, or manual verification
+2. **Documents findings** - Saves to `docs/compliance/scan-history/`
+3. **Creates tasks** - Via `/probo-create task` for remediation
+4. **Updates measures** - Via `/probo-update measure` when fixed
 
-Evidence Storage:
-~/.probo-agent/
-├── auth.json           # OAuth tokens (GitHub, etc.)
-└── evidence/
-    ├── github/         # GitHub compliance checks
-    │   ├── 2026-02-21T10-00-00Z_repo_owner_name.json
-    │   └── ...
-    ├── google/         # Google Workspace checks
-    └── aws/            # AWS compliance checks
-```
+### Risk & Task Creation
 
-### Implementation Plan
-
-#### Phase 1: GitHub (DONE)
-- [x] GitHub API client (`apps/agent/src/integrations/github/`)
-- [x] Types for repos, branch protection, alerts, PRs
-- [x] Compliance check function
-- [x] Device Flow OAuth (`/auth github`)
-- [x] Agent tools: `github_list_repos`, `github_check_compliance`, etc.
-- [x] Evidence storage and scoring
-
-#### Phase 2: Google Workspace (DONE)
-- [x] Google Admin SDK client (`apps/agent/src/integrations/google/`)
-- [x] Fetch: 2FA status, org units, users, groups, domains
-- [x] Compliance checks for access control
-- [x] Agent tools: `google_check_compliance`, `google_list_users`, etc.
-- [ ] Device Flow OAuth (currently uses access token)
-
-#### Phase 3: Evidence System (DONE)
-- [x] Local evidence storage (`~/.probo-agent/evidence/`)
-- [x] Timestamped JSON records per check
-- [x] Diff detection (new issues, resolved issues)
-- [x] Summary report generation
-- [x] CLI commands: `/scan github`, `/scan status`, `/evidence list`
-- [x] Push to Probo as Documents (`/sync github`)
-- [x] Auto-create risks and tasks for failing checks (`/sync risks`)
-
-#### Phase 4: AWS (DONE)
-- [x] AWS SDK integration (`@aws-sdk/client-iam`, `client-ec2`, `client-cloudtrail`, `client-s3`, `client-sts`)
-- [x] Fetch: IAM users/roles/policies, security groups, CloudTrail trails, S3 buckets
-- [x] Compliance checks for infrastructure:
-  - IAM: Root MFA, user MFA, password policy, access key rotation, unused credentials
-  - CloudTrail: Enabled, multi-region, log validation, KMS encryption
-  - S3: Public access blocks, encryption, versioning, logging
-  - Networking: Security groups with open SSH/RDP/all traffic
-- [x] Evidence generation and scoring (0-100)
-- [x] CLI commands: `/scan aws`, `/sync aws`
-
-#### Phase 5: Other Vendors
-- [ ] Slack integration
-- [ ] Linear integration
-- [ ] Hosting platforms (Vercel/Netlify)
-
-### Evidence Automation
-
-For each integration, automatically generate:
-1. **Settings snapshot** - JSON export of current config
-2. **Compliance report** - Pass/fail against policy
-3. **Change log** - What changed since last check
-4. **Attachable evidence** - Link to measures in Probo
-
-### Risk & Task Creation (DONE)
-
-When compliance checks fail, automatically:
+When compliance checks fail:
 1. **Map issue to ISO control** (e.g., "no branch protection" → A.8.25)
-2. **Create risk** if severity is medium/high or multiple repos affected
-3. **Create task** with recommended remediation actions
-4. **Skip** low-severity issues affecting only 1-2 repos
-
-**CLI Command:** `/sync risks` (or `/sync risks --dry-run` to preview)
-
-**Implementation:** `apps/agent/src/evidence/risks.ts`
-- `createRisksFromEvidence()` - analyzes evidence and creates risks/tasks
-- Groups issues by ISO control to avoid duplicates
-- Maps severity to inherentLikelihood/inherentImpact (1-5 scale)
-- Creates tasks with recommended remediation actions
+2. **Create risk** via `/probo-create risk` if severity is medium/high
+3. **Create task** via `/probo-create task` with remediation actions
 
 Issue → Control mapping:
 | Issue | Control | Severity |
@@ -152,58 +100,17 @@ Issue → Control mapping:
 | 2FA not enforced | A.5.17 Authentication | Medium |
 | Too many admins | A.5.15 Access control | Low |
 
-**Example output:**
-```
-/sync risks
+---
 
-Creating risks from compliance evidence...
+## Deprecated: TypeScript Agent
 
-Risks created:
-  - [A.8.25] Secure development lifecycle - Compliance Gap
-  - [A.8.8] Management of technical vulnerabilities - Compliance Gap
+The original TypeScript agent (`apps/agent/`) was deleted on 2026-02-21. All functionality migrated to Claude Code skills.
 
-Tasks created:
-  - Review compliance gap: A.8.25 - Secure development lifecycle
-  - Review compliance gap: A.8.8 - Management of technical vulnerabilities
-
-Summary: 2 risks, 2 tasks created, 0 skipped
-```
-
-### File Structure
-
-```
-apps/agent/src/
-├── agents/
-│   ├── compliance-agent.ts  # Main agent with tool execution
-│   ├── tools.ts             # All agent tools (GitHub, Google, Probo)
-│   └── index.ts
-├── evidence/               # Evidence storage and automation
-│   ├── store.ts            # Local file-based evidence storage
-│   ├── checks.ts           # Compliance check runners
-│   ├── sync.ts             # Sync evidence to Probo documents
-│   ├── risks.ts            # Auto-create risks/tasks from evidence
-│   └── index.ts
-├── integrations/
-│   ├── github/             # DONE
-│   │   ├── client.ts       # GitHub API client
-│   │   ├── auth.ts         # Device Flow OAuth
-│   │   ├── types.ts
-│   │   └── index.ts
-│   ├── google/             # DONE
-│   │   ├── client.ts       # Google Admin SDK client
-│   │   ├── types.ts
-│   │   └── index.ts
-│   └── aws/                # DONE
-│       ├── client.ts       # AWS SDK client (IAM, EC2, CloudTrail, S3, STS)
-│       ├── types.ts        # AWS types for compliance data
-│       └── index.ts
-│       ├── client.ts
-│       ├── types.ts
-│       └── index.ts
-├── client/                 # Probo GraphQL client
-│   └── index.ts
-└── index.ts               # CLI entry point
-```
+**Migration rationale:**
+- Simpler maintenance (markdown vs TypeScript)
+- Team can use without running separate process
+- Read-only integrations by default
+- No delete capability (safety by design)
 
 ---
 
@@ -608,15 +515,15 @@ Agent:
 
 | Date | Change | By |
 |------|--------|-----|
-| 2026-02-21 | AWS integration complete (`/scan aws`, `/sync aws`) - IAM, CloudTrail, S3, EC2 | Claude |
-| 2026-02-21 | Added risk/task auto-creation from failing evidence (`/sync risks`) | Claude |
-| 2026-02-21 | Added evidence storage system (`apps/agent/src/evidence/`) | Claude |
-| 2026-02-21 | Added `/scan` and `/evidence` CLI commands | Claude |
-| 2026-02-21 | Google Workspace integration complete (client + tools) | Claude |
-| 2026-02-21 | GitHub Device Flow OAuth implemented (`/auth github`) | Claude |
-| 2026-02-21 | Restructured plan: Continuous Monitoring as Priority 0 | Claude |
-| 2026-02-21 | Added vendor integration matrix (GitHub, Google, AWS, Slack) | Claude |
-| 2026-02-21 | GitHub client completed in apps/agent/src/integrations/github/ | Claude |
-| 2026-02-21 | Started GitHub Sync implementation | Claude |
+| 2026-02-21 | **MIGRATION:** Deleted TypeScript agent, moved to Claude Code skills | Claude/Lars |
+| 2026-02-21 | Created compliance documentation structure (`docs/compliance/`) | Claude/Lars |
+| 2026-02-21 | Created unified `/scan` skill supporting 12 systems | Claude/Lars |
+| 2026-02-21 | Created Probo CRUD skills (`/probo-list`, `/probo-create`, `/probo-update`, `/probo-link`) | Claude/Lars |
+| 2026-02-21 | Scanned AWS - found RDS public access, missing CloudTrail, S3 encryption gaps | Claude/Lars |
+| 2026-02-21 | Scanned GitHub - found branch protection gaps | Claude/Lars |
+| 2026-02-21 | Created 20 remediation tasks in Probo | Claude/Lars |
+| 2026-02-21 | AWS integration complete (TypeScript agent - now deprecated) | Claude |
+| 2026-02-21 | Google Workspace integration complete (TypeScript agent - now deprecated) | Claude |
+| 2026-02-21 | GitHub integration complete (TypeScript agent - now deprecated) | Claude |
 | 2026-02-21 | Added smart vendor gathering features (8-13) | Claude/Passionfruit |
 | 2026-02-21 | Initial creation based on ISO 27001 setup session | Claude/Passionfruit |

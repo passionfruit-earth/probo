@@ -193,51 +193,58 @@ We're using a **bottom-up approach**:
 
 **Goal:** Verify controls are actually working and collect audit evidence.
 
-### Tools Created
+### Compliance Automation
 
-| Tool | Purpose | Location |
-|------|---------|----------|
-| AWS Verification Script | Automated AWS control checks | `scripts/verify-aws-controls.sh` |
-| Evidence Checklist | Manual verification guide | `docs/evidence-collection-checklist.md` |
+**Approach changed 2026-02-21:** Migrated from TypeScript agent to Claude Code skills.
 
-### AWS Controls to Verify
+| Skill | Purpose | Location |
+|-------|---------|----------|
+| `/scan <system>` | Automated compliance checks | `.claude-plugin/commands/scan.md` |
+| `/probo-list` | List Probo items | `.claude-plugin/commands/probo-list.md` |
+| `/probo-create` | Create items in Probo | `.claude-plugin/commands/probo-create.md` |
+| `/probo-update` | Update items in Probo | `.claude-plugin/commands/probo-update.md` |
+| `/probo-link` | Link items in Probo | `.claude-plugin/commands/probo-link.md` |
 
-Run `./scripts/verify-aws-controls.sh` to check:
+### Scan Status
 
-| Control | What to Verify | Status |
-|---------|---------------|--------|
-| EU Data Residency | Region is eu-west-1 or eu-central-1 | [ ] |
-| RDS Encryption | StorageEncrypted = true | [ ] |
-| RDS Backups | BackupRetentionPeriod >= 7 | [ ] |
-| RDS Multi-AZ | MultiAZ = true | [ ] |
-| S3 Encryption | Default encryption enabled | [ ] |
-| S3 Versioning | Versioning enabled | [ ] |
-| VPC Flow Logs | Flow logs configured | [ ] |
-| CloudTrail | Multi-region trail active | [ ] |
-| KMS Keys | Customer-managed keys exist | [ ] |
-| ALB TLS | HTTPS listener with TLS 1.2+ | [ ] |
+| System | Last Scan | Findings | Status |
+|--------|-----------|----------|--------|
+| AWS | 2026-02-21 | 5 critical issues | ✅ Tasks created |
+| GitHub | 2026-02-21 | Branch protection gaps | ✅ Tasks created |
+| Google Workspace | - | - | 🔜 Pending |
+| Slack | - | - | 🔜 Pending (manual) |
+| Linear | - | - | 🔜 Pending |
+| Vercel | - | - | 🔜 Pending |
+| Notion | - | - | 🔜 Pending |
+| PostHog | - | - | 🔜 Pending |
+| Attio | - | - | 🔜 Pending |
+| Fireflies | - | - | 🔜 Pending |
+| Azure | - | - | 🔜 Pending |
+| Loops | - | - | 🔜 Pending |
 
-### Other Evidence to Collect
+### AWS Findings (2026-02-21)
 
-| Category | Evidence Needed | Status |
-|----------|----------------|--------|
-| Authentication | Entra SSO config, MFA enforcement | [ ] |
-| Access Control | GitHub branch protection, IAM policies | [ ] |
-| Monitoring | CloudWatch alarms, alert destinations | [ ] |
-| Vendors | DPAs, SOC2 reports, trust page screenshots | [ ] |
-| Training | Completion records, materials | [ ] |
+| Finding | Severity | Task Created |
+|---------|----------|--------------|
+| RDS publicly accessible | Critical | ✅ |
+| CloudTrail not enabled | Critical | ✅ |
+| S3 buckets not encrypted | High | ✅ |
+| Root MFA status unknown | High | ✅ |
+| IAM password policy gaps | Medium | ✅ |
 
-### How to Run Verification
+### GitHub Findings (2026-02-21)
 
-```bash
-# Make executable
-chmod +x scripts/verify-aws-controls.sh
+| Finding | Severity | Task Created |
+|---------|----------|--------------|
+| Branch protection rulesets exist but not enforced | High | ✅ |
+| Missing required reviews on some repos | Medium | ✅ |
 
-# Run with your AWS profile
-./scripts/verify-aws-controls.sh [profile-name]
+### Evidence Storage
 
-# Evidence saved to ./aws-evidence-YYYYMMDD/
-```
+- Scan results: `docs/compliance/scan-history/`
+- AWS evidence: `aws-evidence-20260221/`
+- GitHub findings: `docs/github-security-findings-2026-02-21.md`
+- AWS findings: `docs/aws-security-findings-2026-02-21.md`
 
 ---
 
@@ -352,6 +359,11 @@ Security profiles gathered for 13 vendors (see `vendor-security-profiles.md`):
 
 | Date | Change | By |
 |------|--------|-----|
+| 2026-02-21 | Migrated to Claude Code skills, deleted TypeScript agent | Claude/Lars |
+| 2026-02-21 | Created compliance docs structure (`docs/compliance/`) | Claude/Lars |
+| 2026-02-21 | Scanned AWS - 5 critical findings, tasks created | Claude/Lars |
+| 2026-02-21 | Scanned GitHub - branch protection gaps found | Claude/Lars |
+| 2026-02-21 | Created 20 remediation tasks in Probo | Claude/Lars |
 | 2026-02-21 | Created Remote Working Policy (A.6.7) | Claude/Passionfruit |
 | 2026-02-21 | Created mandatory ISMS docs: Information Security Policy, ISMS Scope, Risk Methodology, SoA | Claude/Passionfruit |
 | 2026-02-21 | Created 10 risks in Probo risk register | Claude/Passionfruit |
