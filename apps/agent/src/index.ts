@@ -10,11 +10,13 @@ import {
 } from "./integrations/github/index.js";
 import {
   checkAllGitHubRepositories,
+  checkAWS,
   generateSummaryReport,
   listEvidence,
   syncLatestSummaryToProbo,
   createRisksFromEvidence,
 } from "./evidence/index.js";
+import { AWSClient } from "./integrations/aws/index.js";
 import { ProboClient } from "./client/index.js";
 
 // Load .env file
@@ -63,9 +65,13 @@ console.log("Backend:", hasAwsCredentials ? "AWS Bedrock" : "Anthropic API");
 console.log("Model:", config.model);
 console.log("Probo API:", config.proboEndpoint);
 console.log("Organization:", config.organizationId || "(not set)");
+// Check if AWS credentials are configured for compliance scans (separate from Bedrock LLM)
+const hasAWSComplianceCredentials = config.awsAccessKeyId && config.awsSecretAccessKey;
+
 console.log("\nIntegrations:");
 console.log("  GitHub:", isGitHubAuthenticated() ? "Connected" : "Not connected (run /auth github)");
 console.log("  Google:", config.googleAccessToken ? "Connected" : "Not configured (set GOOGLE_ACCESS_TOKEN)");
+console.log("  AWS:", hasAWSComplianceCredentials ? "Connected" : "Not configured (set AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY)");
 console.log("\nCommands:");
 console.log("  /auth        - Authenticate with integrations (github, logout)");
 console.log("  /scan        - Run compliance checks and save evidence");
@@ -159,6 +165,7 @@ async function processInput(input: string): Promise<void> {
   if (trimmed === "/scan" || trimmed === "/scan help") {
     console.log("\nCompliance scan commands:");
     console.log("  /scan github  - Scan GitHub repositories for compliance");
+    console.log("  /scan aws     - Scan AWS account for compliance");
     console.log("  /scan all     - Run all available compliance scans");
     console.log("  /scan status  - Show summary of latest scans\n");
     return;
@@ -204,6 +211,53 @@ async function processInput(input: string): Promise<void> {
         }
       }
       console.log("\nEvidence saved to ~/.probo-agent/evidence/github/\n");
+    } catch (error) {
+      console.error("Scan failed:", error instanceof Error ? error.message : String(error));
+    }
+    return;
+  }
+
+  if (trimmed === "/scan aws") {
+    if (!hasAWSComplianceCredentials) {
+      console.log("\nAWS not configured. Set AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY environment variables.\n");
+      return;
+    }
+
+    console.log("\nScanning AWS account for compliance...\n");
+    try {
+      const client = new AWSClient({
+        accessKeyId: config.awsAccessKeyId,
+        secretAccessKey: config.awsSecretAccessKey,
+        region: config.awsRegion,
+      });
+
+      const result = await checkAWS(client);
+      const { evidence, diff } = result;
+
+      const statusIcon = evidence.summary.status === "pass" ? "✓" :
+                        evidence.summary.status === "partial" ? "~" : "✗";
+      const accountId = evidence.metadata?.account || "unknown";
+      const score = evidence.summary.score || 0;
+
+      console.log(`${statusIcon} AWS Account ${accountId}: ${score}/100\n`);
+
+      if (evidence.summary.issues.length > 0) {
+        console.log("Issues found:");
+        for (const issue of evidence.summary.issues) {
+          console.log(`  - ${issue}`);
+        }
+      } else {
+        console.log("No compliance issues found.");
+      }
+
+      if (diff?.newIssues.length) {
+        console.log(`\nNEW issues: ${diff.newIssues.join(", ")}`);
+      }
+      if (diff?.resolvedIssues.length) {
+        console.log(`RESOLVED: ${diff.resolvedIssues.join(", ")}`);
+      }
+
+      console.log("\nEvidence saved to ~/.probo-agent/evidence/aws/\n");
     } catch (error) {
       console.error("Scan failed:", error instanceof Error ? error.message : String(error));
     }
@@ -265,12 +319,13 @@ async function processInput(input: string): Promise<void> {
     console.log("\nSync evidence to Probo:");
     console.log("  /sync github  - Sync GitHub compliance summary");
     console.log("  /sync google  - Sync Google Workspace compliance summary");
+    console.log("  /sync aws     - Sync AWS compliance summary");
     console.log("  /sync all     - Sync all available evidence");
     console.log("  /sync risks   - Create risks for failing compliance checks\n");
     return;
   }
 
-  if (trimmed === "/sync github" || trimmed === "/sync google" || trimmed === "/sync all") {
+  if (trimmed === "/sync github" || trimmed === "/sync google" || trimmed === "/sync aws" || trimmed === "/sync all") {
     if (!config.organizationId) {
       console.log("\nError: PROBO_ORGANIZATION_ID not set.");
       console.log("Set it in .env to sync evidence to Probo.\n");
@@ -283,8 +338,8 @@ async function processInput(input: string): Promise<void> {
     });
 
     const sources = trimmed === "/sync all"
-      ? ["github", "google"] as const
-      : [trimmed.split(" ")[1] as "github" | "google"];
+      ? ["github", "google", "aws"] as const
+      : [trimmed.split(" ")[1] as "github" | "google" | "aws"];
 
     console.log("\nSyncing evidence to Probo...\n");
 

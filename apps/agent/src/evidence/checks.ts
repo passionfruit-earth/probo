@@ -1,5 +1,6 @@
 import { GitHubClient } from "../integrations/github/client.js";
 import { GoogleWorkspaceClient } from "../integrations/google/client.js";
+import { AWSClient } from "../integrations/aws/client.js";
 import { saveEvidence, getLatestEvidence, diffEvidence, type EvidenceRecord } from "./store.js";
 
 export interface CheckResult {
@@ -186,25 +187,50 @@ export async function checkGoogleWorkspace(
 }
 
 /**
+ * Run AWS compliance check
+ */
+export async function checkAWS(client: AWSClient): Promise<CheckResult> {
+  const compliance = await client.checkCompliance();
+
+  const status: EvidenceRecord["summary"]["status"] =
+    compliance.score >= 80 ? "pass" : compliance.score >= 50 ? "partial" : "fail";
+
+  const previous = getLatestEvidence("aws", `account_${compliance.accountId}`);
+
+  const evidence = saveEvidence(
+    "aws",
+    `account_${compliance.accountId}`,
+    compliance as unknown as Record<string, unknown>,
+    { status, issues: compliance.issues, score: compliance.score },
+    { account: compliance.accountId, region: compliance.region }
+  );
+
+  return {
+    evidence,
+    diff: previous ? diffEvidence(previous, evidence) : undefined,
+  };
+}
+
+/**
  * ISO 27001 control mapping
  */
 export const ISO27001_CONTROL_MAPPING = {
   // Access Control
   "A.5.15": {
     name: "Access control",
-    checks: ["github_branch_protection", "google_admin_users"],
+    checks: ["github_branch_protection", "google_admin_users", "aws_iam_policies"],
   },
   "A.5.16": {
     name: "Identity management",
-    checks: ["google_user_list", "google_inactive_users"],
+    checks: ["google_user_list", "google_inactive_users", "aws_iam_users"],
   },
   "A.5.17": {
     name: "Authentication information",
-    checks: ["google_2fa_status", "github_2fa_status"],
+    checks: ["google_2fa_status", "github_2fa_status", "aws_mfa_status", "aws_password_policy"],
   },
   "A.5.18": {
     name: "Access rights",
-    checks: ["github_collaborators", "google_groups"],
+    checks: ["github_collaborators", "google_groups", "aws_iam_roles"],
   },
 
   // Secure Development
@@ -218,7 +244,7 @@ export const ISO27001_CONTROL_MAPPING = {
   },
   "A.8.27": {
     name: "Secure system architecture",
-    checks: ["github_dependabot", "github_secret_scanning"],
+    checks: ["github_dependabot", "github_secret_scanning", "aws_security_groups"],
   },
   "A.8.28": {
     name: "Secure coding",
@@ -228,13 +254,31 @@ export const ISO27001_CONTROL_MAPPING = {
   // Configuration Management
   "A.8.9": {
     name: "Configuration management",
-    checks: ["github_repo_settings", "google_security_settings"],
+    checks: ["github_repo_settings", "google_security_settings", "aws_s3_encryption"],
   },
 
   // Vulnerability Management
   "A.8.8": {
     name: "Management of technical vulnerabilities",
     checks: ["github_dependabot", "github_security_alerts"],
+  },
+
+  // Logging
+  "A.8.15": {
+    name: "Logging",
+    checks: ["aws_cloudtrail", "aws_s3_logging"],
+  },
+
+  // Network Security
+  "A.8.20": {
+    name: "Networks security",
+    checks: ["aws_security_groups", "aws_vpc"],
+  },
+
+  // Cryptography
+  "A.8.24": {
+    name: "Use of cryptography",
+    checks: ["aws_s3_encryption", "aws_cloudtrail_encryption"],
   },
 };
 

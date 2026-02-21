@@ -113,12 +113,13 @@ We're using a **bottom-up approach**:
 - ISMS Scope Statement (ID: `2delmZUAAAEACgAAAZyBL_19QhhOt-6d`)
 - Risk Assessment Methodology (ID: `2delmZUAAAEACgAAAZyBMRAsSsUUMvi0`)
 - Statement of Applicability (ID: `2delmZUAAAEACgAAAZyBQ_orHneoAGYh`)
+- Remote Working Policy (ID: `2delmZUAAAEACgAAAZyBS04A-pciTlPX`)
 
 ### Medium Priority Gaps
 
 | # | Gap | Control | Status | Assigned |
 |---|-----|---------|--------|----------|
-| 7 | Remote working security policy | A.6.7 | NOT_STARTED | - |
+| 7 | Remote working security policy | A.6.7 | IMPLEMENTED | - |
 | 8 | Endpoint device security policy | A.8.1 | NOT_STARTED | - |
 | 9 | Formal access review process | A.5.18 | NOT_STARTED | - |
 | 10 | Vendor security assessment process | A.5.19 | NOT_STARTED | - |
@@ -308,6 +309,7 @@ Security profiles gathered for 13 vendors (see `vendor-security-profiles.md`):
 
 | Date | Change | By |
 |------|--------|-----|
+| 2026-02-21 | Created Remote Working Policy (A.6.7) | Claude/Passionfruit |
 | 2026-02-21 | Created mandatory ISMS docs: Information Security Policy, ISMS Scope, Risk Methodology, SoA | Claude/Passionfruit |
 | 2026-02-21 | Created 10 risks in Probo risk register | Claude/Passionfruit |
 | 2026-02-21 | Created Incident Response Plan and BCP in Probo | Claude/Passionfruit |

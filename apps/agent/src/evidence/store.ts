@@ -18,6 +18,7 @@ export interface EvidenceRecord {
     repository?: string;
     domain?: string;
     account?: string;
+    region?: string;
   };
 }
 

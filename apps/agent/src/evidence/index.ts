@@ -14,6 +14,7 @@ export {
   checkGitHubRepository,
   checkAllGitHubRepositories,
   checkGoogleWorkspace,
+  checkAWS,
   generateISO27001Report,
   ISO27001_CONTROL_MAPPING,
   type CheckResult,

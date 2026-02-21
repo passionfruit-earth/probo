@@ -29,7 +29,7 @@ We need **continuous evidence** from all vendors, not just point-in-time screens
 |--------|--------------|---------------|------|--------|
 | **GitHub** | A.8.25-31 (Secure dev) | Branch protection, required reviews, security alerts, access | Device Flow OAuth | **DONE** |
 | **Google Workspace** | A.5.15-18 (Access), A.8.5 (Auth) | 2FA enforcement, SSO config, sharing settings, user list | OAuth2 | **DONE** |
-| **AWS** | A.8.20 (Networks), A.5.15 (Access) | IAM policies, security groups, CloudTrail config | Access Key | TODO |
+| **AWS** | A.8.20 (Networks), A.5.15 (Access), A.8.15 (Logging) | IAM policies, security groups, CloudTrail, S3 | Access Key | **DONE** |
 | **Slack** | A.5.14 (Info transfer) | Retention settings, external sharing, SSO, access | OAuth2 | TODO |
 | **Linear** | A.8.25 (Dev lifecycle) | Project access, integrations | OAuth2 | TODO |
 | **Vercel/Netlify** | A.8.9 (Config mgmt) | Environment vars (names only), access, deploy settings | Token | TODO |
@@ -103,11 +103,16 @@ Evidence Storage:
 - [x] Push to Probo as Documents (`/sync github`)
 - [x] Auto-create risks and tasks for failing checks (`/sync risks`)
 
-#### Phase 4: AWS (TODO)
-- [ ] AWS SDK integration
-- [ ] Fetch: IAM policies, security groups, CloudTrail
-- [ ] Compliance checks for infrastructure
-- [ ] Evidence generation
+#### Phase 4: AWS (DONE)
+- [x] AWS SDK integration (`@aws-sdk/client-iam`, `client-ec2`, `client-cloudtrail`, `client-s3`, `client-sts`)
+- [x] Fetch: IAM users/roles/policies, security groups, CloudTrail trails, S3 buckets
+- [x] Compliance checks for infrastructure:
+  - IAM: Root MFA, user MFA, password policy, access key rotation, unused credentials
+  - CloudTrail: Enabled, multi-region, log validation, KMS encryption
+  - S3: Public access blocks, encryption, versioning, logging
+  - Networking: Security groups with open SSH/RDP/all traffic
+- [x] Evidence generation and scoring (0-100)
+- [x] CLI commands: `/scan aws`, `/sync aws`
 
 #### Phase 5: Other Vendors
 - [ ] Slack integration
@@ -188,7 +193,10 @@ apps/agent/src/
 │   │   ├── client.ts       # Google Admin SDK client
 │   │   ├── types.ts
 │   │   └── index.ts
-│   └── aws/                # TODO
+│   └── aws/                # DONE
+│       ├── client.ts       # AWS SDK client (IAM, EC2, CloudTrail, S3, STS)
+│       ├── types.ts        # AWS types for compliance data
+│       └── index.ts
 │       ├── client.ts
 │       ├── types.ts
 │       └── index.ts
@@ -573,7 +581,7 @@ Agent:
 | 1 | **GitHub** | A.8.25-31 Secure dev | **DONE** (client + OAuth + evidence) |
 | 2 | **Google Workspace** | A.5.15-18 Access control | **DONE** (client + tools) |
 | 3 | **Evidence System** | All | **DONE** (local storage + CLI) |
-| 4 | **AWS** | A.8.20 Infrastructure | TODO |
+| 4 | **AWS** | A.8.20 Infrastructure | **DONE** |
 | 5 | **Slack/Other** | Various | TODO |
 
 ### Later (Platform Features)
@@ -600,6 +608,7 @@ Agent:
 
 | Date | Change | By |
 |------|--------|-----|
+| 2026-02-21 | AWS integration complete (`/scan aws`, `/sync aws`) - IAM, CloudTrail, S3, EC2 | Claude |
 | 2026-02-21 | Added risk/task auto-creation from failing evidence (`/sync risks`) | Claude |
 | 2026-02-21 | Added evidence storage system (`apps/agent/src/evidence/`) | Claude |
 | 2026-02-21 | Added `/scan` and `/evidence` CLI commands | Claude |

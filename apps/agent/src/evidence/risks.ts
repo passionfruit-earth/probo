@@ -5,14 +5,30 @@ import { listEvidence, type EvidenceRecord } from "./store.js";
  * Issue to ISO 27001 control mapping
  */
 const ISSUE_TO_CONTROL: Record<string, { controlId: string; controlName: string }> = {
+  // GitHub issues
   "branch protection": { controlId: "A.8.25", controlName: "Secure development lifecycle" },
   "reviewer": { controlId: "A.8.25", controlName: "Secure development lifecycle" },
   "pull request": { controlId: "A.8.25", controlName: "Secure development lifecycle" },
   "security vulnerabilities": { controlId: "A.8.8", controlName: "Management of technical vulnerabilities" },
   "dependabot": { controlId: "A.8.8", controlName: "Management of technical vulnerabilities" },
   "2fa": { controlId: "A.5.17", controlName: "Authentication information" },
+  "mfa": { controlId: "A.5.17", controlName: "Authentication information" },
   "admin": { controlId: "A.5.15", controlName: "Access control" },
   "merged without review": { controlId: "A.8.25", controlName: "Secure development lifecycle" },
+  // AWS issues
+  "root account mfa": { controlId: "A.5.17", controlName: "Authentication information" },
+  "iam user": { controlId: "A.5.17", controlName: "Authentication information" },
+  "password policy": { controlId: "A.5.17", controlName: "Authentication information" },
+  "access key": { controlId: "A.5.17", controlName: "Authentication information" },
+  "credential": { controlId: "A.5.17", controlName: "Authentication information" },
+  "cloudtrail": { controlId: "A.8.15", controlName: "Logging" },
+  "s3 bucket": { controlId: "A.8.24", controlName: "Use of cryptography" },
+  "public access": { controlId: "A.8.20", controlName: "Networks security" },
+  "encryption": { controlId: "A.8.24", controlName: "Use of cryptography" },
+  "security group": { controlId: "A.8.20", controlName: "Networks security" },
+  "ssh": { controlId: "A.8.20", controlName: "Networks security" },
+  "rdp": { controlId: "A.8.20", controlName: "Networks security" },
+  "0.0.0.0/0": { controlId: "A.8.20", controlName: "Networks security" },
 };
 
 /**
@@ -209,20 +225,53 @@ function getRecommendedActions(issues: string[]): string[] {
   const actions: string[] = [];
   const lowerIssues = issues.map(i => i.toLowerCase()).join(" ");
 
+  // GitHub actions
   if (lowerIssues.includes("branch protection")) {
     actions.push("- Enable branch protection on default branches");
   }
   if (lowerIssues.includes("reviewer") || lowerIssues.includes("review")) {
     actions.push("- Require at least 1 code review before merging");
   }
-  if (lowerIssues.includes("vulnerabilit") || lowerIssues.includes("security")) {
+  if (lowerIssues.includes("vulnerabilit") || lowerIssues.includes("security alert")) {
     actions.push("- Review and remediate security alerts");
   }
   if (lowerIssues.includes("admin")) {
     actions.push("- Review admin permissions and apply least privilege");
   }
-  if (lowerIssues.includes("2fa")) {
-    actions.push("- Enable and enforce 2FA for all users");
+  if (lowerIssues.includes("2fa") || lowerIssues.includes("mfa")) {
+    actions.push("- Enable and enforce MFA for all users");
+  }
+
+  // AWS actions
+  if (lowerIssues.includes("root account mfa")) {
+    actions.push("- Enable MFA on the AWS root account immediately");
+  }
+  if (lowerIssues.includes("password policy")) {
+    actions.push("- Configure IAM password policy (14+ chars, complexity, 90-day expiry)");
+  }
+  if (lowerIssues.includes("access key") && lowerIssues.includes("90 days")) {
+    actions.push("- Rotate access keys older than 90 days");
+  }
+  if (lowerIssues.includes("unused") && lowerIssues.includes("credential")) {
+    actions.push("- Review and disable unused IAM credentials");
+  }
+  if (lowerIssues.includes("cloudtrail")) {
+    actions.push("- Enable CloudTrail with multi-region and log validation");
+  }
+  if (lowerIssues.includes("s3") && lowerIssues.includes("public")) {
+    actions.push("- Enable S3 Block Public Access on all buckets");
+  }
+  if (lowerIssues.includes("s3") && lowerIssues.includes("encryption")) {
+    actions.push("- Enable default encryption on all S3 buckets");
+  }
+  if (lowerIssues.includes("security group") && (lowerIssues.includes("ssh") || lowerIssues.includes("22"))) {
+    actions.push("- Restrict SSH (port 22) access to specific IP ranges");
+  }
+  if (lowerIssues.includes("security group") && (lowerIssues.includes("rdp") || lowerIssues.includes("3389"))) {
+    actions.push("- Restrict RDP (port 3389) access to specific IP ranges");
+  }
+  if (lowerIssues.includes("0.0.0.0/0") || lowerIssues.includes("wide open")) {
+    actions.push("- Review security groups with 0.0.0.0/0 ingress rules");
   }
 
   if (actions.length === 0) {

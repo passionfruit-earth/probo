@@ -64,7 +64,22 @@ const (
 		- trust_page_url: URL to trust/compliance page
 		- terms_of_service_url: URL to terms of service page
 		- status_page_url: URL to system status page
-		- certifications: Array of security/compliance certifications (e.g., ["SOC2", "ISO27001"])
+		- certifications: Array of security/compliance certifications the company holds. Look for ALL of these common certifications:
+			* SOC 1 Type I, SOC 1 Type II
+			* SOC 2 Type I, SOC 2 Type II, SOC 3
+			* ISO 27001, ISO 27017, ISO 27018, ISO 27701, ISO 22301, ISO 9001
+			* CSA STAR Level 1, CSA STAR Level 2, CAIQ
+			* FedRAMP (specify level: Low, Moderate, High, Tailored, or LI-SaaS)
+			* StateRAMP, TX-RAMP
+			* PCI DSS (specify level if known)
+			* HIPAA, HITRUST
+			* GDPR compliant, CCPA compliant
+			* NIST 800-53, NIST 800-171, NIST CSF
+			* C5 (Germany), IRAP (Australia), MTCS (Singapore), ENS (Spain), K-ISMS (Korea)
+			* Cyber Essentials, Cyber Essentials Plus (UK)
+			* TISAX (automotive)
+			* CJIS, ITAR, EAR
+			Include the full certification name with type/level when available (e.g., "SOC 2 Type II" not just "SOC 2")
 		- category: One of the following enum values:
 			- "ANALYTICS"
 			- "CLOUD_MONITORING"
@@ -114,7 +129,7 @@ const (
 			"status_page_url": "https://status.stripe.com",
 			"business_associate_agreement_url": "https://stripe.com/baa",
 			"subprocessors_list_url": "https://stripe.com/subprocessors",
-			"certifications": ["SOC1", "SOC2", "PCI DSS Level 1", "ISO 27001"]
+			"certifications": ["SOC 1 Type II", "SOC 2 Type II", "ISO 27001", "ISO 27018", "PCI DSS Level 1", "CSA STAR Level 2", "HIPAA"]
 			"category": "FINANCE"
 		}
 
