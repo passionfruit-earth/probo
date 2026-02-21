@@ -1,6 +1,6 @@
 ---
-description: "List items from Probo (measures, risks, vendors, tasks)"
-argument-hint: "<type: measures|risks|vendors|tasks|controls|documents>"
+description: "List items from Probo (measures, risks, vendors, tasks, controls, documents, frameworks, assets, audits, people)"
+argument-hint: "<type>"
 ---
 
 # Probo List
@@ -9,57 +9,115 @@ List items from the Probo compliance platform.
 
 ## Available types:
 
-1. **measures** - Security measures/mitigations
-2. **risks** - Risk register entries
-3. **vendors** - Third-party vendors
-4. **tasks** - Remediation tasks
-5. **controls** - Framework controls (ISO 27001)
-6. **documents** - Policies and procedures
+| Type | Description |
+|------|-------------|
+| `measures` | Security measures/mitigations |
+| `risks` | Risk register entries |
+| `vendors` | Third-party vendors |
+| `tasks` | Remediation tasks |
+| `controls` | Framework controls (ISO 27001) |
+| `documents` | Policies and procedures |
+| `frameworks` | Compliance frameworks |
+| `assets` | Information assets |
+| `audits` | Internal/external audits |
+| `people` | Organization members |
 
-## How to query:
+## Configuration:
 
-Use the Probo GraphQL API:
+```bash
+# Environment variables (check .env or apps/agent/.env)
+PROBO_API_URL="http://localhost:8080/api/console/v1/graphql"
+PROBO_API_KEY="your-api-key"
+PROBO_ORG_ID="your-org-id"
+```
+
+## GraphQL Queries:
+
+All queries use the `node` query with organization ID:
 
 ```bash
 API_URL="http://localhost:8080/api/console/v1/graphql"
 API_KEY="<your-api-key>"
 ORG_ID="<your-org-id>"
 
-# List measures
+# Generic query pattern
 curl -s "$API_URL" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $API_KEY" \
-  -d '{"query": "query { organization(id: \"'$ORG_ID'\") { measures { edges { node { id name state category } } } } }"}'
+  -d '{"query": "{ node(id: \"'$ORG_ID'\") { ... on Organization { <field> { edges { node { <fields> } } } } } }"}'
+```
 
-# List risks
-curl -s "$API_URL" \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $API_KEY" \
-  -d '{"query": "query { organization(id: \"'$ORG_ID'\") { risks { edges { node { id name treatment likelihood impact } } } } }"}'
+### Measures
+```bash
+curl -s "$API_URL" -H "Content-Type: application/json" -H "Authorization: Bearer $API_KEY" \
+  -d '{"query": "{ node(id: \"'$ORG_ID'\") { ... on Organization { measures { edges { node { id name state category description } } } } } }"}'
+```
 
-# List vendors
-curl -s "$API_URL" \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $API_KEY" \
-  -d '{"query": "query { organization(id: \"'$ORG_ID'\") { vendors { edges { node { id name assessmentStatus } } } } }"}'
+### Risks
+```bash
+curl -s "$API_URL" -H "Content-Type: application/json" -H "Authorization: Bearer $API_KEY" \
+  -d '{"query": "{ node(id: \"'$ORG_ID'\") { ... on Organization { risks { edges { node { id name treatment inherentLikelihood inherentImpact category } } } } } }"}'
+```
+
+### Vendors
+```bash
+curl -s "$API_URL" -H "Content-Type: application/json" -H "Authorization: Bearer $API_KEY" \
+  -d '{"query": "{ node(id: \"'$ORG_ID'\") { ... on Organization { vendors { edges { node { id name websiteUrl description } } } } } }"}'
+```
+
+### Tasks
+```bash
+curl -s "$API_URL" -H "Content-Type: application/json" -H "Authorization: Bearer $API_KEY" \
+  -d '{"query": "{ node(id: \"'$ORG_ID'\") { ... on Organization { tasks { edges { node { id name state deadline measure { name } } } } } } }"}'
+```
+
+### Controls
+```bash
+curl -s "$API_URL" -H "Content-Type: application/json" -H "Authorization: Bearer $API_KEY" \
+  -d '{"query": "{ node(id: \"'$ORG_ID'\") { ... on Organization { controls { edges { node { id name referenceCode category framework { name } } } } } } }"}'
+```
+
+### Documents
+```bash
+curl -s "$API_URL" -H "Content-Type: application/json" -H "Authorization: Bearer $API_KEY" \
+  -d '{"query": "{ node(id: \"'$ORG_ID'\") { ... on Organization { documents { edges { node { id title documentType state } } } } } }"}'
+```
+
+### Frameworks
+```bash
+curl -s "$API_URL" -H "Content-Type: application/json" -H "Authorization: Bearer $API_KEY" \
+  -d '{"query": "{ node(id: \"'$ORG_ID'\") { ... on Organization { frameworks { edges { node { id name description } } } } } }"}'
+```
+
+### Assets
+```bash
+curl -s "$API_URL" -H "Content-Type: application/json" -H "Authorization: Bearer $API_KEY" \
+  -d '{"query": "{ node(id: \"'$ORG_ID'\") { ... on Organization { assets { edges { node { id name assetType criticality } } } } } }"}'
+```
+
+### Audits
+```bash
+curl -s "$API_URL" -H "Content-Type: application/json" -H "Authorization: Bearer $API_KEY" \
+  -d '{"query": "{ node(id: \"'$ORG_ID'\") { ... on Organization { audits { edges { node { id name auditType state startDate endDate } } } } } }"}'
+```
+
+### People (Organization Members)
+```bash
+curl -s "$API_URL" -H "Content-Type: application/json" -H "Authorization: Bearer $API_KEY" \
+  -d '{"query": "{ node(id: \"'$ORG_ID'\") { ... on Organization { people { edges { node { id fullName email } } } } } }"}'
 ```
 
 ## Output format:
 
-Display results in a table format:
-- ID, Name, Status/State, Category (for measures)
-- ID, Name, Treatment, Likelihood x Impact = Risk Score (for risks)
-- ID, Name, Assessment Status, Last Assessed (for vendors)
-
-## Configuration:
-
-Set these environment variables or check .env:
-- PROBO_API_URL
-- PROBO_API_KEY
-- PROBO_ORG_ID
+Display results in a table:
+- ID, Name, State/Status, Category (for measures)
+- ID, Name, Treatment, Likelihood x Impact (for risks)
+- ID, Name, Website, Description (for vendors)
+- ID, Name, State, Deadline, Linked Measure (for tasks)
 
 ## Important:
 
 - This is READ-ONLY
-- Use probo-create to add new items
-- Link findings from scans to existing measures
+- Use `probo-create` to add new items
+- Use `probo-update` to modify existing items
+- Use `probo-link` to create relationships

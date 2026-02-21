@@ -8,8 +8,10 @@
   "commands": {
     "scan": "Scan a system for ISO 27001 controls (aws|github|google|slack|linear|vercel|notion|posthog|attio|fireflies|azure|loops|all)",
     "scan-vendor": "Research vendor certifications and security posture",
-    "setup-integrations": "Set up API tokens for security scanning (slack|linear|vercel|notion|posthog|attio|fireflies|loops|all)",
-    "probo-list": "List measures, risks, vendors, tasks from Probo",
-    "probo-create": "Create measures, risks, tasks, vendors in Probo"
+    "setup-integrations": "Set up API tokens for security scanning",
+    "probo-list": "List items from Probo (measures|risks|vendors|tasks|controls|documents|frameworks|assets|audits|people)",
+    "probo-create": "Create items in Probo (measure|risk|task|vendor|document|asset|framework)",
+    "probo-update": "Update items in Probo (measure|risk|task|vendor|document)",
+    "probo-link": "Link items in Probo (control-measure|risk-measure|control-document)"
   }
 }
