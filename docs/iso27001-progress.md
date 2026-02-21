@@ -246,6 +246,29 @@ We're using a **bottom-up approach**:
 - GitHub findings: `docs/github-security-findings-2026-02-21.md`
 - AWS findings: `docs/aws-security-findings-2026-02-21.md`
 
+### Pending Scan Tasks
+
+Create these tasks in Probo for completing manual scans:
+
+| System | Task | ISO Controls | Priority |
+|--------|------|--------------|----------|
+| Google Workspace | Complete security scan: 2FA, admins, sharing settings | A.5.15-18, A.8.5 | High |
+| Slack | Complete security scan: SSO, retention, app permissions | A.5.14, A.5.17 | Medium |
+| Linear | Complete security scan: SSO, access control, audit logs | A.5.15, A.8.2 | Medium |
+| Vercel | Complete security scan: team access, env vars, deployments | A.8.25, A.8.32 | Medium |
+| Notion | Complete security scan: sharing, guests, integrations | A.5.15, A.8.12 | Medium |
+| PostHog | Complete security scan: project access, data retention | A.5.15, A.8.10 | Low |
+| Attio | Complete security scan: CRM access, integrations | A.5.15, A.8.12 | Low |
+| Fireflies | Complete security scan: recording access, retention | A.5.15, A.8.10 | Low |
+| Azure | Complete security scan: Entra ID, MFA, OpenAI access | A.5.17, A.8.5 | High |
+| Loops | Complete security scan: API keys, sender auth (SPF/DKIM) | A.8.21, A.5.14 | Low |
+
+**How to complete each scan:**
+1. Go to system's admin/settings page
+2. Follow checklist in `.claude-plugin/commands/scan.md`
+3. Document findings in `docs/compliance/scan-history/YYYY-MM-DD-[system]-scan.md`
+4. Create remediation tasks for any gaps found
+
 ---
 
 ## Phase 5: Internal Audit - PENDING
