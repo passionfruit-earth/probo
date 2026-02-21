@@ -10,6 +10,7 @@ import {
   formatSecurityProfile,
 } from "./vendor-security-gatherer.js";
 import { GitHubClient } from "../integrations/github/index.js";
+import { GoogleWorkspaceClient } from "../integrations/google/index.js";
 
 // Tool definitions for the Anthropic SDK
 export const PROBO_TOOLS: Anthropic.Tool[] = [
@@ -358,15 +359,83 @@ export const PROBO_TOOLS: Anthropic.Tool[] = [
       required: ["owner", "repo"],
     },
   },
+  // Google Workspace integration tools
+  {
+    name: "google_check_compliance",
+    description:
+      "Run a comprehensive compliance check on Google Workspace. Checks 2FA enrollment, admin users, inactive accounts, and more. Returns compliance status and issues found.",
+    input_schema: {
+      type: "object" as const,
+      properties: {},
+      required: [],
+    },
+  },
+  {
+    name: "google_list_users",
+    description:
+      "List all users in Google Workspace with their security status (2FA, admin, suspended, last login).",
+    input_schema: {
+      type: "object" as const,
+      properties: {
+        maxResults: {
+          type: "number",
+          description: "Maximum number of users to return (default 100)",
+        },
+      },
+      required: [],
+    },
+  },
+  {
+    name: "google_get_2fa_status",
+    description:
+      "Get 2FA enrollment status across the Google Workspace. Shows how many users have 2FA enabled, enforced, and lists users without 2FA.",
+    input_schema: {
+      type: "object" as const,
+      properties: {},
+      required: [],
+    },
+  },
+  {
+    name: "google_get_admins",
+    description:
+      "List all admin users in Google Workspace (super admins and delegated admins).",
+    input_schema: {
+      type: "object" as const,
+      properties: {},
+      required: [],
+    },
+  },
+  {
+    name: "google_list_groups",
+    description:
+      "List all groups in Google Workspace.",
+    input_schema: {
+      type: "object" as const,
+      properties: {},
+      required: [],
+    },
+  },
 ];
 
 // Tool executor - executes tool calls against Probo API and external integrations
 export class ToolExecutor {
   private githubClient: GitHubClient | null = null;
+  private googleClient: GoogleWorkspaceClient | null = null;
 
-  constructor(private client: ProboClient, githubToken?: string) {
-    if (githubToken) {
-      this.githubClient = new GitHubClient({ token: githubToken });
+  constructor(
+    private client: ProboClient,
+    options?: {
+      githubToken?: string;
+      googleAccessToken?: string;
+    }
+  ) {
+    if (options?.githubToken) {
+      this.githubClient = new GitHubClient({ token: options.githubToken });
+    }
+    if (options?.googleAccessToken) {
+      this.googleClient = new GoogleWorkspaceClient({
+        accessToken: options.googleAccessToken,
+      });
     }
   }
 
@@ -597,6 +666,97 @@ export class ToolExecutor {
               allowForcePush: protection.allow_force_pushes?.enabled ?? false,
               allowDeletions: protection.allow_deletions?.enabled ?? false,
             },
+          }, null, 2);
+        }
+
+        // Google Workspace integration tools
+        case "google_check_compliance": {
+          if (!this.googleClient) {
+            return JSON.stringify({
+              error: "Google Workspace not configured. Set GOOGLE_ACCESS_TOKEN environment variable.",
+            });
+          }
+          const compliance = await this.googleClient.checkCompliance();
+          return JSON.stringify(compliance, null, 2);
+        }
+
+        case "google_list_users": {
+          if (!this.googleClient) {
+            return JSON.stringify({
+              error: "Google Workspace not configured. Set GOOGLE_ACCESS_TOKEN environment variable.",
+            });
+          }
+          const maxResults = (input.maxResults as number) || 100;
+          const users = await this.googleClient.listUsers(maxResults);
+          return JSON.stringify({
+            count: users.length,
+            users: users.map((u) => ({
+              email: u.primaryEmail,
+              name: u.name?.fullName,
+              isAdmin: u.isAdmin,
+              is2FAEnabled: u.isEnrolledIn2Sv,
+              is2FAEnforced: u.isEnforcedIn2Sv,
+              suspended: u.suspended,
+              lastLogin: u.lastLoginTime,
+              orgUnit: u.orgUnitPath,
+            })),
+          }, null, 2);
+        }
+
+        case "google_get_2fa_status": {
+          if (!this.googleClient) {
+            return JSON.stringify({
+              error: "Google Workspace not configured. Set GOOGLE_ACCESS_TOKEN environment variable.",
+            });
+          }
+          const status = await this.googleClient.get2FAStatus();
+          return JSON.stringify({
+            summary: {
+              total: status.total,
+              enrolled: status.enrolled,
+              enforced: status.enforced,
+              notEnrolled: status.notEnrolled.length,
+              enrollmentRate: `${((status.enrolled / status.total) * 100).toFixed(1)}%`,
+            },
+            usersWithout2FA: status.notEnrolled,
+          }, null, 2);
+        }
+
+        case "google_get_admins": {
+          if (!this.googleClient) {
+            return JSON.stringify({
+              error: "Google Workspace not configured. Set GOOGLE_ACCESS_TOKEN environment variable.",
+            });
+          }
+          const admins = await this.googleClient.getAdminUsers();
+          return JSON.stringify({
+            count: admins.length,
+            admins: admins.map((u) => ({
+              email: u.primaryEmail,
+              name: u.name?.fullName,
+              isSuperAdmin: u.isAdmin,
+              isDelegatedAdmin: u.isDelegatedAdmin,
+              is2FAEnabled: u.isEnrolledIn2Sv,
+              lastLogin: u.lastLoginTime,
+            })),
+          }, null, 2);
+        }
+
+        case "google_list_groups": {
+          if (!this.googleClient) {
+            return JSON.stringify({
+              error: "Google Workspace not configured. Set GOOGLE_ACCESS_TOKEN environment variable.",
+            });
+          }
+          const groups = await this.googleClient.listGroups();
+          return JSON.stringify({
+            count: groups.length,
+            groups: groups.map((g) => ({
+              email: g.email,
+              name: g.name,
+              description: g.description,
+              members: g.directMembersCount,
+            })),
           }, null, 2);
         }
 

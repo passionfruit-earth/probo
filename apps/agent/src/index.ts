@@ -1,6 +1,12 @@
 import { createInterface } from "readline";
 import { config as dotenvConfig } from "dotenv";
 import { ComplianceAgent } from "./agents/index.js";
+import {
+  authenticateGitHub,
+  getGitHubToken,
+  isGitHubAuthenticated,
+  clearGitHubAuth,
+} from "./integrations/github/index.js";
 
 // Load .env file
 dotenvConfig();
@@ -19,8 +25,9 @@ const config = {
   proboEndpoint: process.env.PROBO_ENDPOINT || "http://localhost:8080/graphql",
   proboApiKey: process.env.PROBO_API_KEY || "",
   organizationId: process.env.PROBO_ORGANIZATION_ID || "",
-  // Integrations
-  githubToken: process.env.GITHUB_TOKEN,
+  // Integrations - check saved auth first, then env var
+  githubToken: getGitHubToken(),
+  googleAccessToken: process.env.GOOGLE_ACCESS_TOKEN,
 };
 
 // Validate required config
@@ -47,12 +54,15 @@ console.log("Model:", config.model);
 console.log("Probo API:", config.proboEndpoint);
 console.log("Organization:", config.organizationId || "(not set)");
 console.log("\nIntegrations:");
-console.log("  GitHub:", config.githubToken ? "Connected" : "Not configured (set GITHUB_TOKEN)");
+console.log("  GitHub:", isGitHubAuthenticated() ? "Connected" : "Not connected (run /auth github)");
+console.log("  Google:", config.googleAccessToken ? "Connected" : "Not configured (set GOOGLE_ACCESS_TOKEN)");
 console.log("\nCommands:");
+console.log("  /auth        - Authenticate with integrations (github, logout)");
 console.log("  /frameworks  - Import a compliance framework");
 console.log("  /vendor      - Add and assess a vendor");
 console.log("  /risks       - Generate risk assessment");
 console.log("  /github      - Check GitHub repository compliance");
+console.log("  /google      - Check Google Workspace compliance");
 console.log("  /clear       - Clear conversation history");
 console.log("  /exit        - Exit the agent");
 console.log("\nOr ask any compliance-related question.\n");
@@ -77,6 +87,58 @@ async function processInput(input: string): Promise<void> {
   if (trimmed === "/clear") {
     agent.clearHistory();
     console.log("Conversation history cleared.\n");
+    return;
+  }
+
+  // Auth commands
+  if (trimmed === "/auth" || trimmed === "/auth help") {
+    console.log("\nAuthentication commands:");
+    console.log("  /auth github  - Authenticate with GitHub (Device Flow)");
+    console.log("  /auth status  - Show authentication status");
+    console.log("  /auth logout  - Clear saved authentication\n");
+    return;
+  }
+
+  if (trimmed === "/auth github") {
+    if (isGitHubAuthenticated()) {
+      console.log("\nAlready authenticated with GitHub.");
+      console.log("Run /auth logout to disconnect.\n");
+      return;
+    }
+
+    console.log("\nStarting GitHub authentication...\n");
+    try {
+      await authenticateGitHub((deviceInfo) => {
+        console.log("┌─────────────────────────────────────────────┐");
+        console.log("│  GitHub Device Authorization                │");
+        console.log("├─────────────────────────────────────────────┤");
+        console.log(`│  1. Go to: ${deviceInfo.verification_uri.padEnd(30)}│`);
+        console.log(`│  2. Enter code: ${deviceInfo.user_code.padEnd(25)}│`);
+        console.log("└─────────────────────────────────────────────┘");
+        console.log("\nWaiting for authorization...");
+      });
+      console.log("\n✓ GitHub authentication successful!");
+      console.log("Token saved to ~/.probo-agent/auth.json\n");
+      // Update config with new token
+      config.githubToken = getGitHubToken();
+    } catch (error) {
+      console.error("\nAuthentication failed:", error instanceof Error ? error.message : String(error));
+    }
+    return;
+  }
+
+  if (trimmed === "/auth status") {
+    console.log("\nAuthentication Status:");
+    console.log("  GitHub:", isGitHubAuthenticated() ? "✓ Connected" : "✗ Not connected");
+    console.log("  Google:", config.googleAccessToken ? "✓ Connected (env var)" : "✗ Not connected");
+    console.log("");
+    return;
+  }
+
+  if (trimmed === "/auth logout" || trimmed === "/auth logout github") {
+    clearGitHubAuth();
+    config.githubToken = undefined;
+    console.log("\nGitHub authentication cleared.\n");
     return;
   }
 
@@ -109,6 +171,16 @@ async function processInput(input: string): Promise<void> {
     console.log('  "Check compliance for owner/repo"');
     console.log('  "Show security alerts for owner/repo"');
     console.log('  "Check branch protection for owner/repo"\n');
+    return;
+  }
+
+  if (trimmed === "/google") {
+    console.log("\nGoogle Workspace compliance commands:");
+    console.log('  "Check Google Workspace compliance"');
+    console.log('  "List Google Workspace users"');
+    console.log('  "Show 2FA status for Google Workspace"');
+    console.log('  "List admin users in Google Workspace"');
+    console.log('  "List Google Workspace groups"\n');
     return;
   }
 
