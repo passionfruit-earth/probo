@@ -28,12 +28,12 @@ Track decisions and rationale for audit trail.
 
 ### 2026-02-21 - Skills-based Compliance Automation
 
-**Decision:** Use Claude Code skills instead of custom agent for compliance automation
+**Decision:** Use skills-based automation instead of custom agent for compliance scanning
 **Rationale:**
-- Simpler maintenance (markdown vs TypeScript)
-- Team can use without running separate agent
+- Simpler maintenance (markdown-based configuration)
+- Team can use without running separate process
 - Read-only integrations by default
-- No delete capability (safety)
+- No delete capability (safety by design)
 **ISO Control:** A.8.25 (Secure development lifecycle)
 **Made by:** Engineering team
 **Evidence:** `.claude-plugin/` directory

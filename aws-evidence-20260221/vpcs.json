@@ -1,0 +1,70 @@
+{
+    "Vpcs": [
+        {
+            "CidrBlock": "172.31.0.0/16",
+            "DhcpOptionsId": "dopt-0557f589cd001d6d2",
+            "State": "available",
+            "VpcId": "vpc-095182a531a167bab",
+            "OwnerId": "534383239738",
+            "InstanceTenancy": "default",
+            "CidrBlockAssociationSet": [
+                {
+                    "AssociationId": "vpc-cidr-assoc-0add40fee14afb6c7",
+                    "CidrBlock": "172.31.0.0/16",
+                    "CidrBlockState": {
+                        "State": "associated"
+                    }
+                }
+            ],
+            "IsDefault": true
+        },
+        {
+            "CidrBlock": "10.0.0.0/16",
+            "DhcpOptionsId": "dopt-0557f589cd001d6d2",
+            "State": "available",
+            "VpcId": "vpc-0ed11fef07cb346e6",
+            "OwnerId": "534383239738",
+            "InstanceTenancy": "default",
+            "CidrBlockAssociationSet": [
+                {
+                    "AssociationId": "vpc-cidr-assoc-0c1f6a6b2f5373f1b",
+                    "CidrBlock": "10.0.0.0/16",
+                    "CidrBlockState": {
+                        "State": "associated"
+                    }
+                }
+            ],
+            "IsDefault": false,
+            "Tags": [
+                {
+                    "Key": "name",
+                    "Value": "passionfruit-production-vpc"
+                }
+            ]
+        },
+        {
+            "CidrBlock": "10.0.0.0/16",
+            "DhcpOptionsId": "dopt-0557f589cd001d6d2",
+            "State": "available",
+            "VpcId": "vpc-0abac8a28b784d79d",
+            "OwnerId": "534383239738",
+            "InstanceTenancy": "default",
+            "CidrBlockAssociationSet": [
+                {
+                    "AssociationId": "vpc-cidr-assoc-0890f050c8a44ab90",
+                    "CidrBlock": "10.0.0.0/16",
+                    "CidrBlockState": {
+                        "State": "associated"
+                    }
+                }
+            ],
+            "IsDefault": false,
+            "Tags": [
+                {
+                    "Key": "name",
+                    "Value": "passionfruit-dev-vpc"
+                }
+            ]
+        }
+    ]
+}

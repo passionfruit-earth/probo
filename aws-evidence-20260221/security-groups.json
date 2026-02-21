@@ -1,0 +1,970 @@
+{
+    "SecurityGroups": [
+        {
+            "Description": "Allow ",
+            "GroupName": "passionfruit-pg-db",
+            "IpPermissions": [
+                {
+                    "FromPort": 0,
+                    "IpProtocol": "tcp",
+                    "IpRanges": [
+                        {
+                            "CidrIp": "0.0.0.0/0"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "ToPort": 65535,
+                    "UserIdGroupPairs": []
+                }
+            ],
+            "OwnerId": "534383239738",
+            "GroupId": "sg-02f1ae335ba55665f",
+            "IpPermissionsEgress": [
+                {
+                    "FromPort": 5432,
+                    "IpProtocol": "tcp",
+                    "IpRanges": [
+                        {
+                            "CidrIp": "0.0.0.0/0"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "ToPort": 5432,
+                    "UserIdGroupPairs": []
+                }
+            ],
+            "VpcId": "vpc-095182a531a167bab"
+        },
+        {
+            "Description": "default VPC security group",
+            "GroupName": "default",
+            "IpPermissions": [
+                {
+                    "IpProtocol": "-1",
+                    "IpRanges": [],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "UserIdGroupPairs": [
+                        {
+                            "GroupId": "sg-0f649118615a44ffc",
+                            "UserId": "534383239738"
+                        }
+                    ]
+                }
+            ],
+            "OwnerId": "534383239738",
+            "GroupId": "sg-0f649118615a44ffc",
+            "IpPermissionsEgress": [
+                {
+                    "IpProtocol": "-1",
+                    "IpRanges": [
+                        {
+                            "CidrIp": "0.0.0.0/0"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "UserIdGroupPairs": []
+                }
+            ],
+            "VpcId": "vpc-095182a531a167bab"
+        },
+        {
+            "Description": "Managed by Pulumi",
+            "GroupName": "passionfruit-services-production-8bac04c",
+            "IpPermissions": [
+                {
+                    "IpProtocol": "-1",
+                    "IpRanges": [
+                        {
+                            "CidrIp": "0.0.0.0/0"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "UserIdGroupPairs": []
+                }
+            ],
+            "OwnerId": "534383239738",
+            "GroupId": "sg-0f97ea952e426fe82",
+            "IpPermissionsEgress": [
+                {
+                    "IpProtocol": "-1",
+                    "IpRanges": [
+                        {
+                            "CidrIp": "0.0.0.0/0"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "UserIdGroupPairs": []
+                }
+            ],
+            "VpcId": "vpc-0ed11fef07cb346e6"
+        },
+        {
+            "Description": "launch-wizard-5 created 2025-04-30T13:00:55.975Z",
+            "GroupName": "launch-wizard-5",
+            "IpPermissions": [
+                {
+                    "FromPort": 80,
+                    "IpProtocol": "tcp",
+                    "IpRanges": [
+                        {
+                            "CidrIp": "0.0.0.0/0"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "ToPort": 80,
+                    "UserIdGroupPairs": []
+                },
+                {
+                    "FromPort": 22,
+                    "IpProtocol": "tcp",
+                    "IpRanges": [
+                        {
+                            "CidrIp": "0.0.0.0/0"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "ToPort": 22,
+                    "UserIdGroupPairs": []
+                }
+            ],
+            "OwnerId": "534383239738",
+            "GroupId": "sg-0f556b0925561f458",
+            "IpPermissionsEgress": [
+                {
+                    "IpProtocol": "-1",
+                    "IpRanges": [
+                        {
+                            "CidrIp": "0.0.0.0/0"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "UserIdGroupPairs": []
+                }
+            ],
+            "VpcId": "vpc-095182a531a167bab"
+        },
+        {
+            "Description": "[DO NOT DELETE] Security Group that allows inbound NFS traffic for SageMaker Notebooks Domain [d-ijawrqb2ulze]",
+            "GroupName": "security-group-for-inbound-nfs-d-ijawrqb2ulze",
+            "IpPermissions": [
+                {
+                    "FromPort": 2049,
+                    "IpProtocol": "tcp",
+                    "IpRanges": [],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "ToPort": 2049,
+                    "UserIdGroupPairs": [
+                        {
+                            "GroupId": "sg-050179ca009a6c0bd",
+                            "UserId": "534383239738"
+                        }
+                    ]
+                }
+            ],
+            "OwnerId": "534383239738",
+            "GroupId": "sg-00a5795d11666d7b7",
+            "IpPermissionsEgress": [],
+            "Tags": [
+                {
+                    "Key": "ManagedByAmazonSageMakerResource",
+                    "Value": "arn:aws:sagemaker:eu-central-1:534383239738:domain/d-ijawrqb2ulze"
+                }
+            ],
+            "VpcId": "vpc-095182a531a167bab"
+        },
+        {
+            "Description": "chat api security group",
+            "GroupName": "chat-api",
+            "IpPermissions": [
+                {
+                    "FromPort": 80,
+                    "IpProtocol": "tcp",
+                    "IpRanges": [
+                        {
+                            "CidrIp": "0.0.0.0/0"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "ToPort": 80,
+                    "UserIdGroupPairs": []
+                },
+                {
+                    "FromPort": 443,
+                    "IpProtocol": "tcp",
+                    "IpRanges": [
+                        {
+                            "CidrIp": "0.0.0.0/0"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "ToPort": 443,
+                    "UserIdGroupPairs": []
+                }
+            ],
+            "OwnerId": "534383239738",
+            "GroupId": "sg-01ea46cabc92af059",
+            "IpPermissionsEgress": [
+                {
+                    "IpProtocol": "-1",
+                    "IpRanges": [
+                        {
+                            "CidrIp": "0.0.0.0/0"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "UserIdGroupPairs": []
+                }
+            ],
+            "VpcId": "vpc-095182a531a167bab"
+        },
+        {
+            "Description": "[DO NOT DELETE] Security Group that allows outbound NFS traffic for SageMaker Notebooks Domain [d-whchvsr1ue7z]",
+            "GroupName": "security-group-for-outbound-nfs-d-whchvsr1ue7z",
+            "IpPermissions": [],
+            "OwnerId": "534383239738",
+            "GroupId": "sg-060b31d944decdbbf",
+            "IpPermissionsEgress": [
+                {
+                    "FromPort": 2049,
+                    "IpProtocol": "tcp",
+                    "IpRanges": [],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "ToPort": 2049,
+                    "UserIdGroupPairs": [
+                        {
+                            "GroupId": "sg-0786631546f022907",
+                            "UserId": "534383239738"
+                        }
+                    ]
+                }
+            ],
+            "Tags": [
+                {
+                    "Key": "ManagedByAmazonSageMakerResource",
+                    "Value": "arn:aws:sagemaker:eu-central-1:534383239738:domain/d-whchvsr1ue7z"
+                }
+            ],
+            "VpcId": "vpc-095182a531a167bab"
+        },
+        {
+            "Description": "Keycloak security group",
+            "GroupName": "keycloak",
+            "IpPermissions": [
+                {
+                    "FromPort": 80,
+                    "IpProtocol": "tcp",
+                    "IpRanges": [
+                        {
+                            "CidrIp": "0.0.0.0/0"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "ToPort": 80,
+                    "UserIdGroupPairs": []
+                },
+                {
+                    "FromPort": 443,
+                    "IpProtocol": "tcp",
+                    "IpRanges": [
+                        {
+                            "CidrIp": "0.0.0.0/0"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "ToPort": 443,
+                    "UserIdGroupPairs": []
+                }
+            ],
+            "OwnerId": "534383239738",
+            "GroupId": "sg-022e5d072730d7d26",
+            "IpPermissionsEgress": [
+                {
+                    "IpProtocol": "-1",
+                    "IpRanges": [
+                        {
+                            "CidrIp": "0.0.0.0/0"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "UserIdGroupPairs": []
+                }
+            ],
+            "VpcId": "vpc-095182a531a167bab"
+        },
+        {
+            "Description": "For keycloak ecs",
+            "GroupName": "fruit-keycloak",
+            "IpPermissions": [
+                {
+                    "FromPort": 80,
+                    "IpProtocol": "tcp",
+                    "IpRanges": [
+                        {
+                            "CidrIp": "0.0.0.0/0"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "ToPort": 80,
+                    "UserIdGroupPairs": []
+                },
+                {
+                    "FromPort": 443,
+                    "IpProtocol": "tcp",
+                    "IpRanges": [
+                        {
+                            "CidrIp": "0.0.0.0/0"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "ToPort": 443,
+                    "UserIdGroupPairs": []
+                }
+            ],
+            "OwnerId": "534383239738",
+            "GroupId": "sg-09c656e35fda8431d",
+            "IpPermissionsEgress": [
+                {
+                    "FromPort": 80,
+                    "IpProtocol": "tcp",
+                    "IpRanges": [
+                        {
+                            "CidrIp": "0.0.0.0/0"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "ToPort": 80,
+                    "UserIdGroupPairs": []
+                },
+                {
+                    "FromPort": 443,
+                    "IpProtocol": "tcp",
+                    "IpRanges": [
+                        {
+                            "CidrIp": "0.0.0.0/0"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "ToPort": 443,
+                    "UserIdGroupPairs": []
+                }
+            ],
+            "VpcId": "vpc-095182a531a167bab"
+        },
+        {
+            "Description": "Inbound traffic from fruit tree application load balancer",
+            "GroupName": "Fruit-tree-staging-container",
+            "IpPermissions": [
+                {
+                    "FromPort": 0,
+                    "IpProtocol": "tcp",
+                    "IpRanges": [],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "ToPort": 65535,
+                    "UserIdGroupPairs": [
+                        {
+                            "GroupId": "sg-0e1b436035ac17a6d",
+                            "UserId": "534383239738"
+                        }
+                    ]
+                }
+            ],
+            "OwnerId": "534383239738",
+            "GroupId": "sg-0ed345373b1978718",
+            "IpPermissionsEgress": [
+                {
+                    "IpProtocol": "-1",
+                    "IpRanges": [
+                        {
+                            "CidrIp": "0.0.0.0/0"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "UserIdGroupPairs": []
+                }
+            ],
+            "VpcId": "vpc-095182a531a167bab"
+        },
+        {
+            "Description": "default VPC security group",
+            "GroupName": "default",
+            "IpPermissions": [
+                {
+                    "IpProtocol": "-1",
+                    "IpRanges": [],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "UserIdGroupPairs": [
+                        {
+                            "GroupId": "sg-049d165ccff3d1db8",
+                            "UserId": "534383239738"
+                        }
+                    ]
+                }
+            ],
+            "OwnerId": "534383239738",
+            "GroupId": "sg-049d165ccff3d1db8",
+            "IpPermissionsEgress": [
+                {
+                    "IpProtocol": "-1",
+                    "IpRanges": [
+                        {
+                            "CidrIp": "0.0.0.0/0"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "UserIdGroupPairs": []
+                }
+            ],
+            "VpcId": "vpc-0ed11fef07cb346e6"
+        },
+        {
+            "Description": "Managed by Pulumi",
+            "GroupName": "passionfruit-services-dev-2362516",
+            "IpPermissions": [
+                {
+                    "IpProtocol": "-1",
+                    "IpRanges": [
+                        {
+                            "CidrIp": "0.0.0.0/0"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "UserIdGroupPairs": []
+                }
+            ],
+            "OwnerId": "534383239738",
+            "GroupId": "sg-0c62bf9717b1ab511",
+            "IpPermissionsEgress": [
+                {
+                    "IpProtocol": "-1",
+                    "IpRanges": [
+                        {
+                            "CidrIp": "0.0.0.0/0"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "UserIdGroupPairs": []
+                }
+            ],
+            "VpcId": "vpc-0abac8a28b784d79d"
+        },
+        {
+            "Description": "Inbound traffic port 443 from anywhere",
+            "GroupName": "fruit-tree-staging",
+            "IpPermissions": [
+                {
+                    "FromPort": 443,
+                    "IpProtocol": "tcp",
+                    "IpRanges": [
+                        {
+                            "CidrIp": "0.0.0.0/0"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "ToPort": 443,
+                    "UserIdGroupPairs": []
+                }
+            ],
+            "OwnerId": "534383239738",
+            "GroupId": "sg-0e1b436035ac17a6d",
+            "IpPermissionsEgress": [
+                {
+                    "IpProtocol": "-1",
+                    "IpRanges": [
+                        {
+                            "CidrIp": "0.0.0.0/0"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "UserIdGroupPairs": []
+                }
+            ],
+            "VpcId": "vpc-095182a531a167bab"
+        },
+        {
+            "Description": "launch-wizard-3 created 2023-12-10T16:29:04.484Z",
+            "GroupName": "launch-wizard-3",
+            "IpPermissions": [
+                {
+                    "FromPort": 8080,
+                    "IpProtocol": "tcp",
+                    "IpRanges": [
+                        {
+                            "CidrIp": "80.115.43.212/32",
+                            "Description": "weaviate-http-rik"
+                        },
+                        {
+                            "CidrIp": "84.29.74.6/32",
+                            "Description": "weaviate-http-lars"
+                        },
+                        {
+                            "CidrIp": "18.184.27.214/32",
+                            "Description": "weaviate-http-vedurfolnir"
+                        },
+                        {
+                            "CidrIp": "0.0.0.0/0",
+                            "Description": "weaviate-http-internet"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "ToPort": 8080,
+                    "UserIdGroupPairs": []
+                },
+                {
+                    "FromPort": 22,
+                    "IpProtocol": "tcp",
+                    "IpRanges": [
+                        {
+                            "CidrIp": "87.208.235.17/32",
+                            "Description": "Rik"
+                        },
+                        {
+                            "CidrIp": "109.93.121.143/32",
+                            "Description": "Mitar"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "ToPort": 22,
+                    "UserIdGroupPairs": []
+                },
+                {
+                    "FromPort": 50051,
+                    "IpProtocol": "tcp",
+                    "IpRanges": [
+                        {
+                            "CidrIp": "80.115.43.212/32",
+                            "Description": "weaviate-grcp-rik"
+                        },
+                        {
+                            "CidrIp": "84.29.74.6/32",
+                            "Description": "weaviate-grcp-lars"
+                        },
+                        {
+                            "CidrIp": "18.184.27.214/32",
+                            "Description": "weaviate-grcp-vedurfolnir"
+                        },
+                        {
+                            "CidrIp": "0.0.0.0/0",
+                            "Description": "weaviate-grcp-internet"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "ToPort": 50051,
+                    "UserIdGroupPairs": []
+                },
+                {
+                    "FromPort": 443,
+                    "IpProtocol": "tcp",
+                    "IpRanges": [
+                        {
+                            "CidrIp": "80.115.43.212/32",
+                            "Description": "Rik"
+                        },
+                        {
+                            "CidrIp": "84.29.74.6/32",
+                            "Description": "Lars"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "ToPort": 443,
+                    "UserIdGroupPairs": []
+                }
+            ],
+            "OwnerId": "534383239738",
+            "GroupId": "sg-053aa30c7d5de5c27",
+            "IpPermissionsEgress": [
+                {
+                    "IpProtocol": "-1",
+                    "IpRanges": [
+                        {
+                            "CidrIp": "0.0.0.0/0"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "UserIdGroupPairs": []
+                }
+            ],
+            "VpcId": "vpc-095182a531a167bab"
+        },
+        {
+            "Description": "launch-wizard-2 created 2023-12-04T12:19:49.513Z",
+            "GroupName": "launch-wizard-2",
+            "IpPermissions": [
+                {
+                    "FromPort": 22,
+                    "IpProtocol": "tcp",
+                    "IpRanges": [
+                        {
+                            "CidrIp": "0.0.0.0/0"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "ToPort": 22,
+                    "UserIdGroupPairs": []
+                },
+                {
+                    "FromPort": 3000,
+                    "IpProtocol": "tcp",
+                    "IpRanges": [
+                        {
+                            "CidrIp": "0.0.0.0/0"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "ToPort": 3000,
+                    "UserIdGroupPairs": []
+                },
+                {
+                    "FromPort": 443,
+                    "IpProtocol": "tcp",
+                    "IpRanges": [
+                        {
+                            "CidrIp": "0.0.0.0/0"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "ToPort": 443,
+                    "UserIdGroupPairs": []
+                }
+            ],
+            "OwnerId": "534383239738",
+            "GroupId": "sg-0a498e7fa36c2a767",
+            "IpPermissionsEgress": [
+                {
+                    "IpProtocol": "-1",
+                    "IpRanges": [
+                        {
+                            "CidrIp": "0.0.0.0/0"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "UserIdGroupPairs": []
+                }
+            ],
+            "VpcId": "vpc-095182a531a167bab"
+        },
+        {
+            "Description": "[DO NOT DELETE] Security Group that allows inbound NFS traffic for SageMaker Notebooks Domain [d-whchvsr1ue7z]",
+            "GroupName": "security-group-for-inbound-nfs-d-whchvsr1ue7z",
+            "IpPermissions": [
+                {
+                    "FromPort": 2049,
+                    "IpProtocol": "tcp",
+                    "IpRanges": [],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "ToPort": 2049,
+                    "UserIdGroupPairs": [
+                        {
+                            "GroupId": "sg-060b31d944decdbbf",
+                            "UserId": "534383239738"
+                        }
+                    ]
+                }
+            ],
+            "OwnerId": "534383239738",
+            "GroupId": "sg-0786631546f022907",
+            "IpPermissionsEgress": [],
+            "Tags": [
+                {
+                    "Key": "ManagedByAmazonSageMakerResource",
+                    "Value": "arn:aws:sagemaker:eu-central-1:534383239738:domain/d-whchvsr1ue7z"
+                }
+            ],
+            "VpcId": "vpc-095182a531a167bab"
+        },
+        {
+            "Description": "[DO NOT DELETE] Security Group that allows outbound NFS traffic for SageMaker Notebooks Domain [d-ijawrqb2ulze]",
+            "GroupName": "security-group-for-outbound-nfs-d-ijawrqb2ulze",
+            "IpPermissions": [],
+            "OwnerId": "534383239738",
+            "GroupId": "sg-050179ca009a6c0bd",
+            "IpPermissionsEgress": [
+                {
+                    "FromPort": 2049,
+                    "IpProtocol": "tcp",
+                    "IpRanges": [],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "ToPort": 2049,
+                    "UserIdGroupPairs": [
+                        {
+                            "GroupId": "sg-00a5795d11666d7b7",
+                            "UserId": "534383239738"
+                        }
+                    ]
+                }
+            ],
+            "Tags": [
+                {
+                    "Key": "ManagedByAmazonSageMakerResource",
+                    "Value": "arn:aws:sagemaker:eu-central-1:534383239738:domain/d-ijawrqb2ulze"
+                }
+            ],
+            "VpcId": "vpc-095182a531a167bab"
+        },
+        {
+            "Description": "default VPC security group",
+            "GroupName": "default",
+            "IpPermissions": [
+                {
+                    "IpProtocol": "-1",
+                    "IpRanges": [],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "UserIdGroupPairs": [
+                        {
+                            "GroupId": "sg-0423e606dc5b39713",
+                            "UserId": "534383239738"
+                        }
+                    ]
+                }
+            ],
+            "OwnerId": "534383239738",
+            "GroupId": "sg-0423e606dc5b39713",
+            "IpPermissionsEgress": [
+                {
+                    "IpProtocol": "-1",
+                    "IpRanges": [
+                        {
+                            "CidrIp": "0.0.0.0/0"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "UserIdGroupPairs": []
+                }
+            ],
+            "VpcId": "vpc-0abac8a28b784d79d"
+        },
+        {
+            "Description": "launch-wizard-7 created 2025-10-16T08:49:43.284Z",
+            "GroupName": "launch-wizard-7",
+            "IpPermissions": [
+                {
+                    "FromPort": 8080,
+                    "IpProtocol": "tcp",
+                    "IpRanges": [
+                        {
+                            "CidrIp": "0.0.0.0/0"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "ToPort": 8080,
+                    "UserIdGroupPairs": []
+                },
+                {
+                    "FromPort": 22,
+                    "IpProtocol": "tcp",
+                    "IpRanges": [
+                        {
+                            "CidrIp": "0.0.0.0/0"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "ToPort": 22,
+                    "UserIdGroupPairs": []
+                }
+            ],
+            "OwnerId": "534383239738",
+            "GroupId": "sg-0abe4de3c310b0c9e",
+            "IpPermissionsEgress": [
+                {
+                    "IpProtocol": "-1",
+                    "IpRanges": [
+                        {
+                            "CidrIp": "0.0.0.0/0"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "UserIdGroupPairs": []
+                }
+            ],
+            "VpcId": "vpc-095182a531a167bab"
+        },
+        {
+            "Description": "launch-wizard-6 created 2025-04-30T13:41:33.978Z",
+            "GroupName": "launch-wizard-6",
+            "IpPermissions": [
+                {
+                    "FromPort": 80,
+                    "IpProtocol": "tcp",
+                    "IpRanges": [
+                        {
+                            "CidrIp": "0.0.0.0/0"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "ToPort": 80,
+                    "UserIdGroupPairs": []
+                },
+                {
+                    "FromPort": 22,
+                    "IpProtocol": "tcp",
+                    "IpRanges": [
+                        {
+                            "CidrIp": "0.0.0.0/0"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "ToPort": 22,
+                    "UserIdGroupPairs": []
+                },
+                {
+                    "FromPort": 443,
+                    "IpProtocol": "tcp",
+                    "IpRanges": [
+                        {
+                            "CidrIp": "0.0.0.0/0"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "ToPort": 443,
+                    "UserIdGroupPairs": []
+                }
+            ],
+            "OwnerId": "534383239738",
+            "GroupId": "sg-0e005529217a21641",
+            "IpPermissionsEgress": [
+                {
+                    "IpProtocol": "-1",
+                    "IpRanges": [
+                        {
+                            "CidrIp": "0.0.0.0/0"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "UserIdGroupPairs": []
+                }
+            ],
+            "VpcId": "vpc-095182a531a167bab"
+        },
+        {
+            "Description": "debugger-ec2",
+            "GroupName": "launch-wizard-4",
+            "IpPermissions": [
+                {
+                    "FromPort": 22,
+                    "IpProtocol": "tcp",
+                    "IpRanges": [
+                        {
+                            "CidrIp": "87.116.164.110/32"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "ToPort": 22,
+                    "UserIdGroupPairs": []
+                }
+            ],
+            "OwnerId": "534383239738",
+            "GroupId": "sg-0dcd64300da6d4fd2",
+            "IpPermissionsEgress": [
+                {
+                    "IpProtocol": "-1",
+                    "IpRanges": [
+                        {
+                            "CidrIp": "0.0.0.0/0"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "UserIdGroupPairs": []
+                }
+            ],
+            "VpcId": "vpc-0abac8a28b784d79d"
+        },
+        {
+            "Description": "launch-wizard-1 created 2023-12-04T12:16:24.958Z",
+            "GroupName": "launch-wizard-1",
+            "IpPermissions": [
+                {
+                    "FromPort": 22,
+                    "IpProtocol": "tcp",
+                    "IpRanges": [
+                        {
+                            "CidrIp": "178.221.99.197/32"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "ToPort": 22,
+                    "UserIdGroupPairs": []
+                },
+                {
+                    "FromPort": 443,
+                    "IpProtocol": "tcp",
+                    "IpRanges": [
+                        {
+                            "CidrIp": "0.0.0.0/0"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "ToPort": 443,
+                    "UserIdGroupPairs": []
+                }
+            ],
+            "OwnerId": "534383239738",
+            "GroupId": "sg-002906e247a1bbade",
+            "IpPermissionsEgress": [
+                {
+                    "IpProtocol": "-1",
+                    "IpRanges": [
+                        {
+                            "CidrIp": "0.0.0.0/0"
+                        }
+                    ],
+                    "Ipv6Ranges": [],
+                    "PrefixListIds": [],
+                    "UserIdGroupPairs": []
+                }
+            ],
+            "VpcId": "vpc-095182a531a167bab"
+        }
+    ]
+}

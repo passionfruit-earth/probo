@@ -1,0 +1,25 @@
+{
+    "clusters": [
+        {
+            "clusterArn": "arn:aws:ecs:eu-central-1:534383239738:cluster/passionfruit-staging-cluster",
+            "clusterName": "passionfruit-staging-cluster",
+            "status": "ACTIVE",
+            "registeredContainerInstancesCount": 0,
+            "runningTasksCount": 1,
+            "pendingTasksCount": 0,
+            "activeServicesCount": 1,
+            "statistics": [],
+            "tags": [],
+            "settings": [],
+            "capacityProviders": [
+                "FARGATE",
+                "FARGATE_SPOT"
+            ],
+            "defaultCapacityProviderStrategy": [],
+            "serviceConnectDefaults": {
+                "namespace": "arn:aws:servicediscovery:eu-central-1:534383239738:namespace/ns-fubtypslkn5lriof"
+            }
+        }
+    ],
+    "failures": []
+}

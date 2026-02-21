@@ -359,15 +359,15 @@ Security profiles gathered for 13 vendors (see `vendor-security-profiles.md`):
 
 | Date | Change | By |
 |------|--------|-----|
-| 2026-02-21 | Migrated to Claude Code skills, deleted TypeScript agent | Claude/Lars |
-| 2026-02-21 | Created compliance docs structure (`docs/compliance/`) | Claude/Lars |
-| 2026-02-21 | Scanned AWS - 5 critical findings, tasks created | Claude/Lars |
-| 2026-02-21 | Scanned GitHub - branch protection gaps found | Claude/Lars |
-| 2026-02-21 | Created 20 remediation tasks in Probo | Claude/Lars |
-| 2026-02-21 | Created Remote Working Policy (A.6.7) | Claude/Passionfruit |
-| 2026-02-21 | Created mandatory ISMS docs: Information Security Policy, ISMS Scope, Risk Methodology, SoA | Claude/Passionfruit |
-| 2026-02-21 | Created 10 risks in Probo risk register | Claude/Passionfruit |
-| 2026-02-21 | Created Incident Response Plan and BCP in Probo | Claude/Passionfruit |
-| 2026-02-21 | Added vendor security profiles | Claude/Passionfruit |
-| 2026-02-21 | Added full ISO 27001 clause structure | Claude/Passionfruit |
-| 2026-02-21 | Initial creation, Phase 1 completed | Claude/Passionfruit |
+| 2026-02-21 | Migrated to skills-based automation | Lars |
+| 2026-02-21 | Created compliance docs structure (`docs/compliance/`) | Lars |
+| 2026-02-21 | Scanned AWS - 5 critical findings, tasks created | Lars |
+| 2026-02-21 | Scanned GitHub - branch protection gaps found | Lars |
+| 2026-02-21 | Created 20 remediation tasks in Probo | Lars |
+| 2026-02-21 | Created Remote Working Policy (A.6.7) | Passionfruit |
+| 2026-02-21 | Created mandatory ISMS docs: Information Security Policy, ISMS Scope, Risk Methodology, SoA | Passionfruit |
+| 2026-02-21 | Created 10 risks in Probo risk register | Passionfruit |
+| 2026-02-21 | Created Incident Response Plan and BCP in Probo | Passionfruit |
+| 2026-02-21 | Added vendor security profiles | Passionfruit |
+| 2026-02-21 | Added full ISO 27001 clause structure | Passionfruit |
+| 2026-02-21 | Initial creation, Phase 1 completed | Passionfruit |

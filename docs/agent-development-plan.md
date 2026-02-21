@@ -515,15 +515,15 @@ Agent:
 
 | Date | Change | By |
 |------|--------|-----|
-| 2026-02-21 | **MIGRATION:** Deleted TypeScript agent, moved to Claude Code skills | Claude/Lars |
-| 2026-02-21 | Created compliance documentation structure (`docs/compliance/`) | Claude/Lars |
-| 2026-02-21 | Created unified `/scan` skill supporting 12 systems | Claude/Lars |
-| 2026-02-21 | Created Probo CRUD skills (`/probo-list`, `/probo-create`, `/probo-update`, `/probo-link`) | Claude/Lars |
-| 2026-02-21 | Scanned AWS - found RDS public access, missing CloudTrail, S3 encryption gaps | Claude/Lars |
-| 2026-02-21 | Scanned GitHub - found branch protection gaps | Claude/Lars |
-| 2026-02-21 | Created 20 remediation tasks in Probo | Claude/Lars |
-| 2026-02-21 | AWS integration complete (TypeScript agent - now deprecated) | Claude |
-| 2026-02-21 | Google Workspace integration complete (TypeScript agent - now deprecated) | Claude |
-| 2026-02-21 | GitHub integration complete (TypeScript agent - now deprecated) | Claude |
-| 2026-02-21 | Added smart vendor gathering features (8-13) | Claude/Passionfruit |
-| 2026-02-21 | Initial creation based on ISO 27001 setup session | Claude/Passionfruit |
+| 2026-02-21 | **MIGRATION:** Moved to skills-based automation | Lars |
+| 2026-02-21 | Created compliance documentation structure (`docs/compliance/`) | Lars |
+| 2026-02-21 | Created unified `/scan` skill supporting 12 systems | Lars |
+| 2026-02-21 | Created Probo CRUD skills (`/probo-list`, `/probo-create`, `/probo-update`, `/probo-link`) | Lars |
+| 2026-02-21 | Scanned AWS - found RDS public access, missing CloudTrail, S3 encryption gaps | Lars |
+| 2026-02-21 | Scanned GitHub - found branch protection gaps | Lars |
+| 2026-02-21 | Created 20 remediation tasks in Probo | Lars |
+| 2026-02-21 | AWS integration complete (deprecated) | Passionfruit |
+| 2026-02-21 | Google Workspace integration complete (deprecated) | Passionfruit |
+| 2026-02-21 | GitHub integration complete (deprecated) | Passionfruit |
+| 2026-02-21 | Added smart vendor gathering features (8-13) | Passionfruit |
+| 2026-02-21 | Initial creation based on ISO 27001 setup session | Passionfruit |

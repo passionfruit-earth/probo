@@ -1,0 +1,22 @@
+{
+    "clusters": [
+        {
+            "clusterArn": "arn:aws:ecs:eu-central-1:534383239738:cluster/passionfruit-production-cluster",
+            "clusterName": "passionfruit-production-cluster",
+            "status": "ACTIVE",
+            "registeredContainerInstancesCount": 0,
+            "runningTasksCount": 1,
+            "pendingTasksCount": 0,
+            "activeServicesCount": 1,
+            "statistics": [],
+            "tags": [],
+            "settings": [],
+            "capacityProviders": [],
+            "defaultCapacityProviderStrategy": [],
+            "serviceConnectDefaults": {
+                "namespace": "arn:aws:servicediscovery:eu-central-1:534383239738:namespace/ns-6rq3xinz5ojdpnki"
+            }
+        }
+    ],
+    "failures": []
+}

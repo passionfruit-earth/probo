@@ -1,0 +1,114 @@
+{
+    "DBInstances": [
+        {
+            "DBInstanceIdentifier": "passionfruit",
+            "DBInstanceClass": "db.t4g.medium",
+            "Engine": "postgres",
+            "DBInstanceStatus": "available",
+            "MasterUsername": "root",
+            "Endpoint": {
+                "Address": "passionfruit.cl0c4amqs45x.eu-central-1.rds.amazonaws.com",
+                "Port": 5432,
+                "HostedZoneId": "Z1RLNUO7B9Q6NB"
+            },
+            "AllocatedStorage": 50,
+            "InstanceCreateTime": "2025-06-10T08:43:24.884000+00:00",
+            "PreferredBackupWindow": "20:59-21:29",
+            "BackupRetentionPeriod": 1,
+            "DBSecurityGroups": [],
+            "VpcSecurityGroups": [
+                {
+                    "VpcSecurityGroupId": "sg-02f1ae335ba55665f",
+                    "Status": "active"
+                }
+            ],
+            "DBParameterGroups": [
+                {
+                    "DBParameterGroupName": "default.postgres17",
+                    "ParameterApplyStatus": "in-sync"
+                }
+            ],
+            "AvailabilityZone": "eu-central-1a",
+            "DBSubnetGroup": {
+                "DBSubnetGroupName": "default-vpc-095182a531a167bab",
+                "DBSubnetGroupDescription": "Created from the RDS Management Console",
+                "VpcId": "vpc-095182a531a167bab",
+                "SubnetGroupStatus": "Complete",
+                "Subnets": [
+                    {
+                        "SubnetIdentifier": "subnet-0e3ec5d25c4e397e6",
+                        "SubnetAvailabilityZone": {
+                            "Name": "eu-central-1b"
+                        },
+                        "SubnetOutpost": {},
+                        "SubnetStatus": "Active"
+                    },
+                    {
+                        "SubnetIdentifier": "subnet-04c0a27222bc8787f",
+                        "SubnetAvailabilityZone": {
+                            "Name": "eu-central-1a"
+                        },
+                        "SubnetOutpost": {},
+                        "SubnetStatus": "Active"
+                    },
+                    {
+                        "SubnetIdentifier": "subnet-07fddbe7160be330b",
+                        "SubnetAvailabilityZone": {
+                            "Name": "eu-central-1c"
+                        },
+                        "SubnetOutpost": {},
+                        "SubnetStatus": "Active"
+                    }
+                ]
+            },
+            "PreferredMaintenanceWindow": "sat:22:22-sat:22:52",
+            "PendingModifiedValues": {},
+            "LatestRestorableTime": "2026-02-21T17:44:31+00:00",
+            "MultiAZ": false,
+            "EngineVersion": "17.4",
+            "AutoMinorVersionUpgrade": true,
+            "ReadReplicaDBInstanceIdentifiers": [],
+            "LicenseModel": "postgresql-license",
+            "OptionGroupMemberships": [
+                {
+                    "OptionGroupName": "default:postgres-17",
+                    "Status": "in-sync"
+                }
+            ],
+            "PubliclyAccessible": true,
+            "StorageType": "gp2",
+            "DbInstancePort": 0,
+            "StorageEncrypted": true,
+            "KmsKeyId": "arn:aws:kms:eu-central-1:534383239738:key/b3c2cbb0-d6de-422d-bb59-3de7def886b4",
+            "DbiResourceId": "db-3VOB2QNXTNYKRNWFRKS7O22PG4",
+            "CACertificateIdentifier": "rds-ca-rsa2048-g1",
+            "DomainMemberships": [],
+            "CopyTagsToSnapshot": true,
+            "MonitoringInterval": 0,
+            "DBInstanceArn": "arn:aws:rds:eu-central-1:534383239738:db:passionfruit",
+            "IAMDatabaseAuthenticationEnabled": false,
+            "PerformanceInsightsEnabled": true,
+            "PerformanceInsightsKMSKeyId": "arn:aws:kms:eu-central-1:534383239738:key/b3c2cbb0-d6de-422d-bb59-3de7def886b4",
+            "PerformanceInsightsRetentionPeriod": 7,
+            "EnabledCloudwatchLogsExports": [
+                "iam-db-auth-error",
+                "postgresql",
+                "upgrade"
+            ],
+            "DeletionProtection": false,
+            "AssociatedRoles": [],
+            "MaxAllocatedStorage": 1000,
+            "TagList": [],
+            "CustomerOwnedIpEnabled": false,
+            "ActivityStreamStatus": "stopped",
+            "BackupTarget": "region",
+            "NetworkType": "IPV4",
+            "CertificateDetails": {
+                "CAIdentifier": "rds-ca-rsa2048-g1",
+                "ValidTill": "2026-12-13T22:22:09+00:00"
+            },
+            "DedicatedLogVolume": false,
+            "IsStorageConfigUpgradeAvailable": false
+        }
+    ]
+}
