@@ -19,12 +19,66 @@ Passionfruit is pursuing ISO 27001:2022 certification for its AI-powered respons
 
 ---
 
+## ISO 27001:2022 Structure
+
+**IMPORTANT:** ISO 27001 has TWO main parts:
+
+### 1. Mandatory Clauses 4-10 (ISMS Requirements)
+
+These MUST be implemented by every organization:
+
+| Clause | Title | Status |
+|--------|-------|--------|
+| 4 | Context of the organization | NOT_STARTED |
+| 4.1 | Understanding the organization and its context | NOT_STARTED |
+| 4.2 | Understanding needs and expectations of interested parties | NOT_STARTED |
+| 4.3 | Determining the scope of the ISMS | DRAFT |
+| 4.4 | Information security management system | NOT_STARTED |
+| 5 | Leadership | NOT_STARTED |
+| 5.1 | Leadership and commitment | NOT_STARTED |
+| 5.2 | Information Security Policy | NOT_STARTED |
+| 5.3 | Organizational roles, responsibilities and authorities | NOT_STARTED |
+| 6 | Planning | NOT_STARTED |
+| 6.1 | Actions to address risks and opportunities | NOT_STARTED |
+| 6.1.2 | Information security risk assessment | NOT_STARTED |
+| 6.1.3 | Information security risk treatment | NOT_STARTED |
+| 6.2 | Information security objectives and planning | NOT_STARTED |
+| 6.3 | Planning of changes | NOT_STARTED |
+| 7 | Support | NOT_STARTED |
+| 7.1 | Resources | NOT_STARTED |
+| 7.2 | Competence | IN_PROGRESS |
+| 7.3 | Awareness | IN_PROGRESS |
+| 7.4 | Communication | NOT_STARTED |
+| 7.5 | Documented information | NOT_STARTED |
+| 8 | Operation | NOT_STARTED |
+| 8.1 | Operational planning and control | NOT_STARTED |
+| 8.2 | Information security risk assessment | NOT_STARTED |
+| 8.3 | Information security risk treatment | NOT_STARTED |
+| 9 | Performance evaluation | NOT_STARTED |
+| 9.1 | Monitoring, measurement, analysis and evaluation | NOT_STARTED |
+| 9.2 | Internal audit | NOT_STARTED |
+| 9.3 | Management review | NOT_STARTED |
+| 10 | Improvement | NOT_STARTED |
+| 10.1 | Continual improvement | NOT_STARTED |
+| 10.2 | Nonconformity and corrective action | NOT_STARTED |
+
+### 2. Annex A Controls (93 Reference Controls)
+
+These are SELECTED based on risk assessment - documented in Statement of Applicability (SoA):
+- A.5: Organizational controls (37)
+- A.6: People controls (8)
+- A.7: Physical controls (14)
+- A.8: Technological controls (34)
+
+---
+
 ## Approach
 
 We're using a **bottom-up approach**:
-1. Map existing practices to controls first
-2. Identify gaps
-3. Then formalize top-level documentation with real context
+1. Map existing practices to Annex A controls first
+2. Identify gaps in controls
+3. Build mandatory ISMS documentation (clauses 4-10) with real context
+4. Conduct risk assessment to justify control selection
 
 ---
 
@@ -67,14 +121,62 @@ We're using a **bottom-up approach**:
 
 ## Phase 3: Mandatory Documentation - PENDING
 
-| Document | Status | Notes |
-|----------|--------|-------|
-| ISMS Scope Statement | DRAFT | Scope defined, needs formal document |
-| Information Security Policy | NOT_STARTED | Top-level management commitment |
-| Risk Assessment Methodology | NOT_STARTED | How risks are identified/evaluated |
-| Statement of Applicability (SoA) | NOT_STARTED | Which controls apply and why |
-| Risk Assessment | NOT_STARTED | Actual risk register |
-| Risk Treatment Plan | NOT_STARTED | How risks will be addressed |
+**These documents are REQUIRED by ISO 27001 clauses 4-10:**
+
+### Clause 4 - Context
+
+| Document | Clause | Status | Notes |
+|----------|--------|--------|-------|
+| ISMS Scope Statement | 4.3 | DRAFT | Define boundaries and applicability |
+| Context Analysis | 4.1 | NOT_STARTED | Internal/external issues affecting ISMS |
+| Interested Parties Analysis | 4.2 | NOT_STARTED | Who has requirements (customers, regulators, etc.) |
+
+### Clause 5 - Leadership
+
+| Document | Clause | Status | Notes |
+|----------|--------|--------|-------|
+| Information Security Policy | 5.2 | NOT_STARTED | Top-level management commitment |
+| Roles & Responsibilities | 5.3 | NOT_STARTED | Who is responsible for what |
+
+### Clause 6 - Planning
+
+| Document | Clause | Status | Notes |
+|----------|--------|--------|-------|
+| Risk Assessment Methodology | 6.1.2 | NOT_STARTED | How risks are identified/evaluated |
+| Risk Assessment Report | 6.1.2 | NOT_STARTED | Actual risk register |
+| Risk Treatment Plan | 6.1.3 | NOT_STARTED | How risks will be addressed |
+| Statement of Applicability (SoA) | 6.1.3 | NOT_STARTED | Which Annex A controls apply and why |
+| Information Security Objectives | 6.2 | NOT_STARTED | Measurable security goals |
+
+### Clause 7 - Support
+
+| Document | Clause | Status | Notes |
+|----------|--------|--------|-------|
+| Competence Records | 7.2 | IN_PROGRESS | Training records, skills matrix |
+| Awareness Program | 7.3 | IN_PROGRESS | Security awareness training |
+| Communication Plan | 7.4 | NOT_STARTED | What, when, who, how to communicate |
+| Document Control Procedure | 7.5 | NOT_STARTED | How documents are managed |
+
+### Clause 8 - Operation
+
+| Document | Clause | Status | Notes |
+|----------|--------|--------|-------|
+| Operational Procedures | 8.1 | PARTIAL | Existing procedures need formalization |
+
+### Clause 9 - Performance Evaluation
+
+| Document | Clause | Status | Notes |
+|----------|--------|--------|-------|
+| Monitoring & Measurement Plan | 9.1 | NOT_STARTED | What to measure, how, when |
+| Internal Audit Program | 9.2 | NOT_STARTED | Audit schedule, procedures |
+| Management Review Records | 9.3 | NOT_STARTED | Template for management reviews |
+
+### Clause 10 - Improvement
+
+| Document | Clause | Status | Notes |
+|----------|--------|--------|-------|
+| Nonconformity Procedure | 10.2 | NOT_STARTED | How to handle nonconformities |
+| Corrective Action Procedure | 10.2 | NOT_STARTED | Root cause analysis, corrective actions |
 
 ---
 
@@ -137,12 +239,38 @@ For each implemented measure, collect evidence:
 
 ---
 
+## Vendor Security Assessment - COMPLETED
+
+Security profiles gathered for 13 vendors (see `vendor-security-profiles.md`):
+
+| Vendor | Confidence | Certifications | Trust Page | DPA |
+|--------|------------|----------------|------------|-----|
+| AWS | 100% | GDPR, HIPAA, PCI_DSS | ✓ | - |
+| Azure OpenAI | 60% | GDPR | ✓ | - |
+| GitHub | 80% | SOC2, GDPR | ✓ | - |
+| Linear | 100% | SOC2, ISO27001, HIPAA, GDPR | ✓ | ✓ |
+| PostHog | 30% | - | ✓ | - |
+| Slack | 100% | SOC2, ISO27001, ISO27701, HIPAA, GDPR | ✓ | ✓ |
+| Google Workspace | 60% | HIPAA | ✓ | - |
+| Microsoft 365 | 60% | GDPR | ✓ | - |
+| Notion | 100% | SOC2, ISO27001, ISO27701, HIPAA, GDPR | ✓ | - |
+| Fireflies | 100% | SOC2, HIPAA, GDPR | ✓ | - |
+| Attio | 100% | SOC2, ISO27001, GDPR | ✓ | - |
+| Unstructured | 100% | SOC2, ISO27001, GDPR | ✓ | - |
+| Sentry | 100% | SOC2, ISO27001, HIPAA, GDPR | ✓ | ✓ |
+
+**TODO:** Complete DPA collection for vendors missing DPA links.
+
+---
+
 ## Related Files
 
 | File | Purpose |
 |------|---------|
 | `iso27001-measures-log.md` | Detailed rationale for each measure |
 | `iso27001-probo-reference.md` | Probo IDs and API reference |
+| `vendor-security-profiles.md` | Detailed vendor security info |
+| `agent-development-plan.md` | Feature backlog for agent improvements |
 
 ---
 
@@ -150,4 +278,6 @@ For each implemented measure, collect evidence:
 
 | Date | Change | By |
 |------|--------|-----|
+| 2026-02-21 | Added vendor security profiles | Claude/Passionfruit |
+| 2026-02-21 | Added full ISO 27001 clause structure | Claude/Passionfruit |
 | 2026-02-21 | Initial creation, Phase 1 completed | Claude/Passionfruit |
