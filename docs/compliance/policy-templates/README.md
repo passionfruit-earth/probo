@@ -132,6 +132,41 @@ From [ISC2 implementation guide](https://www.isc2.org/Insights/2024/03/Implement
 - Is executive management actually involved?
 - Can staff explain their security responsibilities?
 
+## Open Source Templates (GitHub)
+
+Use these as **reference only** - customize heavily for Passionfruit:
+
+### [PehanIn/ISO-27001-2022-Toolkit](https://github.com/PehanIn/ISO-27001-2022-Toolkit) (MIT License)
+Most complete toolkit with 12 categories:
+- Gap Assessment Plan
+- Statement of Applicability (SoA)
+- Risk Register
+- Scope and Context Definition
+- Asset Inventory
+- Business Continuity & Disaster Recovery
+- Information Security Policy & Procedures
+- Awareness and Training Plan
+- Management Review Meeting templates
+- ISMS Checklists
+- Internal Audit Plan
+- ROI Analysis
+
+### [D4RK-PHOENIX/iso27000toolkit](https://github.com/D4RK-PHOENIX/iso27000toolkit)
+Includes:
+- ISMS Governance & Implementation Guidance
+- Model Information Security Policies
+- Procedures, Guidelines, Supporting Documents
+- Job Descriptions & Roles
+- Comprehensive PDF toolkit
+
+### How to Use These
+
+1. **Don't copy-paste** - Auditors recognize generic templates
+2. **Use as checklist** - Ensure you cover required topics
+3. **Adapt language** - Make it sound like Passionfruit, not ISO
+4. **Verify against reality** - Only include what you actually do
+5. **Simplify** - These are often over-engineered for startups
+
 ## Sources
 
 Templates based on:

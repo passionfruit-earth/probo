@@ -280,6 +280,11 @@ Based on this research:
 - [Vanta: ISO 27001 for Startups](https://www.vanta.com/collection/iso-27001/iso-27001-for-startups)
 - [ISC2: Implementing ISO 27001:2022 for Startups and SMEs](https://www.isc2.org/Insights/2024/03/Implementing-ISO-27001-2022-for-Startups-and-SMEs)
 
+### Open Source Templates (GitHub)
+- [PehanIn/ISO-27001-2022-Toolkit](https://github.com/PehanIn/ISO-27001-2022-Toolkit) - Complete toolkit with 12 categories (MIT License)
+- [D4RK-PHOENIX/iso27000toolkit](https://github.com/D4RK-PHOENIX/iso27000toolkit) - Model policies, procedures, job descriptions
+- [GitHub ISO 27001 Topic](https://github.com/topics/iso27001) - Browse all ISO 27001 repos
+
 ### ROI & Business Case
 - [Secureframe: Is ISO 27001 Worth It?](https://secureframe.com/blog/is-iso-27001-worth-it)
 - [ISMS.online: Cost vs ROI](https://www.isms.online/iso-27001/unpacking-the-cost-vs-roi-of-achieving-iso-27001-certification/)
