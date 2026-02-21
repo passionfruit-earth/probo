@@ -29,9 +29,8 @@ const CONFIG_DIR = path.join(os.homedir(), ".probo-agent");
 const AUTH_FILE = path.join(CONFIG_DIR, "auth.json");
 
 // GitHub OAuth App Client ID - this is a public identifier, not a secret
-// Users should create their own OAuth App at https://github.com/settings/developers
-// and set GITHUB_CLIENT_ID environment variable
-const DEFAULT_CLIENT_ID = "Ov23li0VWf8sd8Y9zXGc"; // Placeholder - replace with real app
+// Override with GITHUB_CLIENT_ID environment variable if needed
+const DEFAULT_CLIENT_ID = "Ov23liAgzQUyW3Wiglca";
 
 export function getClientId(): string {
   return process.env.GITHUB_CLIENT_ID || DEFAULT_CLIENT_ID;
