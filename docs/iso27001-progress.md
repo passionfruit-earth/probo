@@ -38,10 +38,10 @@ These MUST be implemented by every organization:
 | 5.1 | Leadership and commitment | NOT_STARTED |
 | 5.2 | Information Security Policy | NOT_STARTED |
 | 5.3 | Organizational roles, responsibilities and authorities | NOT_STARTED |
-| 6 | Planning | NOT_STARTED |
-| 6.1 | Actions to address risks and opportunities | NOT_STARTED |
-| 6.1.2 | Information security risk assessment | NOT_STARTED |
-| 6.1.3 | Information security risk treatment | NOT_STARTED |
+| 6 | Planning | IN_PROGRESS |
+| 6.1 | Actions to address risks and opportunities | IN_PROGRESS |
+| 6.1.2 | Information security risk assessment | IN_PROGRESS |
+| 6.1.3 | Information security risk treatment | IN_PROGRESS |
 | 6.2 | Information security objectives and planning | NOT_STARTED |
 | 6.3 | Planning of changes | NOT_STARTED |
 | 7 | Support | NOT_STARTED |
@@ -218,8 +218,8 @@ For each implemented measure, collect evidence:
 | Create Information Security Policy | Interview notes, company context | Formal policy document | ISO 27001 clause 5.2 |
 | Create Risk Assessment Methodology | Company context, industry | Risk methodology document | ISO 27001 clause 6.1.2 |
 | Create ISMS Scope Document | Scope summary, interview notes | Formal scope statement | ISO 27001 clause 4.3 |
-| Create Incident Response Plan | Team size (<10), cloud architecture | IR plan document | A.5.24-27 |
-| Create Business Continuity Plan | AWS infrastructure, critical services | BCP document | A.5.29-30 |
+| ~~Create Incident Response Plan~~ | ~~Team size (<10), cloud architecture~~ | ~~IR plan document~~ | ~~A.5.24-27~~ ✓ |
+| ~~Create Business Continuity Plan~~ | ~~AWS infrastructure, critical services~~ | ~~BCP document~~ | ~~A.5.29-30~~ ✓ |
 | Create Remote Working Policy | Remote/co-working team context | Policy document | A.6.7 |
 | Create Endpoint Security Policy | Laptop usage, informal practices | Policy document | A.8.1 |
 
@@ -240,6 +240,27 @@ For each implemented measure, collect evidence:
 - **AI/ML:** Azure OpenAI
 - **Monitoring:** CloudWatch, PostHog
 - **Encryption:** TLS 1.2+, AES-256
+
+---
+
+## Risk Assessment - IN PROGRESS
+
+Initial risk register created in Probo (10 risks identified):
+
+| Risk | Category | Treatment | Inherent | Residual |
+|------|----------|-----------|----------|----------|
+| Unauthorized access to customer data | Data Security | MITIGATED | 3×4=12 | 2×3=6 |
+| Customer data loss | Data Security | MITIGATED | 2×5=10 | 1×3=3 |
+| GDPR compliance violation | Compliance | MITIGATED | 2×4=8 | 1×2=2 |
+| Service unavailability - AWS outage | Availability | ACCEPTED | 2×4=8 | 2×3=6 |
+| AI service unavailability | Availability | MITIGATED | 3×3=9 | 2×2=4 |
+| Ransomware or malware infection | Security | MITIGATED | 2×5=10 | 1×3=3 |
+| Supply chain attack | Security | MITIGATED | 2×4=8 | 1×2=2 |
+| Insider threat | Security | MITIGATED | 1×4=4 | 1×2=2 |
+| Loss of key personnel | Operational | ACCEPTED | 3×3=9 | 2×2=4 |
+| Third-party vendor failure | Operational | MITIGATED | 2×3=6 | 1×2=2 |
+
+**Risk Score:** Likelihood × Impact (1-5 scale each)
 
 ---
 
