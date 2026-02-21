@@ -13,6 +13,7 @@ import {
   generateSummaryReport,
   listEvidence,
   syncLatestSummaryToProbo,
+  createRisksFromEvidence,
 } from "./evidence/index.js";
 import { ProboClient } from "./client/index.js";
 
@@ -264,7 +265,8 @@ async function processInput(input: string): Promise<void> {
     console.log("\nSync evidence to Probo:");
     console.log("  /sync github  - Sync GitHub compliance summary");
     console.log("  /sync google  - Sync Google Workspace compliance summary");
-    console.log("  /sync all     - Sync all available evidence\n");
+    console.log("  /sync all     - Sync all available evidence");
+    console.log("  /sync risks   - Create risks for failing compliance checks\n");
     return;
   }
 
@@ -311,6 +313,54 @@ async function processInput(input: string): Promise<void> {
     }
 
     console.log("\nDone. View documents in Probo console.\n");
+    return;
+  }
+
+  if (trimmed === "/sync risks" || trimmed === "/sync risks --dry-run") {
+    if (!config.organizationId) {
+      console.log("\nError: PROBO_ORGANIZATION_ID not set.\n");
+      return;
+    }
+
+    const dryRun = trimmed.includes("--dry-run");
+    const proboClient = new ProboClient({
+      endpoint: config.proboEndpoint,
+      apiKey: config.proboApiKey,
+    });
+
+    console.log(`\n${dryRun ? "[DRY RUN] " : ""}Creating risks from compliance evidence...\n`);
+
+    try {
+      const result = await createRisksFromEvidence(proboClient, config.organizationId, { dryRun });
+
+      if (result.risks.length > 0) {
+        console.log("Risks created:");
+        for (const risk of result.risks) {
+          console.log(`  - [${risk.controlId}] ${risk.name}`);
+        }
+      }
+
+      if (result.tasks.length > 0) {
+        console.log("\nTasks created:");
+        for (const task of result.tasks) {
+          console.log(`  - ${task.name}`);
+        }
+      }
+
+      if (result.skipped.length > 0) {
+        console.log("\nSkipped (low severity or few repos affected):");
+        for (const skip of result.skipped.slice(0, 5)) {
+          console.log(`  - ${skip}`);
+        }
+        if (result.skipped.length > 5) {
+          console.log(`  ... and ${result.skipped.length - 5} more`);
+        }
+      }
+
+      console.log(`\nSummary: ${result.risks.length} risks, ${result.tasks.length} tasks created, ${result.skipped.length} skipped\n`);
+    } catch (error) {
+      console.error("Error:", error instanceof Error ? error.message : String(error));
+    }
     return;
   }
 

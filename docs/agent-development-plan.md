@@ -100,7 +100,8 @@ Evidence Storage:
 - [x] Diff detection (new issues, resolved issues)
 - [x] Summary report generation
 - [x] CLI commands: `/scan github`, `/scan status`, `/evidence list`
-- [ ] Push to Probo as Documents
+- [x] Push to Probo as Documents (`/sync github`)
+- [x] Auto-create risks and tasks for failing checks (`/sync risks`)
 
 #### Phase 4: AWS (TODO)
 - [ ] AWS SDK integration
@@ -120,6 +121,23 @@ For each integration, automatically generate:
 2. **Compliance report** - Pass/fail against policy
 3. **Change log** - What changed since last check
 4. **Attachable evidence** - Link to measures in Probo
+
+### Risk & Task Creation
+
+When compliance checks fail, automatically:
+1. **Map issue to ISO control** (e.g., "no branch protection" → A.8.25)
+2. **Create risk** if severity is medium/high or multiple repos affected
+3. **Create task** with recommended remediation actions
+4. **Skip** low-severity issues affecting only 1-2 repos
+
+Issue → Control mapping:
+| Issue | Control | Severity |
+|-------|---------|----------|
+| Branch protection disabled | A.8.25 Secure development | Medium |
+| No code review required | A.8.25 Secure development | Medium |
+| Security vulnerabilities | A.8.8 Vulnerability mgmt | High |
+| 2FA not enforced | A.5.17 Authentication | Medium |
+| Too many admins | A.5.15 Access control | Low |
 
 ### File Structure
 

@@ -24,3 +24,8 @@ export {
   syncLatestSummaryToProbo,
   type SyncResult,
 } from "./sync.js";
+
+export {
+  createRisksFromEvidence,
+  type RiskCreationResult,
+} from "./risks.js";
