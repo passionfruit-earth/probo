@@ -9,6 +9,7 @@ import {
   gatherVendorSecurityInfo,
   formatSecurityProfile,
 } from "./vendor-security-gatherer.js";
+import { GitHubClient } from "../integrations/github/index.js";
 
 // Tool definitions for the Anthropic SDK
 export const PROBO_TOOLS: Anthropic.Tool[] = [
@@ -284,11 +285,90 @@ export const PROBO_TOOLS: Anthropic.Tool[] = [
       required: ["vendorName"],
     },
   },
+  // GitHub integration tools
+  {
+    name: "github_list_repos",
+    description:
+      "List GitHub repositories for the authenticated user or an organization. Use this to see what repos are available for compliance checking.",
+    input_schema: {
+      type: "object" as const,
+      properties: {
+        organization: {
+          type: "string",
+          description: "Optional: GitHub organization name. If not provided, lists repos for the authenticated user.",
+        },
+      },
+      required: [],
+    },
+  },
+  {
+    name: "github_check_compliance",
+    description:
+      "Run a comprehensive compliance check on a GitHub repository. Checks branch protection, security alerts, PR review practices, and more. Returns compliance status and issues found.",
+    input_schema: {
+      type: "object" as const,
+      properties: {
+        owner: {
+          type: "string",
+          description: "Repository owner (user or organization)",
+        },
+        repo: {
+          type: "string",
+          description: "Repository name",
+        },
+      },
+      required: ["owner", "repo"],
+    },
+  },
+  {
+    name: "github_get_security_alerts",
+    description:
+      "Get open security alerts (Dependabot vulnerabilities) for a GitHub repository.",
+    input_schema: {
+      type: "object" as const,
+      properties: {
+        owner: {
+          type: "string",
+          description: "Repository owner (user or organization)",
+        },
+        repo: {
+          type: "string",
+          description: "Repository name",
+        },
+      },
+      required: ["owner", "repo"],
+    },
+  },
+  {
+    name: "github_get_branch_protection",
+    description:
+      "Get branch protection settings for a repository's default branch. Shows required reviews, status checks, admin enforcement, etc.",
+    input_schema: {
+      type: "object" as const,
+      properties: {
+        owner: {
+          type: "string",
+          description: "Repository owner (user or organization)",
+        },
+        repo: {
+          type: "string",
+          description: "Repository name",
+        },
+      },
+      required: ["owner", "repo"],
+    },
+  },
 ];
 
-// Tool executor - executes tool calls against Probo API
+// Tool executor - executes tool calls against Probo API and external integrations
 export class ToolExecutor {
-  constructor(private client: ProboClient) {}
+  private githubClient: GitHubClient | null = null;
+
+  constructor(private client: ProboClient, githubToken?: string) {
+    if (githubToken) {
+      this.githubClient = new GitHubClient({ token: githubToken });
+    }
+  }
 
   async execute(
     toolName: string,
@@ -423,6 +503,100 @@ export class ToolExecutor {
           return JSON.stringify({
             profile,
             summary: formatSecurityProfile(profile),
+          }, null, 2);
+        }
+
+        // GitHub integration tools
+        case "github_list_repos": {
+          if (!this.githubClient) {
+            return JSON.stringify({
+              error: "GitHub not configured. Set GITHUB_TOKEN environment variable.",
+            });
+          }
+          const repos = await this.githubClient.listRepositories(
+            input.organization as string | undefined
+          );
+          return JSON.stringify({
+            count: repos.length,
+            repositories: repos.map((r) => ({
+              name: r.full_name,
+              private: r.private,
+              default_branch: r.default_branch,
+              url: r.html_url,
+            })),
+          }, null, 2);
+        }
+
+        case "github_check_compliance": {
+          if (!this.githubClient) {
+            return JSON.stringify({
+              error: "GitHub not configured. Set GITHUB_TOKEN environment variable.",
+            });
+          }
+          const compliance = await this.githubClient.checkRepositoryCompliance(
+            input.owner as string,
+            input.repo as string
+          );
+          return JSON.stringify(compliance, null, 2);
+        }
+
+        case "github_get_security_alerts": {
+          if (!this.githubClient) {
+            return JSON.stringify({
+              error: "GitHub not configured. Set GITHUB_TOKEN environment variable.",
+            });
+          }
+          const alerts = await this.githubClient.getDependabotAlerts(
+            input.owner as string,
+            input.repo as string
+          );
+          return JSON.stringify({
+            count: alerts.length,
+            alerts: alerts.map((a) => ({
+              severity: a.security_advisory.severity,
+              package: `${a.dependency.package.ecosystem}/${a.dependency.package.name}`,
+              summary: a.security_advisory.summary,
+              state: a.state,
+              created: a.created_at,
+            })),
+          }, null, 2);
+        }
+
+        case "github_get_branch_protection": {
+          if (!this.githubClient) {
+            return JSON.stringify({
+              error: "GitHub not configured. Set GITHUB_TOKEN environment variable.",
+            });
+          }
+          const repo = await this.githubClient.getRepository(
+            input.owner as string,
+            input.repo as string
+          );
+          const protection = await this.githubClient.getBranchProtection(
+            input.owner as string,
+            input.repo as string,
+            repo.default_branch
+          );
+          if (!protection) {
+            return JSON.stringify({
+              branch: repo.default_branch,
+              protected: false,
+              message: "No branch protection configured",
+            });
+          }
+          return JSON.stringify({
+            branch: repo.default_branch,
+            protected: true,
+            settings: {
+              requiresReviews: protection.required_pull_request_reviews !== null,
+              requiredReviewers: protection.required_pull_request_reviews?.required_approving_review_count ?? 0,
+              dismissStaleReviews: protection.required_pull_request_reviews?.dismiss_stale_reviews ?? false,
+              requireCodeOwners: protection.required_pull_request_reviews?.require_code_owner_reviews ?? false,
+              enforceAdmins: protection.enforce_admins?.enabled ?? false,
+              requireSignedCommits: protection.required_signatures?.enabled ?? false,
+              allowForcePush: protection.allow_force_pushes?.enabled ?? false,
+              allowDeletions: protection.allow_deletions?.enabled ?? false,
+            },
           }, null, 2);
         }
 

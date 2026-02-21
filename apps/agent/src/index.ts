@@ -19,6 +19,8 @@ const config = {
   proboEndpoint: process.env.PROBO_ENDPOINT || "http://localhost:8080/graphql",
   proboApiKey: process.env.PROBO_API_KEY || "",
   organizationId: process.env.PROBO_ORGANIZATION_ID || "",
+  // Integrations
+  githubToken: process.env.GITHUB_TOKEN,
 };
 
 // Validate required config
@@ -44,10 +46,13 @@ console.log("Backend:", hasAwsCredentials ? "AWS Bedrock" : "Anthropic API");
 console.log("Model:", config.model);
 console.log("Probo API:", config.proboEndpoint);
 console.log("Organization:", config.organizationId || "(not set)");
+console.log("\nIntegrations:");
+console.log("  GitHub:", config.githubToken ? "Connected" : "Not configured (set GITHUB_TOKEN)");
 console.log("\nCommands:");
 console.log("  /frameworks  - Import a compliance framework");
 console.log("  /vendor      - Add and assess a vendor");
 console.log("  /risks       - Generate risk assessment");
+console.log("  /github      - Check GitHub repository compliance");
 console.log("  /clear       - Clear conversation history");
 console.log("  /exit        - Exit the agent");
 console.log("\nOr ask any compliance-related question.\n");
@@ -95,6 +100,15 @@ async function processInput(input: string): Promise<void> {
     console.log(
       '  "We are a SaaS company handling healthcare data with AWS infrastructure..."\n'
     );
+    return;
+  }
+
+  if (trimmed === "/github") {
+    console.log("\nGitHub compliance commands:");
+    console.log('  "List my GitHub repositories"');
+    console.log('  "Check compliance for owner/repo"');
+    console.log('  "Show security alerts for owner/repo"');
+    console.log('  "Check branch protection for owner/repo"\n');
     return;
   }
 

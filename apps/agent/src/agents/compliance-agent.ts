@@ -15,6 +15,8 @@ export interface ComplianceAgentConfig {
   proboApiKey: string;
   model?: string;
   organizationId: string;
+  // Integrations
+  githubToken?: string;
 }
 
 const SYSTEM_PROMPT = `You are the Probo Compliance Agent - an AI assistant that helps organizations achieve and maintain compliance with security frameworks.
@@ -120,7 +122,7 @@ export class ComplianceAgent {
       endpoint: config.proboEndpoint,
       apiKey: config.proboApiKey,
     });
-    this.toolExecutor = new ToolExecutor(this.proboClient);
+    this.toolExecutor = new ToolExecutor(this.proboClient, config.githubToken);
     this.organizationId = config.organizationId;
   }
 
