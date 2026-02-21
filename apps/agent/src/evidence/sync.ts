@@ -104,11 +104,11 @@ function formatSummaryAsMarkdown(
   lines.push("");
 
   for (const record of records) {
-    const statusIcon = record.summary.status === "pass" ? "✅" :
-                      record.summary.status === "partial" ? "⚠️" : "❌";
+    const statusLabel = record.summary.status === "pass" ? "[PASS]" :
+                       record.summary.status === "partial" ? "[PARTIAL]" : "[FAIL]";
     const name = record.metadata?.repository || record.metadata?.domain || record.type;
 
-    lines.push(`### ${statusIcon} ${name}`);
+    lines.push(`### ${statusLabel} ${name}`);
     lines.push("");
     lines.push(`- **Score:** ${record.summary.score || "N/A"}/100`);
     lines.push(`- **Checked:** ${new Date(record.timestamp).toLocaleString()}`);
