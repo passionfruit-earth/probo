@@ -150,6 +150,210 @@ During the ISO 27001 setup process, we identified several improvements needed fo
 
 ---
 
+### 8. Automated Vendor Security Profile Gathering
+
+**Problem:** When adding a vendor, you need to manually research their security posture - certifications, trust pages, subprocessors, DPA availability, data locations, etc. This is time-consuming and often incomplete.
+
+**Vision:** Agent automatically gathers all relevant security info when you add a vendor name.
+
+**Requirements:**
+- Given vendor name/URL, automatically find and fetch:
+  - Trust/Security page URL
+  - Certifications (SOC 2, ISO 27001, GDPR, HIPAA, etc.)
+  - Subprocessors list URL
+  - DPA/privacy policy URLs
+  - Data processing locations
+  - Security contact info
+- Extract key facts using LLM
+- Store structured security profile
+- Flag missing critical info
+
+**Proposed Solution:**
+
+**Multi-strategy discovery approach:**
+
+1. **Try common URL patterns first**
+   - `/security`, `/trust`, `/trust-center`, `/compliance`
+   - `/legal/security`, `/legal/privacy`, `/legal/dpa`
+   - `/about/security`, `/company/security`
+   - `/resources/security`, `/docs/security`
+
+2. **Crawl homepage for links**
+   - Check footer for security/trust/compliance links
+   - Look for "Trust Center", "Security", "Compliance" in navigation
+   - Find security badge images (SOC 2, ISO logos) and follow links
+
+3. **Check third-party trust platforms**
+   - SafeBase: `app.safebase.io/[vendor]`
+   - Vanta Trust: `trust.vanta.com/[vendor]`
+   - Drata: `trust.drata.com/[vendor]`
+   - Whistic: `whistic.com/[vendor]`
+   - OneTrust: Check vendor's OneTrust profile
+
+4. **Web search fallback**
+   - Search: "[vendor] security certifications"
+   - Search: "[vendor] SOC 2 report"
+   - Search: "[vendor] trust center"
+   - Search: "[vendor] data processing agreement"
+
+5. **Check public certification databases**
+   - AICPA SOC report database
+   - ISO certification registries
+   - Cloud Security Alliance STAR registry
+
+6. **Extract from any found page**
+   - LLM parses page content for security facts
+   - Identifies certifications, dates, scope
+   - Extracts subprocessor info
+   - Finds DPA/privacy policy links
+
+**Data Model:**
+```
+VendorSecurityProfile:
+  - trustPageUrl: String
+  - certifications: [Certification]  # name, issueDate, expiryDate, scope
+  - subprocessorsUrl: String
+  - dpaUrl: String
+  - privacyPolicyUrl: String
+  - dataLocations: [Country]
+  - securityContactEmail: String
+  - lastScanned: DateTime
+  - confidenceScore: Float  # How confident we are in the data
+  - sourceUrls: [String]  # Where we found this info
+```
+
+**Example Flow:**
+```
+User: Add vendor "Notion"
+Agent:
+  1. Tries notion.so/security → 404
+  2. Tries notion.so/trust → 404
+  3. Crawls notion.so homepage → finds "Security" link in footer
+  4. Follows to notion.so/product/security
+  5. Extracts: SOC 2 Type II, ISO 27001
+  6. Searches for DPA → finds notion.so/legal/dpa
+  7. Checks SafeBase → finds trust.safebase.io/notion
+  8. Creates vendor with all info + source URLs
+```
+
+**Status:** NOT_STARTED
+
+---
+
+### 9. Vendor Security Monitoring & Alerts
+
+**Problem:** Vendor security posture changes over time - certifications expire, breaches happen, subprocessors change. No way to stay updated.
+
+**Requirements:**
+- Periodic re-scan of vendor security pages
+- Detect changes (new/expired certs, new subprocessors)
+- Monitor for security incidents (news, breach databases)
+- Alert on significant changes
+- Track security posture history
+
+**Proposed Solution:**
+- Scheduled re-scan (monthly or configurable)
+- Diff detection for security page content
+- Integration with breach notification services
+- `VendorSecurityAlert` model
+- Timeline view of vendor security changes
+
+**Status:** NOT_STARTED
+
+---
+
+### 10. Smart Vendor Questionnaire Generation
+
+**Problem:** You need to send security questionnaires to vendors, but questions should be tailored to vendor type and your specific concerns.
+
+**Requirements:**
+- Generate relevant questions based on:
+  - Vendor category (cloud, SaaS, contractor, etc.)
+  - Data they'll access (PII, financial, health, etc.)
+  - Your compliance requirements (ISO 27001, SOC 2, GDPR)
+- Pre-fill answers from gathered security profile
+- Track questionnaire responses
+- Score vendor risk from responses
+
+**Proposed Solution:**
+- Question bank tagged by category/data type/framework
+- `generateVendorQuestionnaire(vendorId, dataTypes, frameworks)` action
+- Auto-fill from `VendorSecurityProfile`
+- Response tracking and scoring
+- Export for sending to vendor
+
+**Status:** NOT_STARTED
+
+---
+
+### 11. Vendor Data Flow Mapping
+
+**Problem:** Need to understand what data flows to each vendor for compliance (GDPR Article 30, ISO 27001 A.5.14).
+
+**Requirements:**
+- Track what data types are shared with vendor
+- Document purpose of data sharing
+- Map data flows visually
+- Link to processing activities (GDPR)
+- Detect gaps (vendor has access but not documented)
+
+**Proposed Solution:**
+- `VendorDataFlow` model: vendor, dataTypes, purpose, legalBasis
+- Visual data flow diagram
+- Integration with Processing Activities (GDPR)
+- Cross-reference with actual tool access (via integrations)
+
+**Status:** NOT_STARTED
+
+---
+
+### 12. Vendor Comparison & Selection Helper
+
+**Problem:** When evaluating multiple vendors for a service, need to compare security postures side-by-side.
+
+**Requirements:**
+- Compare vendors on key security criteria
+- Highlight gaps and strengths
+- Score against your requirements
+- Generate comparison report
+- Recommendation with rationale
+
+**Proposed Solution:**
+- `compareVendors(vendorIds, criteria)` action
+- Side-by-side matrix view
+- Weighted scoring based on your priorities
+- Export comparison report
+- AI-generated recommendation
+
+**Status:** NOT_STARTED
+
+---
+
+### 13. Vendor Onboarding Checklist Generator
+
+**Problem:** Each vendor needs different onboarding steps based on their access level and data sensitivity.
+
+**Requirements:**
+- Generate onboarding checklist based on:
+  - Vendor criticality
+  - Data types accessed
+  - Access methods (API, portal, direct)
+  - Your policies
+- Track checklist completion
+- Block access until critical items done
+- Templates for common vendor types
+
+**Proposed Solution:**
+- Checklist templates by vendor category
+- Dynamic generation based on vendor profile
+- Integration with access provisioning
+- `VendorOnboardingChecklist` model
+- Approval gates
+
+**Status:** NOT_STARTED
+
+---
+
 ## Technical Debt
 
 ### 1. Measure Categories
@@ -172,17 +376,51 @@ During the ISO 27001 setup process, we identified several improvements needed fo
 
 ---
 
+### 8. GitHub Sync / Continuous APIs
+
+**Problem:** Compliance requires continuous monitoring of development practices - PR reviews, branch protection, security scanning, etc. Currently no automated way to verify these controls.
+
+**Requirements:**
+- OAuth2 integration with GitHub
+- Sync repository metadata (branch protection rules, required reviews)
+- Track PR review compliance
+- Monitor security alerts (Dependabot, code scanning)
+- Evidence collection for audit (automated screenshots/exports)
+
+**Proposed Solution:**
+- Add `ConnectorProviderGitHub` following existing connector patterns
+- Create `GitHubService` in `/pkg/probo/`
+- GraphQL schema for GitHub entities
+- Webhook listener for real-time updates
+- Periodic sync for compliance checks
+
+**Key Files:**
+- `/pkg/connector/` - Connector framework
+- `/pkg/probo/slack_service.go` - Similar OAuth2 pattern
+- `/pkg/coredata/connector_provider.go` - Add GitHub provider
+
+**Status:** IN_PROGRESS
+
+---
+
 ## Priority Order
 
 | Priority | Feature | Impact |
 |----------|---------|--------|
+| 0 | **GitHub Sync** | **Continuous compliance** |
 | 1 | Quality Mark | Trust in agent content |
 | 2 | Notes/Rationale | Audit readiness |
-| 3 | Bulk Import | Efficiency |
+| 3 | Bulk Import (Measures) | Efficiency |
 | 4 | Progress Dashboard | Visibility |
 | 5 | Interview Mode | User experience |
 | 6 | Evidence Templates | Completeness |
 | 7 | Document Generation | End-to-end |
+| 8 | **Automated Vendor Security Gathering** | **Smart data collection** |
+| 9 | Vendor Security Monitoring | Continuous awareness |
+| 10 | Smart Vendor Questionnaire | Tailored assessment |
+| 11 | Vendor Data Flow Mapping | GDPR/compliance |
+| 12 | Vendor Comparison Helper | Decision support |
+| 13 | Vendor Onboarding Checklist | Process automation |
 
 ---
 
@@ -191,3 +429,4 @@ During the ISO 27001 setup process, we identified several improvements needed fo
 | Date | Change | By |
 |------|--------|-----|
 | 2026-02-21 | Initial creation based on ISO 27001 setup session | Claude/Passionfruit |
+| 2026-02-21 | Added smart vendor gathering features (8-13) | Claude/Passionfruit |
