@@ -6,7 +6,13 @@ import {
   getGitHubToken,
   isGitHubAuthenticated,
   clearGitHubAuth,
+  GitHubClient,
 } from "./integrations/github/index.js";
+import {
+  checkAllGitHubRepositories,
+  generateSummaryReport,
+  listEvidence,
+} from "./evidence/index.js";
 
 // Load .env file
 dotenvConfig();
@@ -58,6 +64,8 @@ console.log("  GitHub:", isGitHubAuthenticated() ? "Connected" : "Not connected 
 console.log("  Google:", config.googleAccessToken ? "Connected" : "Not configured (set GOOGLE_ACCESS_TOKEN)");
 console.log("\nCommands:");
 console.log("  /auth        - Authenticate with integrations (github, logout)");
+console.log("  /scan        - Run compliance checks and save evidence");
+console.log("  /evidence    - View saved compliance evidence");
 console.log("  /frameworks  - Import a compliance framework");
 console.log("  /vendor      - Add and assess a vendor");
 console.log("  /risks       - Generate risk assessment");
@@ -139,6 +147,107 @@ async function processInput(input: string): Promise<void> {
     clearGitHubAuth();
     config.githubToken = undefined;
     console.log("\nGitHub authentication cleared.\n");
+    return;
+  }
+
+  // Scan commands - run compliance checks
+  if (trimmed === "/scan" || trimmed === "/scan help") {
+    console.log("\nCompliance scan commands:");
+    console.log("  /scan github  - Scan GitHub repositories for compliance");
+    console.log("  /scan all     - Run all available compliance scans");
+    console.log("  /scan status  - Show summary of latest scans\n");
+    return;
+  }
+
+  if (trimmed === "/scan github") {
+    if (!isGitHubAuthenticated()) {
+      console.log("\nGitHub not authenticated. Run /auth github first.\n");
+      return;
+    }
+
+    console.log("\nScanning GitHub repositories...\n");
+    try {
+      const client = new GitHubClient({ token: getGitHubToken()! });
+      const results = await checkAllGitHubRepositories(client, { maxRepos: 10 });
+
+      console.log(`Scanned ${results.length} repositories:\n`);
+      for (const result of results) {
+        const { evidence, diff } = result;
+        const statusIcon = evidence.summary.status === "pass" ? "✓" :
+                          evidence.summary.status === "partial" ? "~" : "✗";
+        const repo = evidence.metadata?.repository || "unknown";
+        const score = evidence.summary.score || 0;
+
+        console.log(`  ${statusIcon} ${repo}: ${score}/100`);
+        if (evidence.summary.issues.length > 0) {
+          evidence.summary.issues.slice(0, 3).forEach(issue => {
+            console.log(`      - ${issue}`);
+          });
+          if (evidence.summary.issues.length > 3) {
+            console.log(`      ... and ${evidence.summary.issues.length - 3} more issues`);
+          }
+        }
+        if (diff?.newIssues.length) {
+          console.log(`      NEW: ${diff.newIssues.join(", ")}`);
+        }
+        if (diff?.resolvedIssues.length) {
+          console.log(`      RESOLVED: ${diff.resolvedIssues.join(", ")}`);
+        }
+      }
+      console.log("\nEvidence saved to ~/.probo-agent/evidence/github/\n");
+    } catch (error) {
+      console.error("Scan failed:", error instanceof Error ? error.message : String(error));
+    }
+    return;
+  }
+
+  if (trimmed === "/scan status" || trimmed === "/scan all") {
+    const report = generateSummaryReport();
+    console.log("\nCompliance Scan Summary");
+    console.log("=======================\n");
+    for (const source of report.sources) {
+      const statusIcon = source.status === "pass" ? "✓" :
+                        source.status === "partial" ? "~" :
+                        source.status === "fail" ? "✗" : "?";
+      const lastCheck = source.lastCheck
+        ? new Date(source.lastCheck).toLocaleString()
+        : "Never";
+      console.log(`  ${statusIcon} ${source.name.padEnd(10)} Last: ${lastCheck}  Issues: ${source.issueCount}`);
+    }
+    console.log(`\nTotal issues: ${report.totalIssues}`);
+    console.log(`Overall status: ${report.overallStatus}\n`);
+    return;
+  }
+
+  // Evidence commands
+  if (trimmed === "/evidence" || trimmed === "/evidence help") {
+    console.log("\nEvidence commands:");
+    console.log("  /evidence list [source]  - List saved evidence records");
+    console.log("  /evidence summary        - Show compliance summary\n");
+    return;
+  }
+
+  if (trimmed.startsWith("/evidence list")) {
+    const source = trimmed.split(" ")[2];
+    const records = listEvidence({
+      source: source as "github" | "google" | "aws" | undefined,
+      limit: 20,
+    });
+
+    if (records.length === 0) {
+      console.log("\nNo evidence records found. Run /scan to collect evidence.\n");
+      return;
+    }
+
+    console.log("\nRecent Evidence Records:\n");
+    for (const record of records) {
+      const date = new Date(record.timestamp).toLocaleString();
+      const statusIcon = record.summary.status === "pass" ? "✓" :
+                        record.summary.status === "partial" ? "~" : "✗";
+      console.log(`  ${statusIcon} [${record.source}] ${record.type}`);
+      console.log(`    ${date} - Score: ${record.summary.score || "N/A"}, Issues: ${record.summary.issues.length}`);
+    }
+    console.log("");
     return;
   }
 

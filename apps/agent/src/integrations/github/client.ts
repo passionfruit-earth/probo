@@ -68,8 +68,9 @@ export class GitHubClient {
         `/repos/${owner}/${repo}/branches/${branch}/protection`
       );
     } catch (error) {
-      // 404 means no protection configured
-      if (error instanceof Error && error.message.includes("404")) {
+      // 404 = no protection configured
+      // 403 = feature not available (private repo without Pro)
+      if (error instanceof Error && (error.message.includes("404") || error.message.includes("403"))) {
         return null;
       }
       throw error;
@@ -86,8 +87,8 @@ export class GitHubClient {
         `/repos/${owner}/${repo}/dependabot/alerts?state=open&per_page=100`
       );
     } catch (error) {
-      // May not be enabled
-      if (error instanceof Error && error.message.includes("404")) {
+      // 404 = not found, 403 = disabled or not available
+      if (error instanceof Error && (error.message.includes("404") || error.message.includes("403"))) {
         return [];
       }
       throw error;
@@ -104,8 +105,8 @@ export class GitHubClient {
         `/repos/${owner}/${repo}/code-scanning/alerts?state=open&per_page=100`
       );
     } catch (error) {
-      // May not be enabled
-      if (error instanceof Error && error.message.includes("404")) {
+      // 404 = not found, 403 = disabled or not available
+      if (error instanceof Error && (error.message.includes("404") || error.message.includes("403"))) {
         return [];
       }
       throw error;

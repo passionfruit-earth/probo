@@ -27,8 +27,8 @@ We need **continuous evidence** from all vendors, not just point-in-time screens
 
 | Vendor | ISO Controls | What to Fetch | Auth | Status |
 |--------|--------------|---------------|------|--------|
-| **GitHub** | A.8.25-31 (Secure dev) | Branch protection, required reviews, security alerts, access | PAT | **DONE** |
-| **Google Workspace** | A.5.15-18 (Access), A.8.5 (Auth) | 2FA enforcement, SSO config, sharing settings, user list | OAuth2 | TODO |
+| **GitHub** | A.8.25-31 (Secure dev) | Branch protection, required reviews, security alerts, access | Device Flow OAuth | **DONE** |
+| **Google Workspace** | A.5.15-18 (Access), A.8.5 (Auth) | 2FA enforcement, SSO config, sharing settings, user list | OAuth2 | **DONE** |
 | **AWS** | A.8.20 (Networks), A.5.15 (Access) | IAM policies, security groups, CloudTrail config | Access Key | TODO |
 | **Slack** | A.5.14 (Info transfer) | Retention settings, external sharing, SSO, access | OAuth2 | TODO |
 | **Linear** | A.8.25 (Dev lifecycle) | Project access, integrations | OAuth2 | TODO |
@@ -37,30 +37,44 @@ We need **continuous evidence** from all vendors, not just point-in-time screens
 ### Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                    Probo Agent                               │
-│                                                              │
-│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐            │
-│  │   GitHub    │ │   Google    │ │    AWS      │  ...       │
-│  │   Client    │ │   Client    │ │   Client    │            │
-│  └──────┬──────┘ └──────┬──────┘ └──────┬──────┘            │
-│         │               │               │                    │
-│         └───────────────┴───────────────┘                    │
-│                         │                                    │
-│              ┌──────────▼──────────┐                        │
-│              │  Compliance Checker │                        │
-│              │  - Fetch settings   │                        │
-│              │  - Check policies   │                        │
-│              │  - Generate evidence│                        │
-│              └──────────┬──────────┘                        │
-│                         │                                    │
-│              ┌──────────▼──────────┐                        │
-│              │   Probo GraphQL     │                        │
-│              │   - Store evidence  │                        │
-│              │   - Update measures │                        │
-│              │   - Create alerts   │                        │
-│              └─────────────────────┘                        │
-└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│                      Probo Agent                                 │
+│                                                                  │
+│  ┌──────────────┐ ┌──────────────┐ ┌──────────────┐             │
+│  │   GitHub     │ │   Google     │ │    AWS       │  ...        │
+│  │   Client     │ │   Client     │ │   Client     │             │
+│  │  (OAuth ✓)   │ │   (OAuth)    │ │  (Keys)      │             │
+│  └──────┬───────┘ └──────┬───────┘ └──────┬───────┘             │
+│         │                │                │                      │
+│         └────────────────┴────────────────┘                      │
+│                          │                                       │
+│               ┌──────────▼──────────┐                           │
+│               │  Compliance Checker │                           │
+│               │  - Fetch settings   │                           │
+│               │  - Check policies   │                           │
+│               │  - Score compliance │                           │
+│               └──────────┬──────────┘                           │
+│                          │                                       │
+│         ┌────────────────┴────────────────┐                      │
+│         │                                 │                      │
+│  ┌──────▼───────┐                 ┌───────▼──────┐              │
+│  │ Local Store  │                 │ Probo GraphQL│              │
+│  │ ~/.probo-    │                 │ - Documents  │              │
+│  │  agent/      │                 │ - Measures   │              │
+│  │  evidence/   │                 │ - Risks      │              │
+│  │ (history)    │                 │ (audit trail)│              │
+│  └──────────────┘                 └──────────────┘              │
+└─────────────────────────────────────────────────────────────────┘
+
+Evidence Storage:
+~/.probo-agent/
+├── auth.json           # OAuth tokens (GitHub, etc.)
+└── evidence/
+    ├── github/         # GitHub compliance checks
+    │   ├── 2026-02-21T10-00-00Z_repo_owner_name.json
+    │   └── ...
+    ├── google/         # Google Workspace checks
+    └── aws/            # AWS compliance checks
 ```
 
 ### Implementation Plan
@@ -69,22 +83,32 @@ We need **continuous evidence** from all vendors, not just point-in-time screens
 - [x] GitHub API client (`apps/agent/src/integrations/github/`)
 - [x] Types for repos, branch protection, alerts, PRs
 - [x] Compliance check function
-- [ ] Add as agent tool
-- [ ] Evidence generation
+- [x] Device Flow OAuth (`/auth github`)
+- [x] Agent tools: `github_list_repos`, `github_check_compliance`, etc.
+- [x] Evidence storage and scoring
 
-#### Phase 2: Google Workspace
-- [ ] Google Admin SDK client
-- [ ] Fetch: 2FA status, SSO config, org units, users
-- [ ] Compliance checks for access control
-- [ ] Evidence generation
+#### Phase 2: Google Workspace (DONE)
+- [x] Google Admin SDK client (`apps/agent/src/integrations/google/`)
+- [x] Fetch: 2FA status, org units, users, groups, domains
+- [x] Compliance checks for access control
+- [x] Agent tools: `google_check_compliance`, `google_list_users`, etc.
+- [ ] Device Flow OAuth (currently uses access token)
 
-#### Phase 3: AWS
+#### Phase 3: Evidence System (DONE)
+- [x] Local evidence storage (`~/.probo-agent/evidence/`)
+- [x] Timestamped JSON records per check
+- [x] Diff detection (new issues, resolved issues)
+- [x] Summary report generation
+- [x] CLI commands: `/scan github`, `/scan status`, `/evidence list`
+- [ ] Push to Probo as Documents
+
+#### Phase 4: AWS (TODO)
 - [ ] AWS SDK integration
 - [ ] Fetch: IAM policies, security groups, CloudTrail
 - [ ] Compliance checks for infrastructure
 - [ ] Evidence generation
 
-#### Phase 4: Other Vendors
+#### Phase 5: Other Vendors
 - [ ] Slack integration
 - [ ] Linear integration
 - [ ] Hosting platforms (Vercel/Netlify)
@@ -100,20 +124,32 @@ For each integration, automatically generate:
 ### File Structure
 
 ```
-apps/agent/src/integrations/
-├── github/           # DONE
-│   ├── client.ts
-│   ├── types.ts
+apps/agent/src/
+├── agents/
+│   ├── compliance-agent.ts  # Main agent with tool execution
+│   ├── tools.ts             # All agent tools (GitHub, Google, Probo)
 │   └── index.ts
-├── google/           # TODO
-│   ├── client.ts
-│   ├── types.ts
+├── evidence/               # NEW: Evidence storage system
+│   ├── store.ts            # Local file-based evidence storage
+│   ├── checks.ts           # Compliance check runners
 │   └── index.ts
-├── aws/              # TODO
-│   ├── client.ts
-│   ├── types.ts
+├── integrations/
+│   ├── github/             # DONE
+│   │   ├── client.ts       # GitHub API client
+│   │   ├── auth.ts         # Device Flow OAuth
+│   │   ├── types.ts
+│   │   └── index.ts
+│   ├── google/             # DONE
+│   │   ├── client.ts       # Google Admin SDK client
+│   │   ├── types.ts
+│   │   └── index.ts
+│   └── aws/                # TODO
+│       ├── client.ts
+│       ├── types.ts
+│       └── index.ts
+├── client/                 # Probo GraphQL client
 │   └── index.ts
-└── index.ts          # Export all integrations
+└── index.ts               # CLI entry point
 ```
 
 ---
@@ -489,10 +525,11 @@ Agent:
 
 | Phase | Integration | ISO Controls | Status |
 |-------|-------------|--------------|--------|
-| 1 | **GitHub** | A.8.25-31 Secure dev | **DONE** (client) |
-| 2 | **Google Workspace** | A.5.15-18 Access control | TODO |
-| 3 | **AWS** | A.8.20 Infrastructure | TODO |
-| 4 | **Slack/Other** | Various | TODO |
+| 1 | **GitHub** | A.8.25-31 Secure dev | **DONE** (client + OAuth + evidence) |
+| 2 | **Google Workspace** | A.5.15-18 Access control | **DONE** (client + tools) |
+| 3 | **Evidence System** | All | **DONE** (local storage + CLI) |
+| 4 | **AWS** | A.8.20 Infrastructure | TODO |
+| 5 | **Slack/Other** | Various | TODO |
 
 ### Later (Platform Features)
 
@@ -518,6 +555,10 @@ Agent:
 
 | Date | Change | By |
 |------|--------|-----|
+| 2026-02-21 | Added evidence storage system (`apps/agent/src/evidence/`) | Claude |
+| 2026-02-21 | Added `/scan` and `/evidence` CLI commands | Claude |
+| 2026-02-21 | Google Workspace integration complete (client + tools) | Claude |
+| 2026-02-21 | GitHub Device Flow OAuth implemented (`/auth github`) | Claude |
 | 2026-02-21 | Restructured plan: Continuous Monitoring as Priority 0 | Claude |
 | 2026-02-21 | Added vendor integration matrix (GitHub, Google, AWS, Slack) | Claude |
 | 2026-02-21 | GitHub client completed in apps/agent/src/integrations/github/ | Claude |
