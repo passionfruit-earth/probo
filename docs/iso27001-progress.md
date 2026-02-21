@@ -99,12 +99,16 @@ We're using a **bottom-up approach**:
 
 | # | Gap | Control | Status | Assigned |
 |---|-----|---------|--------|----------|
-| 1 | Incident response plan | A.5.24 | NOT_STARTED | - |
-| 2 | Security event assessment process | A.5.25 | NOT_STARTED | - |
-| 3 | Incident response procedures | A.5.26 | NOT_STARTED | - |
-| 4 | Post-incident review process | A.5.27 | NOT_STARTED | - |
-| 5 | Business continuity plan | A.5.29 | NOT_STARTED | - |
-| 6 | ICT disaster recovery plan | A.5.30 | NOT_STARTED | - |
+| 1 | Incident response plan | A.5.24 | IMPLEMENTED | - |
+| 2 | Security event assessment process | A.5.25 | IMPLEMENTED | - |
+| 3 | Incident response procedures | A.5.26 | IMPLEMENTED | - |
+| 4 | Post-incident review process | A.5.27 | IMPLEMENTED | - |
+| 5 | Business continuity plan | A.5.29 | IMPLEMENTED | - |
+| 6 | ICT disaster recovery plan | A.5.30 | IMPLEMENTED | - |
+
+**Documents Created in Probo:**
+- Incident Response Plan (ID: `2delmZUAAAEACgAAAZyBB92Ti1ha589s`)
+- Business Continuity Plan (ID: `2delmZUAAAEACgAAAZyBCTbg73Nskffa`)
 
 ### Medium Priority Gaps
 
@@ -278,6 +282,7 @@ Security profiles gathered for 13 vendors (see `vendor-security-profiles.md`):
 
 | Date | Change | By |
 |------|--------|-----|
+| 2026-02-21 | Created Incident Response Plan and BCP in Probo | Claude/Passionfruit |
 | 2026-02-21 | Added vendor security profiles | Claude/Passionfruit |
 | 2026-02-21 | Added full ISO 27001 clause structure | Claude/Passionfruit |
 | 2026-02-21 | Initial creation, Phase 1 completed | Claude/Passionfruit |
